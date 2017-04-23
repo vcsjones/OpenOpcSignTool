@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>net462</TargetFrameworks>
+    <AssemblyName>OpenVsixSignTool</AssemblyName>
+    <OutputType>Exe</OutputType>
+    <PackageId>OpenVsixSignTool</PackageId>
+    <VersionPrefix>0.1.0</VersionPrefix>
+    <Authors>Kevin Jones</Authors>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System" />
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.IO.Compression.FileSystem" />
+  </ItemGroup>
+</Project>
