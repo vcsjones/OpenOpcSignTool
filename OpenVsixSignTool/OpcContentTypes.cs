@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Xml.Linq;
 
 namespace OpenVsixSignTool
@@ -11,6 +12,7 @@ namespace OpenVsixSignTool
         Override
     }
 
+    [DebuggerDisplay("Extension = {Extension}; ContentType = {ContentType};")]
     public class OpcContentType
     {
         public string Extension { get; }

@@ -11,6 +11,8 @@
 
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="System.Security" />
+    
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.0.0" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.2.0" />
     <PackageReference Include="xunit" Version="2.2.0" />
@@ -18,12 +20,18 @@
     <ProjectReference Include="..\OpenVsixSignTool\OpenVsixSignTool.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="sample\" />
-  </ItemGroup>
-  <ItemGroup>
     <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
   </ItemGroup>
   <ItemGroup>
+    <None Update="sample\cert.pfx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="sample\sign.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="sample\VsVim-Signed.vsix">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="sample\VsVim.vsix">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

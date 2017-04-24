@@ -7,11 +7,15 @@
     <VersionPrefix>0.1.0</VersionPrefix>
     <Authors>Kevin Jones</Authors>
   </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="System.ValueTuple" Version="4.3.0" />
+  </ItemGroup>
 
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System" />
     <Reference Include="System.IO.Compression" />
     <Reference Include="System.IO.Compression.FileSystem" />
+    <Reference Include="System.Security" />
   </ItemGroup>
 </Project>
