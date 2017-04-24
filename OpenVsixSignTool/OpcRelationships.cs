@@ -60,7 +60,7 @@ namespace OpenVsixSignTool
             foreach (var relationship in _relationships)
             {
                 var element = new XElement(_opcRelationshipNamespace + "Relationship");
-                element.SetAttributeValue("Target", relationship.Target.LocalPath);
+                element.SetAttributeValue("Target", relationship.Target.ToQualifiedPath());
                 element.SetAttributeValue("Id", relationship.Id);
                 element.SetAttributeValue("Type", relationship.Type);
                 root.Add(element);

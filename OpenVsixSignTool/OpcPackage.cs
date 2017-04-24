@@ -87,7 +87,7 @@ namespace OpenVsixSignTool
 
         public OpcPart GetPart(Uri partUri)
         {
-            var path = GetEntryNameFromUri(partUri);
+            var path = partUri.ToPackagePath();
             if (_partTracker.ContainsKey(path))
             {
                 return _partTracker[path];
@@ -107,7 +107,7 @@ namespace OpenVsixSignTool
 
         public OpcPart CreatePart(Uri partUri, string mimeType)
         {
-            var path = GetEntryNameFromUri(partUri);
+            var path = partUri.ToPackagePath();
 
             if (_archive.GetEntry(path) != null)
             {
@@ -126,7 +126,7 @@ namespace OpenVsixSignTool
 
         public bool HasPart(Uri partUri)
         {
-            var path = GetEntryNameFromUri(partUri);
+            var path = partUri.ToPackagePath();
             return _archive.GetEntry(path) != null;
         }
 
@@ -179,7 +179,7 @@ namespace OpenVsixSignTool
             {
                 ContentTypes.Add(new OpcContentType("rels", OpcKnownMimeTypes.OpenXmlRelationship, OpcContentTypeMode.Default));
             }
-            var path = GetEntryNameFromUri(relationships.DocumentUri);
+            var path = relationships.DocumentUri.ToPackagePath();
             var entry = _archive.GetEntry(path) ?? _archive.CreateEntry(path);
             using (var stream = entry.Open())
             {
@@ -189,13 +189,6 @@ namespace OpenVsixSignTool
         }
 
         public OpcPackageSignatureBuilder CreateSignatureBuilder() => new OpcPackageSignatureBuilder(this);
-
-        private static string GetEntryNameFromUri(Uri partUri)
-        {
-            var absolute = partUri.IsAbsoluteUri ? partUri : new Uri(BasePackageUri, partUri);
-            var resolved = BasePackageUri.MakeRelativeUri(absolute);
-            return resolved.ToString();
-        }
 
         private OpcContentTypes ConstructContentTypes()
         {

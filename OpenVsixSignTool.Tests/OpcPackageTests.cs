@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Packaging;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
+using System.Xml;
 using Xunit;
 
 namespace OpenVsixSignTool.Tests
@@ -87,7 +89,7 @@ namespace OpenVsixSignTool.Tests
             using (var package = OpcPackage.Open(@"sample\VsVim.vsix"))
             {
                 var parts = package.GetParts().ToArray();
-                Assert.Equal(21, parts.Length);
+                Assert.Equal(20, parts.Length);
             }
         }
 
@@ -121,7 +123,8 @@ namespace OpenVsixSignTool.Tests
         [Fact]
         public void ShouldSignFile()
         {
-            using (var package = ShadowCopyPackage(@"sample\VsVim.vsix", out _, OpcPackageFileMode.ReadWrite))
+            string path;
+            using (var package = ShadowCopyPackage(@"sample\VsVim-vs2015.vsix", out path, OpcPackageFileMode.ReadWrite))
             {
                 var builder = package.CreateSignatureBuilder();
                 foreach(var part in package.GetParts())
@@ -130,6 +133,25 @@ namespace OpenVsixSignTool.Tests
                 }
                 builder.Sign(HashAlgorithmName.SHA256, new X509Certificate2("sample\\cert.pfx", "test"));
                 package.Flush();
+            }
+            using (var netfxPackage = Package.Open(path, FileMode.Open))
+            {
+                var signatureManager = new PackageDigitalSignatureManager(netfxPackage);
+                Assert.Equal(VerifyResult.Success, signatureManager.VerifySignatures(true));
+                if (signatureManager.Signatures.Count != 1 || signatureManager.Signatures[0].SignedParts.Count != netfxPackage.GetParts().Count<PackagePart>() - 1)
+                {
+                    Assert.True(false, "Missing parts");
+                }
+                var packageSignature = signatureManager.Signatures[0];
+                Assert.Equal("http://www.w3.org/2001/04/xmldsig-more#rsa-sha256", packageSignature.Signature.SignedInfo.SignatureMethod);
+                X509Chain x509Chain = new X509Chain();
+                x509Chain.ChainPolicy.RevocationFlag = X509RevocationFlag.ExcludeRoot;
+                x509Chain.ChainPolicy.RevocationMode = X509RevocationMode.Online;
+                //if (flag && this.certificate.NotBefore < timeStamp && (this.certificate.NotAfter > timeStamp && this.certificate.NotAfter < DateTime.Now))
+                //    x509Chain.ChainPolicy.VerificationFlags |= X509VerificationFlags.IgnoreNotTimeValid;
+                Oid oid = new Oid("1.3.6.1.5.5.7.3.3");
+                x509Chain.ChainPolicy.ApplicationPolicy.Add(oid);
+                Assert.True(x509Chain.Build(new X509Certificate2(packageSignature.Signer)));
             }
         }
 

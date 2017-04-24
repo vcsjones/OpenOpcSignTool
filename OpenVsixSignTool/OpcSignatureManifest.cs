@@ -13,12 +13,12 @@ namespace OpenVsixSignTool
             _digests = digests;
         }
 
-        public static OpcSignatureManifest Build(HashAlgorithmName algorithmName, IEnumerable<OpcPart> parts)
+        public static OpcSignatureManifest Build(SigningContext context, IEnumerable<OpcPart> parts)
         {
             var digests = new List<OpcPartDigest>();
             foreach (var part in parts)
             {
-                var (digest, identifier) = OpcPartDigestProcessor.Digest(part, algorithmName);
+                var (digest, identifier) = OpcPartDigestProcessor.Digest(part, context.FileDigestAlgorithmName);
                 var builder = new UriBuilder(part.Uri);
                 builder.Query = "ContentType=" + part.ContentType;
                 digests.Add(new OpcPartDigest(builder.Uri, identifier, digest));

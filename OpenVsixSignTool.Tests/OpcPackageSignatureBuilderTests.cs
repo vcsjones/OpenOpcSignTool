@@ -15,17 +15,6 @@ namespace OpenVsixSignTool.Tests
     public class OpcPackageSignatureBuilderTests
     {
         [Fact]
-        public void Garbage()
-        {
-            var uri1 = new Uri("package:///test/bac.ps", UriKind.Absolute);
-            var baseUri = new Uri("package:///", UriKind.Absolute);
-            var result = baseUri.MakeRelativeUri(uri1);
-            Console.WriteLine(result);
-        }
-
-
-
-        [Fact]
         public void Garbageest()
         {
 

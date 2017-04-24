@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
+using System.Xml;
 
 namespace OpenVsixSignTool
 {
@@ -42,7 +43,7 @@ namespace OpenVsixSignTool
         public object Sign(HashAlgorithmName fileDigestAlgorithm, X509Certificate2 certificate)
         {
             var originFileUri = new Uri("package:///package/services/digital-signature/origin.psdor", UriKind.Absolute);
-            string signatureUriRoot = "package:///package/services/digital-signature/xml-signature/";
+            var signatureUriRoot = new Uri("package:///package/services/digital-signature/xml-signature/", UriKind.Absolute);
             var originFileRelationship = _package.Relationships.FirstOrDefault(r => r.Type.Equals(OpcKnownUris.DigitalSignatureOrigin));
 
             OpcPart originFile;
@@ -65,7 +66,7 @@ namespace OpenVsixSignTool
             }
             else
             {
-                var target = new Uri(signatureUriRoot + certificate.GetCertHashString() + ".psdsxs", UriKind.Absolute);
+                var target = new Uri(signatureUriRoot, certificate.GetCertHashString() + ".psdsxs");
                 signatureFile = _package.GetPart(target) ?? _package.CreatePart(target, OpcKnownMimeTypes.DigitalSignatureSignature);
                 originFile.Relationships.Add(new OpcRelationship(target, OpcKnownUris.DigitalSignatureSignature));
             }
@@ -75,8 +76,23 @@ namespace OpenVsixSignTool
             allParts.Add(originFile);
             allParts.Add(_package.GetPart(_package.Relationships.DocumentUri));
             allParts.Add(_package.GetPart(originFile.Relationships.DocumentUri));
-            var fileManifest = OpcSignatureManifest.Build(fileDigestAlgorithm, allParts);
-            var signature = new OpcXmlSignature(fileManifest, certificate);
+
+            using (var signingContext = new SigningContext(certificate, fileDigestAlgorithm, fileDigestAlgorithm))
+            {
+                var fileManifest = OpcSignatureManifest.Build(signingContext, allParts);
+                var builder = new XmlSignatureBuilder(signingContext);
+                builder.SetFileManifest(fileManifest);
+                var result = builder.Build();
+                using (var copySignatureStream = signatureFile.Open())
+                {
+                    using (var xmlWriter = new XmlTextWriter(copySignatureStream, System.Text.Encoding.UTF8))
+                    {
+                        //The .NET implementation of OPC used by Visual Studio does not tollerate "white space" nodes.
+                        xmlWriter.Formatting = Formatting.None;
+                        result.Save(xmlWriter);
+                    }
+                }
+            }
             return null;
         }
     }

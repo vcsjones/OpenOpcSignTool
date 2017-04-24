@@ -12,6 +12,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System.Security" />
+    <Reference Include="WindowsBase" />
     
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.0.0" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.2.0" />
@@ -30,6 +31,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="sample\VsVim-Signed.vsix">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="sample\VsVim-vs2015.vsix">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="sample\VsVim.vsix">
