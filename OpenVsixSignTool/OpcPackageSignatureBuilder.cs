@@ -39,8 +39,7 @@ namespace OpenVsixSignTool
         /// </summary>
         /// <param name="fileDigestAlgorithm">The hash algorithm used to digest the files. The recommended value is <see cref="HashAlgorithmName.SHA256"/>.</param>
         /// <param name="certificate">The certificate to sign with.</param>
-        /// <returns></returns>
-        public object Sign(HashAlgorithmName fileDigestAlgorithm, X509Certificate2 certificate)
+        public void Sign(HashAlgorithmName fileDigestAlgorithm, X509Certificate2 certificate)
         {
             var originFileUri = new Uri("package:///package/services/digital-signature/origin.psdor", UriKind.Absolute);
             var signatureUriRoot = new Uri("package:///package/services/digital-signature/xml-signature/", UriKind.Absolute);
@@ -93,7 +92,8 @@ namespace OpenVsixSignTool
                     }
                 }
             }
-            return null;
+            _package.Flush();
         }
     }
+
 }

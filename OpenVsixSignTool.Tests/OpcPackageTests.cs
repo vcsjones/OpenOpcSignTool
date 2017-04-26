@@ -127,7 +127,7 @@ namespace OpenVsixSignTool.Tests
             using (var package = ShadowCopyPackage(@"sample\VsVim-vs2015.vsix", out path, OpcPackageFileMode.ReadWrite))
             {
                 var builder = package.CreateSignatureBuilder();
-                foreach(var part in package.GetParts())
+                foreach (var part in package.GetParts())
                 {
                     builder.EnqueuePart(part);
                 }
@@ -152,6 +152,24 @@ namespace OpenVsixSignTool.Tests
                 Oid oid = new Oid("1.3.6.1.5.5.7.3.3");
                 x509Chain.ChainPolicy.ApplicationPolicy.Add(oid);
                 Assert.True(x509Chain.Build(new X509Certificate2(packageSignature.Signer)));
+            }
+        }
+
+        [Fact]
+        public void ShouldTimestampFile()
+        {
+            string path;
+            using (var package = ShadowCopyPackage(@"sample\VsVim-vs2015.vsix", out path, OpcPackageFileMode.ReadWrite))
+            {
+                var signerBuilder = package.CreateSignatureBuilder();
+                foreach (var part in package.GetParts())
+                {
+                    signerBuilder.EnqueuePart(part);
+                }
+                signerBuilder.Sign(HashAlgorithmName.SHA256, new X509Certificate2("sample\\cert.pfx", "test"));
+
+                var timestampBuilder = package.CreateTimestampBuilder();
+                timestampBuilder.Sign(new Uri("http://timestamp.digicert.com"), HashAlgorithmName.SHA256);
             }
         }
 

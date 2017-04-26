@@ -12,13 +12,33 @@ namespace OpenVsixSignTool
         Override
     }
 
+    /// <summary>
+    /// Represents a content type defined in a package.
+    /// </summary>
     [DebuggerDisplay("Extension = {Extension}; ContentType = {ContentType};")]
     public class OpcContentType
     {
+        /// <summary>
+        /// The extension, without a leading period, of the content type.
+        /// </summary>
         public string Extension { get; }
+
+        /// <summary>
+        /// The MIME type of the content.
+        /// </summary>
         public string ContentType { get; }
+
+        /// <summary>
+        /// The mode of the content type. This can override a previously defined content type.
+        /// </summary>
         public OpcContentTypeMode Mode { get; }
 
+        /// <summary>
+        /// Creates a new instance of a content type.
+        /// </summary>
+        /// <param name="extension">The extension, without a leading peroid, of the content type.</param>
+        /// <param name="contentType">The MIME type of the content.</param>
+        /// <param name="mode">The mode within the content type.</param>
         public OpcContentType(string extension, string contentType, OpcContentTypeMode mode)
         {
             Extension = extension;
@@ -27,6 +47,9 @@ namespace OpenVsixSignTool
         }
     }
 
+    /// <summary>
+    /// Represents a collection of content types in a package.
+    /// </summary>
     public class OpcContentTypes : IList<OpcContentType>
     {
         private static readonly XNamespace _opcContentTypeNamespace = "http://schemas.openxmlformats.org/package/2006/content-types";
@@ -47,6 +70,10 @@ namespace OpenVsixSignTool
             }
         }
 
+        /// <summary>
+        /// Creates an XML representation of the content types to be placed in the package.
+        /// </summary>
+        /// <returns>An XML document representing the content types.</returns>
         public XDocument ToXml()
         {
             XName TranslateToElementName(OpcContentTypeMode mode)
@@ -85,6 +112,11 @@ namespace OpenVsixSignTool
             _contentTypes.Add(new OpcContentType(element.Attribute("Extension").Value, element.Attribute("ContentType").Value, mode));
         }
 
+        /// <summary>
+        /// Gets or sets a content type item by index.
+        /// </summary>
+        /// <param name="index">The index in the collection.</param>
+        /// <returns>A content type instance.</returns>
         public OpcContentType this[int index]
         {
             get => _contentTypes[index];
@@ -96,8 +128,16 @@ namespace OpenVsixSignTool
             }
         }
 
+
+        /// <summary>
+        /// Gets the number of content types.
+        /// </summary>
         public int Count => _contentTypes.Count;
 
+        /// <summary>
+        /// True if the content type collection is read only. This will be true if the package was opened in a read
+        /// only mode. Attempting to modify the content types will result in an exception.
+        /// </summary>
         public bool IsReadOnly { get; }
 
         public void Add(OpcContentType item)

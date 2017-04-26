@@ -189,6 +189,7 @@ namespace OpenVsixSignTool
         }
 
         public OpcPackageSignatureBuilder CreateSignatureBuilder() => new OpcPackageSignatureBuilder(this);
+        public OpcPackageTimestampBuilder CreateTimestampBuilder() => new OpcPackageTimestampBuilder(this);
 
         private OpcContentTypes ConstructContentTypes()
         {

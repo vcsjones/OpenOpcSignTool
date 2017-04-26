@@ -16,6 +16,11 @@ namespace OpenVsixSignTool
         private const int FIRST_OCTET_OFFSET = 2;
         private const int VLQ_DATA_OFFSET = 3;
 
+        /// <summary>
+        /// Reads a DER encoded OID.
+        /// </summary>
+        /// <param name="data">A TLV triplet of the OID. This is the tag, data length, and the VLQ data.</param>
+        /// <returns>An instance of a <see cref="Oid"/>.</returns>
         public static Oid ReadFromBytes(byte[] data)
         {
             if (data == null || data.Length < FIRST_OCTET_OFFSET)
