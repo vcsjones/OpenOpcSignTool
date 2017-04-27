@@ -35,6 +35,15 @@ namespace OpenVsixSignTool
         public bool DequeuePart(OpcPart part) => _enqueuedParts.Remove(part);
 
         /// <summary>
+        /// Enqueues a list of parts that are known for a standard configuration.
+        /// </summary>
+        /// <typeparam name="TPreset">The type of preset to enqueue.</typeparam>
+        public void EnqueueNamedPreset<TPreset>() where TPreset : ISignatureBuilderPreset, new()
+        {
+            _enqueuedParts.AddRange(new TPreset().GetPartsForSigning(_package));
+        }
+
+        /// <summary>
         /// Creates a signature from the enqueued parts.
         /// </summary>
         /// <param name="fileDigestAlgorithm">The hash algorithm used to digest the files. The recommended value is <see cref="HashAlgorithmName.SHA256"/>.</param>
@@ -95,5 +104,4 @@ namespace OpenVsixSignTool
             _package.Flush();
         }
     }
-
 }
