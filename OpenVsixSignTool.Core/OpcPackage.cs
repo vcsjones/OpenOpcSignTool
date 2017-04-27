@@ -1,14 +1,15 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Xml.Linq;
 
 namespace OpenVsixSignTool
 {
+    /// <summary>
+    /// Allow manipulating and signing an OPC package, such as a VSIX.
+    /// </summary>
     public class OpcPackage : IDisposable
     {
         internal static readonly Uri BasePackageUri = new Uri("package:///", UriKind.Absolute);
@@ -23,6 +24,12 @@ namespace OpenVsixSignTool
         private OpcRelationships _relationships;
         private Dictionary<string, OpcPart> _partTracker;
 
+        /// <summary>
+        /// Opens an OPC package.
+        /// </summary>
+        /// <param name="path">The path to the OPC package.</param>
+        /// <param name="mode">The mode of the OPC package. Read allows the package to be inspected, but not changed.</param>
+        /// <returns>An instance of an <see cref="OpcPackage"/>.</returns>
         public static OpcPackage Open(string path, OpcPackageFileMode mode = OpcPackageFileMode.Read)
         {
             var zipMode = GetZipModeFromOpcPackageMode(mode);
@@ -38,6 +45,9 @@ namespace OpenVsixSignTool
             _partTracker = new Dictionary<string, OpcPart>();
         }
 
+        /// <summary>
+        /// A collection of content types that are known and registered within the package.
+        /// </summary>
         public OpcContentTypes ContentTypes
         {
             get
@@ -50,6 +60,9 @@ namespace OpenVsixSignTool
             }
         }
 
+        /// <summary>
+        /// Closes the OPC package, and finishes all pending write operations.
+        /// </summary>
         public void Dispose()
         {
             if (!_disposed)
@@ -85,6 +98,11 @@ namespace OpenVsixSignTool
             }
         }
 
+        /// <summary>
+        /// Gets a part by URI.
+        /// </summary>
+        /// <param name="partUri">A relative URI to the part.</param>
+        /// <returns>An instance of <see cref="OpcPart"/>, or null if the part cannot be found.</returns>
         public OpcPart GetPart(Uri partUri)
         {
             var path = partUri.ToPackagePath();
@@ -105,6 +123,12 @@ namespace OpenVsixSignTool
             }
         }
 
+        /// <summary>
+        /// Creates a new part.
+        /// </summary>
+        /// <param name="partUri">A relative URI where the part will exist in the package.</param>
+        /// <param name="mimeType">The Content Type of the part. If the content type is not registered in the <see cref="ContentTypes"/>, it will automatically be added.</param>
+        /// <returns>An instance of the part just created.</returns>
         public OpcPart CreatePart(Uri partUri, string mimeType)
         {
             var path = partUri.ToPackagePath();
@@ -124,6 +148,11 @@ namespace OpenVsixSignTool
             return part;
         }
 
+        /// <summary>
+        /// Checks if a part already exists in the package.
+        /// </summary>
+        /// <param name="partUri">A relative URI of the part.</param>
+        /// <returns>True if the part exists, otherwise false.</returns>
         public bool HasPart(Uri partUri)
         {
             var path = partUri.ToPackagePath();
@@ -146,6 +175,9 @@ namespace OpenVsixSignTool
             }
         }
 
+        /// <summary>
+        /// Flushes all changes of the package to disk. This automatically occurs when the <see cref="OpcPackage"/> is disposed.
+        /// </summary>
         public void Flush()
         {
             foreach(var part in _partTracker.Values)
@@ -188,6 +220,10 @@ namespace OpenVsixSignTool
             }
         }
 
+        /// <summary>
+        /// Creates a signature builder for applying a digital signature to the package.
+        /// </summary>
+        /// <returns>A builder instance for configuring and applying a signature.</returns>
         public OpcPackageSignatureBuilder CreateSignatureBuilder() => new OpcPackageSignatureBuilder(this);
         public OpcPackageTimestampBuilder CreateTimestampBuilder() => new OpcPackageTimestampBuilder(this);
 

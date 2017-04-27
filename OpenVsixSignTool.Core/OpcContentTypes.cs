@@ -6,9 +6,19 @@ using System.Xml.Linq;
 
 namespace OpenVsixSignTool
 {
+    /// <summary>
+    /// Represents the mode of a content type.
+    /// </summary>
     public enum OpcContentTypeMode
     {
+        /// <summary>
+        /// This is a default content type.
+        /// </summary>
         Default,
+
+        /// <summary>
+        /// This is an overriding content type.
+        /// </summary>
         Override
     }
 
@@ -147,6 +157,9 @@ namespace OpenVsixSignTool
             _contentTypes.Add(item);
         }
 
+        /// <summary>
+        /// Removes all content types.
+        /// </summary>
         public void Clear()
         {
             AssertNotReadOnly();

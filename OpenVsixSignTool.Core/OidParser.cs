@@ -8,7 +8,7 @@ namespace OpenVsixSignTool
     /// <summary>
     /// Parses DER encoded OIDs.
     /// </summary>
-    public static class OidParser
+    internal static class OidParser
     {
         private const byte MAGIC_OID_VALUE = 6;
         private const int MAGIC_OID_OFFSET = 0;

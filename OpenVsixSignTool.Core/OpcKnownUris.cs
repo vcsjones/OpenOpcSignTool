@@ -2,7 +2,7 @@
 
 namespace OpenVsixSignTool
 {
-    public static class OpcKnownUris
+    internal static class OpcKnownUris
     {
         public static readonly Uri DigitalSignatureOrigin = new Uri("http://schemas.openxmlformats.org/package/2006/relationships/digital-signature/origin", UriKind.Absolute);
         public static readonly Uri DigitalSignatureSignature = new Uri("http://schemas.openxmlformats.org/package/2006/relationships/digital-signature/signature", UriKind.Absolute);
