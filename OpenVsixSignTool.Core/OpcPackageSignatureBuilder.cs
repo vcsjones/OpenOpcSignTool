@@ -5,7 +5,7 @@ using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Xml;
 
-namespace OpenVsixSignTool
+namespace OpenVsixSignTool.Core
 {
     /// <summary>
     /// A builder to sign an OPC package.
@@ -48,7 +48,7 @@ namespace OpenVsixSignTool
         /// </summary>
         /// <param name="fileDigestAlgorithm">The hash algorithm used to digest the files. The recommended value is <see cref="HashAlgorithmName.SHA256"/>.</param>
         /// <param name="certificate">The certificate to sign with.</param>
-        public void Sign(HashAlgorithmName fileDigestAlgorithm, X509Certificate2 certificate)
+        public OpcSignature Sign(HashAlgorithmName fileDigestAlgorithm, X509Certificate2 certificate)
         {
             var originFileUri = new Uri("package:///package/services/digital-signature/origin.psdor", UriKind.Absolute);
             var signatureUriRoot = new Uri("package:///package/services/digital-signature/xml-signature/", UriKind.Absolute);
@@ -102,6 +102,7 @@ namespace OpenVsixSignTool
                 }
             }
             _package.Flush();
+            return new OpcSignature(signatureFile);
         }
     }
 }

@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OpenVsixSignTool.Interop
+namespace OpenVsixSignTool.Core.Interop
 {
     internal static class Mssign32
     {

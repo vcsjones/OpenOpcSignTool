@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Security.Cryptography;
 
-namespace OpenVsixSignTool
+namespace OpenVsixSignTool.Core
 {
     /// <summary>
     /// Helper for translating a hash algorithm name to an instance of a hash algorithm and the

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 
-namespace OpenVsixSignTool
+namespace OpenVsixSignTool.Core
 {
     internal static class OpcPackageSignatureProbe
     {

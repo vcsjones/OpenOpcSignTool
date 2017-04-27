@@ -5,7 +5,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Xml.Linq;
 
-namespace OpenVsixSignTool
+namespace OpenVsixSignTool.Core
 {
     public class OpcRelationship
     {

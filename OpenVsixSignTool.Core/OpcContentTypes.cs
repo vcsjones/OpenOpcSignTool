@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Xml.Linq;
 
-namespace OpenVsixSignTool
+namespace OpenVsixSignTool.Core
 {
     /// <summary>
     /// Represents the mode of a content type.

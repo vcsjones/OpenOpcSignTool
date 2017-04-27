@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Security.Cryptography;
 
-namespace OpenVsixSignTool
+namespace OpenVsixSignTool.Core
 {
     internal class OpcPartDigestProcessor
     {

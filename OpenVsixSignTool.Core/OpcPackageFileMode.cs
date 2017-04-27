@@ -1,4 +1,4 @@
-﻿namespace OpenVsixSignTool
+﻿namespace OpenVsixSignTool.Core
 {
     /// <summary>
     /// Sets the mode of the package when opened.

@@ -8,7 +8,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Xml;
 using Xunit;
 
-namespace OpenVsixSignTool.Tests
+namespace OpenVsixSignTool.Core.Tests
 {
     public class OpcPackageTests : IDisposable
     {
@@ -138,7 +138,7 @@ namespace OpenVsixSignTool.Tests
             {
                 var signatureManager = new PackageDigitalSignatureManager(netfxPackage);
                 Assert.Equal(VerifyResult.Success, signatureManager.VerifySignatures(true));
-                if (signatureManager.Signatures.Count != 1 || signatureManager.Signatures[0].SignedParts.Count != netfxPackage.GetParts().Count<PackagePart>() - 1)
+                if (signatureManager.Signatures.Count != 1 || signatureManager.Signatures[0].SignedParts.Count != netfxPackage.GetParts().Count() - 1)
                 {
                     Assert.True(false, "Missing parts");
                 }
@@ -146,9 +146,8 @@ namespace OpenVsixSignTool.Tests
                 Assert.Equal("http://www.w3.org/2001/04/xmldsig-more#rsa-sha256", packageSignature.Signature.SignedInfo.SignatureMethod);
                 X509Chain x509Chain = new X509Chain();
                 x509Chain.ChainPolicy.RevocationFlag = X509RevocationFlag.ExcludeRoot;
-                x509Chain.ChainPolicy.RevocationMode = X509RevocationMode.Online;
-                //if (flag && this.certificate.NotBefore < timeStamp && (this.certificate.NotAfter > timeStamp && this.certificate.NotAfter < DateTime.Now))
-                //    x509Chain.ChainPolicy.VerificationFlags |= X509VerificationFlags.IgnoreNotTimeValid;
+                x509Chain.ChainPolicy.VerificationFlags = X509VerificationFlags.IgnoreEndRevocationUnknown;
+                x509Chain.ChainPolicy.RevocationMode = X509RevocationMode.Offline;
                 Oid oid = new Oid("1.3.6.1.5.5.7.3.3");
                 x509Chain.ChainPolicy.ApplicationPolicy.Add(oid);
                 Assert.True(x509Chain.Build(new X509Certificate2(packageSignature.Signer)));
@@ -162,13 +161,9 @@ namespace OpenVsixSignTool.Tests
             using (var package = ShadowCopyPackage(@"sample\VsVim-vs2015.vsix", out path, OpcPackageFileMode.ReadWrite))
             {
                 var signerBuilder = package.CreateSignatureBuilder();
-                foreach (var part in package.GetParts())
-                {
-                    signerBuilder.EnqueuePart(part);
-                }
-                signerBuilder.Sign(HashAlgorithmName.SHA256, new X509Certificate2("sample\\cert.pfx", "test"));
-
-                var timestampBuilder = package.CreateTimestampBuilder();
+                signerBuilder.EnqueueNamedPreset<VSIXSignatureBuilderPreset>();
+                var signature = signerBuilder.Sign(HashAlgorithmName.SHA256, new X509Certificate2("sample\\cert.pfx", "test"));
+                var timestampBuilder = signature.CreateTimestampBuilder();
                 timestampBuilder.Sign(new Uri("http://timestamp.digicert.com"), HashAlgorithmName.SHA256);
             }
         }

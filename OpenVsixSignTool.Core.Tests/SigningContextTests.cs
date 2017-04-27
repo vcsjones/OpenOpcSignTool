@@ -2,7 +2,7 @@
 using System.Security.Cryptography.X509Certificates;
 using Xunit;
 
-namespace OpenVsixSignTool.Tests
+namespace OpenVsixSignTool.Core.Tests
 {
     public class SigningContextTests
     {

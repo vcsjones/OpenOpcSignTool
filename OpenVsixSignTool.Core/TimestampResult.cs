@@ -1,4 +1,4 @@
-﻿namespace OpenVsixSignTool
+﻿namespace OpenVsixSignTool.Core
 {
     /// <summary>
     /// Indicates the status of the timestamp operation.

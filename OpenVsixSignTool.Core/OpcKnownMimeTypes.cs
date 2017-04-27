@@ -1,4 +1,4 @@
-﻿namespace OpenVsixSignTool
+﻿namespace OpenVsixSignTool.Core
 {
     internal class OpcKnownMimeTypes
     {

@@ -1,4 +1,4 @@
-﻿using OpenVsixSignTool.Interop;
+﻿using OpenVsixSignTool.Core.Interop;
 using System;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
@@ -6,18 +6,18 @@ using System.Xml;
 using System.Xml.Linq;
 using System.Xml.XPath;
 
-namespace OpenVsixSignTool
+namespace OpenVsixSignTool.Core
 {
     /// <summary>
     /// A builder for adding timestamps to a package.
     /// </summary>
     public class OpcPackageTimestampBuilder
     {
-        private readonly OpcPackage _package;
+        private readonly OpcPart _part;
 
-        internal OpcPackageTimestampBuilder(OpcPackage package)
+        internal OpcPackageTimestampBuilder(OpcPart part)
         {
-            _package = package;
+            _part = part;
             Timeout = TimeSpan.FromSeconds(30);
         }
 
@@ -43,11 +43,6 @@ namespace OpenVsixSignTool
             {
                 throw new ArgumentException("The timestamp server must be an absolute URI.", nameof(timestampServer));
             }
-            var signaturePart = _package.GetSignaturePart();
-            if (signaturePart == null)
-            {
-                return TimestampResult.PackageNotSigned;
-            }
             var oid = HashAlgorithmTranslator.TranslateFromNameToOid(timestampAlgorithm);
             using (var nonce = new TimestampNonceFactory())
             {
@@ -57,7 +52,7 @@ namespace OpenVsixSignTool
                 parameters.Nonce.cbData = nonce.Size;
                 parameters.Nonce.pbData = nonce.Nonce;
                 parameters.pszTSAPolicyId = null;
-                var (signatureDocument, timestampSubject) = GetSignatureToTimestamp(signaturePart);
+                var (signatureDocument, timestampSubject) = GetSignatureToTimestamp(_part);
                 var winResult = Crypt32.CryptRetrieveTimeStamp(
                     timestampServer.AbsoluteUri,
                     CryptRetrieveTimeStampRetrievalFlags.NONE,
@@ -87,7 +82,7 @@ namespace OpenVsixSignTool
                         var structure = Marshal.PtrToStructure<CRYPT_TIMESTAMP_CONTEXT>(context.DangerousGetHandle());
                         var encoded = new byte[structure.cbEncoded];
                         Marshal.Copy(structure.pbEncoded, encoded, 0, encoded.Length);
-                        ApplyTimestamp(signatureDocument, signaturePart, encoded);
+                        ApplyTimestamp(signatureDocument, _part, encoded);
                         return TimestampResult.Success;
                     }
                     finally

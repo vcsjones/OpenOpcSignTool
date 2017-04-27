@@ -5,7 +5,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Xml.Linq;
 
-namespace OpenVsixSignTool
+namespace OpenVsixSignTool.Core
 {
     /// <summary>
     /// Allow manipulating and signing an OPC package, such as a VSIX.
@@ -225,7 +225,6 @@ namespace OpenVsixSignTool
         /// </summary>
         /// <returns>A builder instance for configuring and applying a signature.</returns>
         public OpcPackageSignatureBuilder CreateSignatureBuilder() => new OpcPackageSignatureBuilder(this);
-        public OpcPackageTimestampBuilder CreateTimestampBuilder() => new OpcPackageTimestampBuilder(this);
 
         private OpcContentTypes ConstructContentTypes()
         {

@@ -1,9 +1,9 @@
-﻿using OpenVsixSignTool.Interop;
+﻿using OpenVsixSignTool.Core.Interop;
 using System;
 using System.Runtime.InteropServices;
 using Xunit;
 
-namespace OpenVsixSignTool.Tests
+namespace OpenVsixSignTool.Core.Tests
 {
     public class Crypt32Tests
     {

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace OpenVsixSignTool
+namespace OpenVsixSignTool.Core
 {
     /// <summary>
     /// The preset for VSIX files.

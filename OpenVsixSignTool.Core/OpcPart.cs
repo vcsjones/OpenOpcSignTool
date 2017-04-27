@@ -4,7 +4,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Xml.Linq;
 
-namespace OpenVsixSignTool
+namespace OpenVsixSignTool.Core
 {
     public class OpcPart : IEquatable<OpcPart>
     {

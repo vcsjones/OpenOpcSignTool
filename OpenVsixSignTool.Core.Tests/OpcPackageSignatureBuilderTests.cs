@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using Xunit;
 
-namespace OpenVsixSignTool.Tests
+namespace OpenVsixSignTool.Core.Tests
 {
     public class OpcPackageSignatureBuilderTests
     {

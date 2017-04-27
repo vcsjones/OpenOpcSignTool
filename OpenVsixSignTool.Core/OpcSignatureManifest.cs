@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Security.Cryptography;
 
-namespace OpenVsixSignTool
+namespace OpenVsixSignTool.Core
 {
     internal class OpcSignatureManifest
     {

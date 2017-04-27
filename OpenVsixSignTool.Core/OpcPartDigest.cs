@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace OpenVsixSignTool
+namespace OpenVsixSignTool.Core
 {
     internal class OpcPartDigest
     {

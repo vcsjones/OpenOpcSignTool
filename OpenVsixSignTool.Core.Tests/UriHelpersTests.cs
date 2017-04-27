@@ -1,7 +1,7 @@
 ﻿using System;
 using Xunit;
 
-namespace OpenVsixSignTool.Tests
+namespace OpenVsixSignTool.Core.Tests
 {
     public class UriHelpersTests
     {
