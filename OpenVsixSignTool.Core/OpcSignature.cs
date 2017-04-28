@@ -18,9 +18,6 @@ namespace OpenVsixSignTool.Core
 
         }
 
-        public OpcPackageTimestampBuilder CreateTimestampBuilder()
-        {
-            return new OpcPackageTimestampBuilder(_signaturePart);
-        }
+        public OpcPackageTimestampBuilder CreateTimestampBuilder() => new OpcPackageTimestampBuilder(_signaturePart);
     }
 }

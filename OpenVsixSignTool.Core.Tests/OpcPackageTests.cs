@@ -127,10 +127,7 @@ namespace OpenVsixSignTool.Core.Tests
             using (var package = ShadowCopyPackage(@"sample\VsVim-vs2015.vsix", out path, OpcPackageFileMode.ReadWrite))
             {
                 var builder = package.CreateSignatureBuilder();
-                foreach (var part in package.GetParts())
-                {
-                    builder.EnqueuePart(part);
-                }
+                builder.EnqueueNamedPreset<VSIXSignatureBuilderPreset>();
                 builder.Sign(HashAlgorithmName.SHA256, new X509Certificate2("sample\\cert.pfx", "test"));
                 package.Flush();
             }

@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "OpenVsixSignTool": {
+      "commandName": "Project",
+      "commandLineArgs": "sign --sha1 7213125958254779abbaa5033a12fecdf2c7cdc8 --timestamp http://timestamp.digicert.com -ta sha256 -fd sha256 C:\\Users\\Administrator\\Desktop\\VsVim-vs2015.vsix"
+    }
+  }
+}

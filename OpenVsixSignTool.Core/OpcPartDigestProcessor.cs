@@ -9,8 +9,11 @@ namespace OpenVsixSignTool.Core
         {
             using (var hashAlgorithm = HashAlgorithmTranslator.TranslateFromNameToxmlDSigUri(algorithmName, out var identifier))
             {
-                var digest = hashAlgorithm.ComputeHash(part.Open());
-                return (digest, identifier);
+                using (var partStream = part.Open())
+                {
+                    var digest = hashAlgorithm.ComputeHash(partStream);
+                    return (digest, identifier);
+                }
             }
         }
     }
