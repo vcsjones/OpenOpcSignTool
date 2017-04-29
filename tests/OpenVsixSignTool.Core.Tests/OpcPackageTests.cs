@@ -120,50 +120,6 @@ namespace OpenVsixSignTool.Core.Tests
         }
 
         [Fact]
-        public void ShouldSignFile()
-        {
-            string path;
-            using (var package = ShadowCopyPackage(SamplePackage, out path, OpcPackageFileMode.ReadWrite))
-            {
-                var builder = package.CreateSignatureBuilder();
-                builder.EnqueueNamedPreset<VSIXSignatureBuilderPreset>();
-                builder.Sign(HashAlgorithmName.SHA256, new X509Certificate2(@"certs\\rsa-2048-sha256.pfx", "test"));
-                package.Flush();
-            }
-            using (var netfxPackage = Package.Open(path, FileMode.Open))
-            {
-                var signatureManager = new PackageDigitalSignatureManager(netfxPackage);
-                Assert.Equal(VerifyResult.Success, signatureManager.VerifySignatures(true));
-                if (signatureManager.Signatures.Count != 1 || signatureManager.Signatures[0].SignedParts.Count != netfxPackage.GetParts().Count() - 1)
-                {
-                    Assert.True(false, "Missing parts");
-                }
-                var packageSignature = signatureManager.Signatures[0];
-                Assert.Equal("http://www.w3.org/2001/04/xmldsig-more#rsa-sha256", packageSignature.Signature.SignedInfo.SignatureMethod);
-                X509Chain x509Chain = new X509Chain();
-                x509Chain.ChainPolicy.RevocationFlag = X509RevocationFlag.ExcludeRoot;
-                x509Chain.ChainPolicy.VerificationFlags = X509VerificationFlags.IgnoreEndRevocationUnknown | X509VerificationFlags.AllowUnknownCertificateAuthority;
-                x509Chain.ChainPolicy.RevocationMode = X509RevocationMode.Offline;
-                Oid oid = new Oid("1.3.6.1.5.5.7.3.3");
-                x509Chain.ChainPolicy.ApplicationPolicy.Add(oid);
-                Assert.True(x509Chain.Build(new X509Certificate2(packageSignature.Signer)));
-            }
-        }
-
-        [Fact]
-        public void ShouldTimestampFile()
-        {
-            using (var package = ShadowCopyPackage(SamplePackage, out _, OpcPackageFileMode.ReadWrite))
-            {
-                var signerBuilder = package.CreateSignatureBuilder();
-                signerBuilder.EnqueueNamedPreset<VSIXSignatureBuilderPreset>();
-                var signature = signerBuilder.Sign(HashAlgorithmName.SHA256, new X509Certificate2("certs\\rsa-2048-sha256.pfx", "test"));
-                var timestampBuilder = signature.CreateTimestampBuilder();
-                timestampBuilder.Sign(new Uri("http://timestamp.digicert.com"), HashAlgorithmName.SHA256);
-            }
-        }
-
-        [Fact]
         public void ShouldReturnEmptyEnumerableForNoSignatureOriginRelationship()
         {
             using (var package = OpcPackage.Open(SamplePackage, OpcPackageFileMode.Read))
