@@ -226,6 +226,33 @@ namespace OpenVsixSignTool.Core
         /// <returns>A builder instance for configuring and applying a signature.</returns>
         public OpcPackageSignatureBuilder CreateSignatureBuilder() => new OpcPackageSignatureBuilder(this);
 
+        /// <summary>
+        /// Enumerates over all of the signatures in the package.
+        /// </summary>
+        /// <returns>An enumerable collection of signatures in the package.</returns>
+        public IEnumerable<OpcSignature> GetSignatures()
+        {
+            var originFileRelationship = Relationships.FirstOrDefault(r => r.Type.Equals(OpcKnownUris.DigitalSignatureOrigin));
+            if (originFileRelationship == null)
+            {
+                yield break;
+            }
+            var originPart = GetPart(originFileRelationship.Target);
+            if (originPart == null)
+            {
+                yield break;
+            }
+            foreach (var signatureRelationship in originPart.Relationships.Where(r => r.Type.Equals(OpcKnownUris.DigitalSignatureSignature)))
+            {
+                var signaturePart = GetPart(signatureRelationship.Target);
+                if (signaturePart == null)
+                {
+                    continue;
+                }
+                yield return new OpcSignature(signaturePart);
+            }
+        }
+
         private OpcContentTypes ConstructContentTypes()
         {
             var entry = _archive.GetEntry(CONTENT_TYPES_XML);
