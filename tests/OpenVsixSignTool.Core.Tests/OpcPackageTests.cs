@@ -143,7 +143,7 @@ namespace OpenVsixSignTool.Core.Tests
                 Assert.Equal("http://www.w3.org/2001/04/xmldsig-more#rsa-sha256", packageSignature.Signature.SignedInfo.SignatureMethod);
                 X509Chain x509Chain = new X509Chain();
                 x509Chain.ChainPolicy.RevocationFlag = X509RevocationFlag.ExcludeRoot;
-                x509Chain.ChainPolicy.VerificationFlags = X509VerificationFlags.IgnoreEndRevocationUnknown;
+                x509Chain.ChainPolicy.VerificationFlags = X509VerificationFlags.IgnoreEndRevocationUnknown | X509VerificationFlags.AllowUnknownCertificateAuthority;
                 x509Chain.ChainPolicy.RevocationMode = X509RevocationMode.Offline;
                 Oid oid = new Oid("1.3.6.1.5.5.7.3.3");
                 x509Chain.ChainPolicy.ApplicationPolicy.Add(oid);
