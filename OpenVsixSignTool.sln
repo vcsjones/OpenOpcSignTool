@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26403.7
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenVsixSignTool.Core", "OpenVsixSignTool.Core\OpenVsixSignTool.Core.csproj", "{351BD833-DE64-4042-9ADE-343825443A36}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenVsixSignTool.Core", "src\OpenVsixSignTool.Core\OpenVsixSignTool.Core.csproj", "{351BD833-DE64-4042-9ADE-343825443A36}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenVsixSignTool.Core.Tests", "OpenVsixSignTool.Core.Tests\OpenVsixSignTool.Core.Tests.csproj", "{F2E16674-87EA-4460-9456-50F6C5F10302}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenVsixSignTool.Core.Tests", "tests\OpenVsixSignTool.Core.Tests\OpenVsixSignTool.Core.Tests.csproj", "{F2E16674-87EA-4460-9456-50F6C5F10302}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenVsixSignTool", "OpenVsixSignTool\OpenVsixSignTool.csproj", "{E2F61A10-A5A3-478D-BE78-2059154D0930}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenVsixSignTool", "src\OpenVsixSignTool\OpenVsixSignTool.csproj", "{E2F61A10-A5A3-478D-BE78-2059154D0930}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
