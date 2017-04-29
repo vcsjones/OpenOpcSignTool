@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace OpenVsixSignTool.Core
 {
@@ -10,15 +11,13 @@ namespace OpenVsixSignTool.Core
     {
         IEnumerable<OpcPart> ISignatureBuilderPreset.GetPartsForSigning(OpcPackage package)
         {
-            var signaturePart = package.GetSignaturePart();
+            var existingSignatures = package.GetSignatures().ToList();
             foreach (var part in package.GetParts())
             {
-                //We don't want to sign an existing signature.
-                if (signaturePart != null && Uri.Compare(part.Uri, signaturePart.Uri, UriComponents.Path, UriFormat.Unescaped, StringComparison.Ordinal) == 0)
+                if (existingSignatures.All(existing => Uri.Compare(part.Uri, existing.Part.Uri, UriComponents.Path, UriFormat.Unescaped, StringComparison.Ordinal) != 0))
                 {
-                    continue;
+                    yield return part;
                 }
-                yield return part;
             }
         }
     }

@@ -99,7 +99,7 @@ namespace OpenVsixSignTool.Core.Tests
             using (var package = OpcPackage.Open(@"sample\VsVim.vsix"))
             {
                 var builder = package.CreateSignatureBuilder();
-                foreach(var part in package.GetParts())
+                foreach (var part in package.GetParts())
                 {
                     builder.EnqueuePart(part);
                     Assert.True(builder.DequeuePart(part));
@@ -154,14 +154,31 @@ namespace OpenVsixSignTool.Core.Tests
         [Fact]
         public void ShouldTimestampFile()
         {
-            string path;
-            using (var package = ShadowCopyPackage(@"sample\VsVim-vs2015.vsix", out path, OpcPackageFileMode.ReadWrite))
+            using (var package = ShadowCopyPackage(@"sample\VsVim-vs2015.vsix", out _, OpcPackageFileMode.ReadWrite))
             {
                 var signerBuilder = package.CreateSignatureBuilder();
                 signerBuilder.EnqueueNamedPreset<VSIXSignatureBuilderPreset>();
                 var signature = signerBuilder.Sign(HashAlgorithmName.SHA256, new X509Certificate2("sample\\cert.pfx", "test"));
                 var timestampBuilder = signature.CreateTimestampBuilder();
                 timestampBuilder.Sign(new Uri("http://timestamp.digicert.com"), HashAlgorithmName.SHA256);
+            }
+        }
+
+        [Fact]
+        public void ShouldReturnEmptyEnumerableForNoSignatureOriginRelationship()
+        {
+            using (var package = ShadowCopyPackage(@"sample\VsVim-vs2015.vsix", out _, OpcPackageFileMode.Read))
+            {
+                Assert.Empty(package.GetSignatures());
+            }
+        }
+
+        [Fact]
+        public void ShouldReturnSignatureForSignedPackage()
+        {
+            using (var package = ShadowCopyPackage(@"sample\VsVim-Signed.vsix", out _, OpcPackageFileMode.Read))
+            {
+                Assert.NotEmpty(package.GetSignatures());
             }
         }
 
