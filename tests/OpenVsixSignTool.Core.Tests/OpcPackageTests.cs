@@ -5,19 +5,20 @@ using System.IO.Packaging;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
-using System.Xml;
 using Xunit;
 
 namespace OpenVsixSignTool.Core.Tests
 {
     public class OpcPackageTests : IDisposable
     {
+        private const string SamplePackage = @"sample\OpenVsixSignToolTest.vsix";
+        private const string SamplePackageSigned = @"sample\OpenVsixSignToolTest-Signed.vsix";
         private readonly List<string> _shadowFiles = new List<string>();
 
         [Fact]
         public void ShouldOpenAndDisposeAPackageAndDisposeIsIdempotent()
         {
-            var package = OpcPackage.Open(@"sample\VsVim.vsix");
+            var package = OpcPackage.Open(SamplePackage);
             package.Dispose();
             package.Dispose();
         }
@@ -25,9 +26,9 @@ namespace OpenVsixSignTool.Core.Tests
         [Fact]
         public void ShouldReadContentTypes()
         {
-            using (var package = OpcPackage.Open(@"sample\VsVim.vsix"))
+            using (var package = OpcPackage.Open(SamplePackage))
             {
-                Assert.Equal(7, package.ContentTypes.Count);
+                Assert.Equal(3, package.ContentTypes.Count);
                 var first = package.ContentTypes[0];
                 Assert.Equal("vsixmanifest", first.Extension);
                 Assert.Equal("text/xml", first.ContentType);
@@ -38,9 +39,9 @@ namespace OpenVsixSignTool.Core.Tests
         [Fact]
         public void ShouldNotAllowUpdatingContentTypesInReadOnly()
         {
-            using (var package = OpcPackage.Open(@"sample\VsVim.vsix"))
+            using (var package = OpcPackage.Open(SamplePackage))
             {
-                var newItem = new OpcContentType("test", "test", OpcContentTypeMode.Override);
+                var newItem = new OpcContentType("test", "test", OpcContentTypeMode.Default);
                 var contentTypes = package.ContentTypes;
                 Assert.Throws<InvalidOperationException>(() => contentTypes.Add(newItem));
             }
@@ -51,12 +52,11 @@ namespace OpenVsixSignTool.Core.Tests
         {
             int initialCount;
             string shadowPath;
-            using (var package = ShadowCopyPackage(@"sample\VsVim.vsix", out shadowPath, OpcPackageFileMode.ReadWrite))
+            using (var package = ShadowCopyPackage(SamplePackage, out shadowPath, OpcPackageFileMode.ReadWrite))
             {
                 initialCount = package.ContentTypes.Count;
-                var newItem = new OpcContentType("test", "application/test", OpcContentTypeMode.Override);
+                var newItem = new OpcContentType("test", "application/test", OpcContentTypeMode.Default);
                 package.ContentTypes.Add(newItem);
-                package.Flush();
             }
             using (var reopenedPackage = OpcPackage.Open(shadowPath))
             {
@@ -69,13 +69,12 @@ namespace OpenVsixSignTool.Core.Tests
         {
             int initialCount;
             string shadowPath;
-            using (var package = ShadowCopyPackage(@"sample\VsVim.vsix", out shadowPath, OpcPackageFileMode.ReadWrite))
+            using (var package = ShadowCopyPackage(SamplePackage, out shadowPath, OpcPackageFileMode.ReadWrite))
             {
                 initialCount = package.Relationships.Count;
                 var newItem = new OpcRelationship(new Uri("/test", UriKind.RelativeOrAbsolute), new Uri("/test", UriKind.RelativeOrAbsolute));
                 package.Relationships.Add(newItem);
                 Assert.True(newItem.Id != null && newItem.Id.Length == 9);
-                package.Flush();
             }
             using (var reopenedPackage = OpcPackage.Open(shadowPath))
             {
@@ -86,17 +85,17 @@ namespace OpenVsixSignTool.Core.Tests
         [Fact]
         public void ShouldEnumerateAllParts()
         {
-            using (var package = OpcPackage.Open(@"sample\VsVim.vsix"))
+            using (var package = OpcPackage.Open(SamplePackage))
             {
                 var parts = package.GetParts().ToArray();
-                Assert.Equal(20, parts.Length);
+                Assert.Equal(1, parts.Length);
             }
         }
 
         [Fact]
         public void ShouldCreateSignatureBuilder()
         {
-            using (var package = OpcPackage.Open(@"sample\VsVim.vsix"))
+            using (var package = OpcPackage.Open(SamplePackage))
             {
                 var builder = package.CreateSignatureBuilder();
                 foreach (var part in package.GetParts())
@@ -108,13 +107,13 @@ namespace OpenVsixSignTool.Core.Tests
         }
 
         [Theory]
-        [InlineData("VsVim.dll")]
-        [InlineData("/VsVim.dll")]
-        [InlineData("package:///VsVim.dll")]
+        [InlineData("extension.vsixmanifest")]
+        [InlineData("/extension.vsixmanifest")]
+        [InlineData("package:///extension.vsixmanifest")]
         public void ShouldOpenSinglePartByRelativeUri(string uri)
         {
             var partUri = new Uri(uri, UriKind.RelativeOrAbsolute);
-            using (var package = OpcPackage.Open(@"sample\VsVim.vsix"))
+            using (var package = OpcPackage.Open(SamplePackage))
             {
                 Assert.NotNull(package.GetPart(partUri));
             }
@@ -124,11 +123,11 @@ namespace OpenVsixSignTool.Core.Tests
         public void ShouldSignFile()
         {
             string path;
-            using (var package = ShadowCopyPackage(@"sample\VsVim-vs2015.vsix", out path, OpcPackageFileMode.ReadWrite))
+            using (var package = ShadowCopyPackage(SamplePackage, out path, OpcPackageFileMode.ReadWrite))
             {
                 var builder = package.CreateSignatureBuilder();
                 builder.EnqueueNamedPreset<VSIXSignatureBuilderPreset>();
-                builder.Sign(HashAlgorithmName.SHA256, new X509Certificate2("sample\\cert.pfx", "test"));
+                builder.Sign(HashAlgorithmName.SHA256, new X509Certificate2(@"certs\\rsa-2048-sha256.pfx", "test"));
                 package.Flush();
             }
             using (var netfxPackage = Package.Open(path, FileMode.Open))
@@ -154,11 +153,11 @@ namespace OpenVsixSignTool.Core.Tests
         [Fact]
         public void ShouldTimestampFile()
         {
-            using (var package = ShadowCopyPackage(@"sample\VsVim-vs2015.vsix", out _, OpcPackageFileMode.ReadWrite))
+            using (var package = ShadowCopyPackage(SamplePackage, out _, OpcPackageFileMode.ReadWrite))
             {
                 var signerBuilder = package.CreateSignatureBuilder();
                 signerBuilder.EnqueueNamedPreset<VSIXSignatureBuilderPreset>();
-                var signature = signerBuilder.Sign(HashAlgorithmName.SHA256, new X509Certificate2("sample\\cert.pfx", "test"));
+                var signature = signerBuilder.Sign(HashAlgorithmName.SHA256, new X509Certificate2("certs\\rsa-2048-sha256.pfx", "test"));
                 var timestampBuilder = signature.CreateTimestampBuilder();
                 timestampBuilder.Sign(new Uri("http://timestamp.digicert.com"), HashAlgorithmName.SHA256);
             }
@@ -167,7 +166,7 @@ namespace OpenVsixSignTool.Core.Tests
         [Fact]
         public void ShouldReturnEmptyEnumerableForNoSignatureOriginRelationship()
         {
-            using (var package = ShadowCopyPackage(@"sample\VsVim-vs2015.vsix", out _, OpcPackageFileMode.Read))
+            using (var package = OpcPackage.Open(SamplePackage, OpcPackageFileMode.Read))
             {
                 Assert.Empty(package.GetSignatures());
             }
@@ -176,7 +175,7 @@ namespace OpenVsixSignTool.Core.Tests
         [Fact]
         public void ShouldReturnSignatureForSignedPackage()
         {
-            using (var package = ShadowCopyPackage(@"sample\VsVim-Signed.vsix", out _, OpcPackageFileMode.Read))
+            using (var package = OpcPackage.Open(SamplePackageSigned, OpcPackageFileMode.Read))
             {
                 Assert.NotEmpty(package.GetSignatures());
             }
