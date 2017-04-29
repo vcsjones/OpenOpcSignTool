@@ -6,6 +6,9 @@ using System.Xml.Linq;
 
 namespace OpenVsixSignTool.Core
 {
+    /// <summary>
+    /// Represents a part inside of a package.
+    /// </summary>
     public class OpcPart : IEquatable<OpcPart>
     {
         private readonly OpcPackageFileMode _mode;
