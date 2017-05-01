@@ -93,6 +93,7 @@ namespace OpenVsixSignTool.Core
                 var result = builder.Build();
                 using (var copySignatureStream = signatureFile.Open())
                 {
+                    copySignatureStream.SetLength(0L);
                     using (var xmlWriter = new XmlTextWriter(copySignatureStream, System.Text.Encoding.UTF8))
                     {
                         //The .NET implementation of OPC used by Visual Studio does not tollerate "white space" nodes.

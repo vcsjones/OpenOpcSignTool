@@ -21,13 +21,19 @@ namespace OpenVsixSignTool.Core
             return resolved.ToString();
         }
 
-
         public static string ToQualifiedPath(this Uri partUri)
         {
             var absolute = partUri.IsAbsoluteUri ? partUri : new Uri(RootedPackageBaseUri, partUri);
             var pathUri = new Uri(absolute.GetComponents(UriComponents.SchemeAndServer | UriComponents.PathAndQuery, UriFormat.Unescaped), UriKind.Absolute);
             var resolved = RootedPackageBaseUri.MakeRelativeUri(pathUri);
             return resolved.ToString();
+        }
+
+        public static Uri ToQualifiedUri(this Uri partUri)
+        {
+            var absolute = partUri.IsAbsoluteUri ? partUri : new Uri(RootedPackageBaseUri, partUri);
+            var pathUri = new Uri(absolute.GetComponents(UriComponents.SchemeAndServer | UriComponents.PathAndQuery, UriFormat.Unescaped), UriKind.Absolute);
+            return RootedPackageBaseUri.MakeRelativeUri(pathUri);
         }
     }
 }

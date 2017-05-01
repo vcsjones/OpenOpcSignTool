@@ -10,8 +10,8 @@ namespace OpenVsixSignTool.Core
     {
         private readonly XmlDocument _document;
         private readonly SigningContext _signingContext;
+        private readonly XmlElement _signatureElement;
         private XmlElement _objectElement;
-        private XmlElement _signatureElement;
 
 
         /// <summary>

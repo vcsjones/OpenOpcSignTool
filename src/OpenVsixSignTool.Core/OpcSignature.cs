@@ -67,7 +67,7 @@ namespace OpenVsixSignTool.Core
                 return;
             }
             var signatureRelationships = originFile.Relationships.Where(
-                r => r.Target == _signaturePart.Uri &&
+                r => r.Target == _signaturePart.Uri.ToQualifiedUri() &&
                      r.Type == OpcKnownUris.DigitalSignatureSignature
                 ).ToList();
             if (signatureRelationships.Count == 0)
