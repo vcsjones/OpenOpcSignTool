@@ -217,6 +217,7 @@ namespace OpenVsixSignTool.Core
                 using (var stream = entry.Open())
                 {
                     var newXml = _contentTypes.ToXml();
+                    stream.SetLength(0L);
                     newXml.Save(stream, SaveOptions.None);
                     _contentTypes.IsDirty = false;
                 }
@@ -233,6 +234,7 @@ namespace OpenVsixSignTool.Core
             var entry = _archive.GetEntry(path) ?? _archive.CreateEntry(path);
             using (var stream = entry.Open())
             {
+                stream.SetLength(0L);
                 var newXml = relationships.ToXml();
                 newXml.Save(stream, SaveOptions.None);
             }
@@ -260,7 +262,8 @@ namespace OpenVsixSignTool.Core
             {
                 yield break;
             }
-            foreach (var signatureRelationship in originPart.Relationships.Where(r => r.Type.Equals(OpcKnownUris.DigitalSignatureSignature)))
+            var signatureRelationships = originPart.Relationships.Where(r => r.Type.Equals(OpcKnownUris.DigitalSignatureSignature)).ToList();
+            foreach (var signatureRelationship in signatureRelationships.ToList())
             {
                 var signaturePart = GetPart(signatureRelationship.Target);
                 if (signaturePart == null)
