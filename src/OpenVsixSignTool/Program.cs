@@ -27,6 +27,10 @@ namespace OpenVsixSignTool
             });
             application.HelpOption("-? | -h | --help");
             application.VersionOption("-v | --version", typeof(Program).Assembly.GetName().Version.ToString(3));
+            if (args.Length == 0)
+            {
+                application.ShowHelp();
+            }
             return application.Execute(args);
         }
     }
