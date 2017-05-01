@@ -37,6 +37,22 @@ namespace OpenVsixSignTool.Tests
             }
         }
 
+        [Theory]
+        [MemberData(nameof(HandleRepeatedCommandLineOptionsTheories))]
+        public void ShouldHandleRepeatedCommandLineOptions((string[] args, string expectedMessage, int expectedExitCode)[] argsSets)
+        {
+            var shadow = ShadowCopyPackage(@"sample\OpenVsixSignToolTest.vsix");
+            foreach (var (args, expectedMessage, expectedExitCode) in argsSets)
+            {
+                using (var consoleWriter = new StringWriter())
+                {
+                    Console.SetOut(consoleWriter);
+                    Assert.Equal(expectedExitCode, Program.Main(args.Concat(new[] {shadow}).ToArray()));
+                    Assert.Contains(expectedMessage, consoleWriter.ToString());
+                }
+            }
+        }
+
 
         public static IEnumerable<object[]> HandleValidCommandLineOptionsTheories
         {
@@ -46,6 +62,40 @@ namespace OpenVsixSignTool.Tests
                 yield return new object[]
                 {
                     new[] {"sign", "-c", @"certs\rsa-2048-sha256.pfx", "-p", "test"}, "The signing operation is complete."
+                };
+            }
+        }
+
+        public static IEnumerable<object[]> HandleRepeatedCommandLineOptionsTheories
+        {
+            get
+            {
+                //Sign it once, then try signing it again without the force option.
+                yield return new object[]
+                {
+                    new[]
+                    {
+                        (new [] {"sign", "-c", @"certs\rsa-2048-sha256.pfx", "-p", "test"}, "The signing operation is complete.", 0),
+                        (new [] {"sign", "-c", @"certs\rsa-2048-sha256.pfx", "-p", "test"}, "The VSIX is already signed.", 2)
+                    }
+                };
+                //Sign it once, then try signing it again with the force option.
+                yield return new object[]
+                {
+                    new[]
+                    {
+                        (new [] {"sign", "-c", @"certs\rsa-2048-sha256.pfx", "-p", "test"}, "The signing operation is complete.", 0),
+                        (new [] {"sign", "-c", @"certs\rsa-2048-sha256.pfx", "-p", "test", "-f"}, "The signing operation is complete.", 0)
+                    }
+                };
+                //Sign it then unsign it
+                yield return new object[]
+                {
+                    new[]
+                    {
+                        (new [] {"sign", "-c", @"certs\rsa-2048-sha256.pfx", "-p", "test"}, "The signing operation is complete.", 0),
+                        (new [] {"unsign" }, "The unsigning operation is complete.", 0)
+                    }
                 };
             }
         }
