@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenVsixSignTool.Core.Tests
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenVsixSignTool", "src\OpenVsixSignTool\OpenVsixSignTool.csproj", "{E2F61A10-A5A3-478D-BE78-2059154D0930}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenVsixSignTool.Tests", "tests\OpenVsixSignTool.Tests\OpenVsixSignTool.Tests.csproj", "{79191EB5-FDF2-42D4-B416-E5A2D4B75E4D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{E2F61A10-A5A3-478D-BE78-2059154D0930}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E2F61A10-A5A3-478D-BE78-2059154D0930}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E2F61A10-A5A3-478D-BE78-2059154D0930}.Release|Any CPU.Build.0 = Release|Any CPU
+		{79191EB5-FDF2-42D4-B416-E5A2D4B75E4D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{79191EB5-FDF2-42D4-B416-E5A2D4B75E4D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{79191EB5-FDF2-42D4-B416-E5A2D4B75E4D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{79191EB5-FDF2-42D4-B416-E5A2D4B75E4D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

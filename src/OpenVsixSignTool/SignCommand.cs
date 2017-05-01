@@ -2,6 +2,7 @@
 using OpenVsixSignTool.Core;
 using System;
 using System.IO;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 
@@ -52,13 +53,19 @@ namespace OpenVsixSignTool
             }
             else
             {
+                var pfxFilePath = pfxPath.Value();
+                if (!File.Exists(pfxFilePath))
+                {
+                    _signCommandApplication.Out.WriteAsync("Specified PFX file does not exist.");
+                    return EXIT_CODES.INVALID_OPTIONS;
+                }
                 if (!password.HasValue())
                 {
-                    certificate = new X509Certificate2(pfxPath.Value());
+                    certificate = new X509Certificate2(pfxFilePath);
                 }
                 else
                 {
-                    certificate = new X509Certificate2(pfxPath.Value(), password.Value());
+                    certificate = new X509Certificate2(pfxFilePath, password.Value());
                 }
             }
             Uri timestampServer = null;
@@ -102,7 +109,6 @@ namespace OpenVsixSignTool
             {
                 timestampDigestAlgorithm = timestampDigestResult.Value;
             }
-            fileDigestAlgorithm = fileDigestResult.Value;
             return PerformSignOnVsix(vsixPathValue, force.HasValue(), timestampServer, fileDigestAlgorithm, timestampDigestAlgorithm, certificate);
         }
 
@@ -113,6 +119,11 @@ namespace OpenVsixSignTool
         {
             using (var package = OpcPackage.Open(vsixPath, OpcPackageFileMode.ReadWrite))
             {
+                if (package.GetSignatures().Any() && !force)
+                {
+                    _signCommandApplication.Out.WriteLine("The VSIX is already signed.");
+                    return EXIT_CODES.FAILED;
+                }
                 var signBuilder = package.CreateSignatureBuilder();
                 signBuilder.EnqueueNamedPreset<VSIXSignatureBuilderPreset>();
                 var signature = signBuilder.Sign(fileDigestAlgorithm, certificate);

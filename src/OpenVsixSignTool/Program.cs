@@ -5,7 +5,7 @@ namespace OpenVsixSignTool
 {
     class Program
     {
-        static int Main(string[] args)
+        internal static int Main(string[] args)
         {
             var application = new CommandLineApplication(throwOnUnexpectedArg: false);
             var signCommand = application.Command("sign", throwOnUnexpectedArg: false, configuration: signConfiguration =>
