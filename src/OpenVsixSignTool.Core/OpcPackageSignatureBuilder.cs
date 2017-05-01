@@ -80,7 +80,7 @@ namespace OpenVsixSignTool.Core
             }
 
             _package.Flush();
-            var allParts = new List<OpcPart>(_enqueuedParts);
+            var allParts = new HashSet<OpcPart>(_enqueuedParts);
             allParts.Add(originFile);
             allParts.Add(_package.GetPart(_package.Relationships.DocumentUri));
             allParts.Add(_package.GetPart(originFile.Relationships.DocumentUri));

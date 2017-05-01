@@ -7,7 +7,7 @@ using System.Xml.Linq;
 
 namespace OpenVsixSignTool.Core
 {
-    public class OpcRelationship
+    public class OpcRelationship : IEquatable<OpcRelationship>
     {
         public Uri Target { get; }
         public string Id { get; internal set; }
@@ -25,11 +25,27 @@ namespace OpenVsixSignTool.Core
             Target = target;
             Type = type;
         }
+
+        public bool Equals(OpcRelationship other)
+        {
+            return !ReferenceEquals(other, null) && Target == other.Target && Type == other.Type && Id == other.Id;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is OpcRelationship rel)
+            {
+                return Equals(rel);
+            }
+            return false;
+        }
+
+        public override int GetHashCode() => Target.GetHashCode() ^ Type.GetHashCode();
     }
 
     public class OpcRelationships : IList<OpcRelationship>
     {
-        private static readonly XNamespace _opcRelationshipNamespace = "http://schemas.openxmlformats.org/package/2006/relationships";
+        private static readonly XNamespace OpcRelationshipNamespace = "http://schemas.openxmlformats.org/package/2006/relationships";
         private readonly List<OpcRelationship> _relationships = new List<OpcRelationship>();
 
 
@@ -37,13 +53,22 @@ namespace OpenVsixSignTool.Core
         {
             IsReadOnly = isReadOnly;
             DocumentUri = documentUri;
-            var relationships = document.Root.Elements(_opcRelationshipNamespace + "Relationship");
-            foreach(var relationship in relationships)
+            var relationships = document?.Root?.Elements(OpcRelationshipNamespace + "Relationship");
+            if (relationships == null)
             {
-                var target = relationship.Attribute("Target").Value;
-                var id = relationship.Attribute("Id").Value;
-                var type = relationship.Attribute("Type").Value;
-                _relationships.Add(new OpcRelationship(new Uri(target, UriKind.Relative), id, new Uri(type, UriKind.RelativeOrAbsolute)));
+                return;
+            }
+            foreach (var relationship in relationships)
+            {
+                var target = relationship.Attribute("Target")?.Value;
+                var id = relationship.Attribute("Id")?.Value;
+                var type = relationship.Attribute("Type")?.Value;
+                if (type == null || id == null || target == null)
+                {
+                    continue;
+                }
+                _relationships.Add(new OpcRelationship(new Uri(target, UriKind.Relative), id,
+                    new Uri(type, UriKind.RelativeOrAbsolute)));
             }
         }
 
@@ -56,10 +81,10 @@ namespace OpenVsixSignTool.Core
         public XDocument ToXml()
         {
             var document = new XDocument();
-            var root = new XElement(_opcRelationshipNamespace + "Relationships");
+            var root = new XElement(OpcRelationshipNamespace + "Relationships");
             foreach (var relationship in _relationships)
             {
-                var element = new XElement(_opcRelationshipNamespace + "Relationship");
+                var element = new XElement(OpcRelationshipNamespace + "Relationship");
                 element.SetAttributeValue("Target", relationship.Target.ToQualifiedPath());
                 element.SetAttributeValue("Id", relationship.Id);
                 element.SetAttributeValue("Type", relationship.Type);

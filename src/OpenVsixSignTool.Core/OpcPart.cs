@@ -18,6 +18,7 @@ namespace OpenVsixSignTool.Core
         private readonly OpcPackage _package;
 
         public Uri Uri { get; }
+        internal ZipArchiveEntry Entry => _entry;
 
         internal OpcPart(OpcPackage package, string path, ZipArchiveEntry entry, OpcPackageFileMode mode)
         {
@@ -41,11 +42,11 @@ namespace OpenVsixSignTool.Core
 
         public override bool Equals(object obj)
         {
-            switch (obj)
+            if(obj is OpcPart part)
             {
-                case OpcPart part: return Equals(part);
-                default: return false;
+                return Equals(part);
             }
+            return false;
         }
 
         public OpcRelationships Relationships
@@ -68,6 +69,8 @@ namespace OpenVsixSignTool.Core
                 return _package.ContentTypes.FirstOrDefault(ct => string.Equals(ct.Extension, extension, StringComparison.OrdinalIgnoreCase))?.ContentType ?? OpcKnownMimeTypes.OctetString;
             }
         }
+
+        internal OpcPackage Package => _package;
 
         private string GetRelationshipFilePath()
         {
