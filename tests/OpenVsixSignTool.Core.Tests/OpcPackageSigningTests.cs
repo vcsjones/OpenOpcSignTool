@@ -70,6 +70,84 @@ namespace OpenVsixSignTool.Core.Tests
             }
         }
 
+        [Fact]
+        public void ShouldSupportReSigning()
+        {
+            string path;
+            using (var package = ShadowCopyPackage(SamplePackage, out path, OpcPackageFileMode.ReadWrite))
+            {
+                var signerBuilder = package.CreateSignatureBuilder();
+                signerBuilder.EnqueueNamedPreset<VSIXSignatureBuilderPreset>();
+                var signature = signerBuilder.Sign(HashAlgorithmName.SHA256, new X509Certificate2(@"certs\rsa-2048-sha256.pfx", "test"));
+            }
+            using (var package = OpcPackage.Open(path, OpcPackageFileMode.ReadWrite))
+            {
+                var signerBuilder = package.CreateSignatureBuilder();
+                signerBuilder.EnqueueNamedPreset<VSIXSignatureBuilderPreset>();
+                var signature = signerBuilder.Sign(HashAlgorithmName.SHA256, new X509Certificate2(@"certs\rsa-2048-sha256.pfx", "test"));
+            }
+            using (var netfxPackage = Package.Open(path, FileMode.Open))
+            {
+                var signatureManager = new PackageDigitalSignatureManager(netfxPackage);
+                Assert.Equal(VerifyResult.Success, signatureManager.VerifySignatures(true));
+                if (signatureManager.Signatures.Count != 1 || signatureManager.Signatures[0].SignedParts.Count != netfxPackage.GetParts().Count() - 1)
+                {
+                    Assert.True(false, "Missing parts");
+                }
+            }
+        }
+
+        [Fact]
+        public void ShouldSupportReSigningWithDifferentCertificate()
+        {
+            string path;
+            using (var package = ShadowCopyPackage(SamplePackage, out path, OpcPackageFileMode.ReadWrite))
+            {
+                var signerBuilder = package.CreateSignatureBuilder();
+                signerBuilder.EnqueueNamedPreset<VSIXSignatureBuilderPreset>();
+                signerBuilder.Sign(HashAlgorithmName.SHA1, new X509Certificate2(@"certs\rsa-2048-sha1.pfx", "test"));
+            }
+            using (var package = OpcPackage.Open(path, OpcPackageFileMode.ReadWrite))
+            {
+                var signerBuilder = package.CreateSignatureBuilder();
+                signerBuilder.EnqueueNamedPreset<VSIXSignatureBuilderPreset>();
+                signerBuilder.Sign(HashAlgorithmName.SHA256, new X509Certificate2(@"certs\rsa-2048-sha256.pfx", "test"));
+            }
+            using (var netfxPackage = Package.Open(path, FileMode.Open))
+            {
+                var signatureManager = new PackageDigitalSignatureManager(netfxPackage);
+                Assert.Equal(VerifyResult.Success, signatureManager.VerifySignatures(true));
+                if (signatureManager.Signatures.Count != 1 || signatureManager.Signatures[0].SignedParts.Count != netfxPackage.GetParts().Count() - 1)
+                {
+                    Assert.True(false, "Missing parts");
+                }
+                var packageSignature = signatureManager.Signatures[0];
+                Assert.Equal(OpcKnownUris.SignatureAlgorithms.rsaSHA256.AbsoluteUri, packageSignature.Signature.SignedInfo.SignatureMethod);
+            }
+        }
+
+        [Fact]
+        public void ShouldRemoveSignature()
+        {
+            string path;
+            using (var package = ShadowCopyPackage(SamplePackage, out path, OpcPackageFileMode.ReadWrite))
+            {
+                var signerBuilder = package.CreateSignatureBuilder();
+                signerBuilder.EnqueueNamedPreset<VSIXSignatureBuilderPreset>();
+                signerBuilder.Sign(HashAlgorithmName.SHA1, new X509Certificate2(@"certs\rsa-2048-sha1.pfx", "test"));
+            }
+            using (var package = OpcPackage.Open(path, OpcPackageFileMode.ReadWrite))
+            {
+                var signatures = package.GetSignatures().ToList();
+                Assert.Equal(1, signatures.Count);
+                var signature = signatures[0];
+                signature.Remove();
+                Assert.Null(signature.Part);
+                Assert.Throws<InvalidOperationException>(() => signature.CreateTimestampBuilder());
+                Assert.Equal(0, package.GetSignatures().Count());
+            }
+        }
+
         public static IEnumerable<object[]> RsaTimestampTheories
         {
             get

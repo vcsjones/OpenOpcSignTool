@@ -19,10 +19,10 @@ namespace OpenVsixSignTool.Core
 
         internal readonly ZipArchive _archive;
         private readonly OpcPackageFileMode _mode;
-        private bool _disposed = true;
+        private bool _disposed;
         private OpcContentTypes _contentTypes;
         private OpcRelationships _relationships;
-        private Dictionary<string, OpcPart> _partTracker;
+        private readonly Dictionary<string, OpcPart> _partTracker;
 
         /// <summary>
         /// Opens an OPC package.
@@ -157,6 +157,24 @@ namespace OpenVsixSignTool.Core
         {
             var path = partUri.ToPackagePath();
             return _archive.GetEntry(path) != null;
+        }
+
+        /// <summary>
+        /// Removes an existing part from the package, and its relationships.
+        /// </summary>
+        /// <param name="part">The part to remove from the package. Use <see cref="GetPart(Uri)"/> to obtain the part to remove.</param>
+        /// <remarks>This does not validate or clean up other references to this part.</remarks>
+        public void RemovePart(OpcPart part)
+        {
+            var relationshipUri = part.Relationships.DocumentUri;
+            var relationshipPath = relationshipUri.ToPackagePath();
+            var relationshipEntry = _archive.GetEntry(relationshipPath);
+            relationshipEntry?.Delete();
+            _partTracker.Remove(relationshipPath);
+
+            var path = part.Uri.ToPackagePath();
+            part.Entry.Delete();
+            _partTracker.Remove(path);
         }
 
         /// <summary>
