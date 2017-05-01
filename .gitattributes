@@ -1,0 +1,7 @@
+*.cs     text eol=lf diff=csharp
+*.csproj text eol=lf
+*.md     text eol=lf
+*.json   text eol=lf
+*.ps1    text eol=lf
+*.cer    text eol=lf
+*.pfx   -text
