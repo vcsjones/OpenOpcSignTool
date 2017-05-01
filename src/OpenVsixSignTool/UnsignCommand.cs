@@ -41,6 +41,7 @@ namespace OpenVsixSignTool
                     _unsignConfiguration.Out.WriteLine("Specified VSIX is not signed.");
                     return EXIT_CODES.FAILED;
                 }
+                _unsignConfiguration.Out.WriteLine("The unsigning operation is complete.");
                 return EXIT_CODES.SUCCESS;
             }
         }

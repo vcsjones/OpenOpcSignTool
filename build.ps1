@@ -4,8 +4,12 @@ If ($lastexitcode -ne 0) {
 	exit 1
 }
 dotnet test $PSScriptRoot\tests\OpenVsixSignTool.Core.Tests\OpenVsixSignTool.Core.Tests.csproj
+$CoreTestsFailed = $lastexitcode
 
-If ($lastexitcode -ne 0) {
+dotnet test $PSScriptRoot\tests\OpenVsixSignTool.Tests\OpenVsixSignTool.Tests.csproj
+$IntegrationTestsFailed = $lastexitcode
+
+If (($CoreTestsFailed -ne 0) -or ($IntegrationTestsFailed -ne 0)) {
 	Write-Host "Tests failed."
 	exit 1
 }
