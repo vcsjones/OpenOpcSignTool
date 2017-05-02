@@ -25,7 +25,7 @@ namespace OpenVsixSignTool
             _signCommandApplication = signCommandApplication;
         }
 
-        internal Task<int> Sign
+        internal Task<int> SignAsync
         (
             CommandOption sha1,
             CommandOption pfxPath,
@@ -110,10 +110,10 @@ namespace OpenVsixSignTool
             {
                 timestampDigestAlgorithm = timestampDigestResult.Value;
             }
-            return PerformSignOnVsix(vsixPathValue, force.HasValue(), timestampServer, fileDigestAlgorithm, timestampDigestAlgorithm, certificate);
+            return PerformSignOnVsixAsync(vsixPathValue, force.HasValue(), timestampServer, fileDigestAlgorithm, timestampDigestAlgorithm, certificate);
         }
 
-        private async Task<int> PerformSignOnVsix(string vsixPath, bool force,
+        private async Task<int> PerformSignOnVsixAsync(string vsixPath, bool force,
             Uri timestampUri, HashAlgorithmName fileDigestAlgorithm, HashAlgorithmName timestampDigestAlgorithm,
             X509Certificate2 certificate
             )
@@ -127,7 +127,7 @@ namespace OpenVsixSignTool
                 }
                 var signBuilder = package.CreateSignatureBuilder();
                 signBuilder.EnqueueNamedPreset<VSIXSignatureBuilderPreset>();
-                var signature = await signBuilder.Sign(fileDigestAlgorithm, certificate);
+                var signature = await signBuilder.SignAsync(fileDigestAlgorithm, certificate);
                 if (timestampUri != null)
                 {
                     var timestampBuilder = signature.CreateTimestampBuilder();

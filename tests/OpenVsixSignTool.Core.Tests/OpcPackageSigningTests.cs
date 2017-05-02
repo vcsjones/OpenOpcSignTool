@@ -26,7 +26,7 @@ namespace OpenVsixSignTool.Core.Tests
             {
                 var builder = package.CreateSignatureBuilder();
                 builder.EnqueueNamedPreset<VSIXSignatureBuilderPreset>();
-                await builder.Sign(fileDigestAlgorithm, new X509Certificate2(pfxPath, "test"));
+                await builder.SignAsync(fileDigestAlgorithm, new X509Certificate2(pfxPath, "test"));
             }
             using (var netfxPackage = Package.Open(path, FileMode.Open))
             {
@@ -64,7 +64,7 @@ namespace OpenVsixSignTool.Core.Tests
             {
                 var signerBuilder = package.CreateSignatureBuilder();
                 signerBuilder.EnqueueNamedPreset<VSIXSignatureBuilderPreset>();
-                var signature = await signerBuilder.Sign(HashAlgorithmName.SHA256, new X509Certificate2(pfxPath, "test"));
+                var signature = await signerBuilder.SignAsync(HashAlgorithmName.SHA256, new X509Certificate2(pfxPath, "test"));
                 var timestampBuilder = signature.CreateTimestampBuilder();
                 var result = timestampBuilder.Sign(new Uri("http://timestamp.digicert.com"), timestampDigestAlgorithm);
                 Assert.Equal(TimestampResult.Success, result);
@@ -79,13 +79,13 @@ namespace OpenVsixSignTool.Core.Tests
             {
                 var signerBuilder = package.CreateSignatureBuilder();
                 signerBuilder.EnqueueNamedPreset<VSIXSignatureBuilderPreset>();
-                var signature = signerBuilder.Sign(HashAlgorithmName.SHA256, new X509Certificate2(@"certs\rsa-2048-sha256.pfx", "test"));
+                var signature = signerBuilder.SignAsync(HashAlgorithmName.SHA256, new X509Certificate2(@"certs\rsa-2048-sha256.pfx", "test"));
             }
             using (var package = OpcPackage.Open(path, OpcPackageFileMode.ReadWrite))
             {
                 var signerBuilder = package.CreateSignatureBuilder();
                 signerBuilder.EnqueueNamedPreset<VSIXSignatureBuilderPreset>();
-                var signature = signerBuilder.Sign(HashAlgorithmName.SHA256, new X509Certificate2(@"certs\rsa-2048-sha256.pfx", "test"));
+                var signature = signerBuilder.SignAsync(HashAlgorithmName.SHA256, new X509Certificate2(@"certs\rsa-2048-sha256.pfx", "test"));
             }
             using (var netfxPackage = Package.Open(path, FileMode.Open))
             {
@@ -106,13 +106,13 @@ namespace OpenVsixSignTool.Core.Tests
             {
                 var signerBuilder = package.CreateSignatureBuilder();
                 signerBuilder.EnqueueNamedPreset<VSIXSignatureBuilderPreset>();
-                await signerBuilder.Sign(HashAlgorithmName.SHA1, new X509Certificate2(@"certs\rsa-2048-sha1.pfx", "test"));
+                await signerBuilder.SignAsync(HashAlgorithmName.SHA1, new X509Certificate2(@"certs\rsa-2048-sha1.pfx", "test"));
             }
             using (var package = OpcPackage.Open(path, OpcPackageFileMode.ReadWrite))
             {
                 var signerBuilder = package.CreateSignatureBuilder();
                 signerBuilder.EnqueueNamedPreset<VSIXSignatureBuilderPreset>();
-                await signerBuilder.Sign(HashAlgorithmName.SHA256, new X509Certificate2(@"certs\rsa-2048-sha256.pfx", "test"));
+                await signerBuilder.SignAsync(HashAlgorithmName.SHA256, new X509Certificate2(@"certs\rsa-2048-sha256.pfx", "test"));
             }
             using (var netfxPackage = Package.Open(path, FileMode.Open))
             {
@@ -135,7 +135,7 @@ namespace OpenVsixSignTool.Core.Tests
             {
                 var signerBuilder = package.CreateSignatureBuilder();
                 signerBuilder.EnqueueNamedPreset<VSIXSignatureBuilderPreset>();
-                await signerBuilder.Sign(HashAlgorithmName.SHA1, new X509Certificate2(@"certs\rsa-2048-sha1.pfx", "test"));
+                await signerBuilder.SignAsync(HashAlgorithmName.SHA1, new X509Certificate2(@"certs\rsa-2048-sha1.pfx", "test"));
             }
             using (var package = OpcPackage.Open(path, OpcPackageFileMode.ReadWrite))
             {

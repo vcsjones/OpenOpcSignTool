@@ -42,7 +42,7 @@ namespace OpenVsixSignTool.Core
         /// </summary>
         /// <param name="digest">The digest to sign. This must be digested with the same algorithm as identified in the <see cref="FileDigestAlgorithmName"/>.</param>
         /// <returns>The signed digest.</returns>
-        Task<byte[]> SignDigest(byte[] digest);
+        Task<byte[]> SignDigestAsync(byte[] digest);
 
         /// <summary>
         /// Verifies a digest.
@@ -50,6 +50,6 @@ namespace OpenVsixSignTool.Core
         /// <param name="digest">The digest to verify. This must be digested with the same algorithm as identified in the <see cref="FileDigestAlgorithmName"/>.</param>
         /// <param name="signature">The signature of the digest to perform validation with.</param>
         /// <returns>True if the digest is valid, otherwise false.</returns>
-        Task<bool> VerifyDigest(byte[] digest, byte[] signature);
+        Task<bool> VerifyDigestAsync(byte[] digest, byte[] signature);
     }
 }

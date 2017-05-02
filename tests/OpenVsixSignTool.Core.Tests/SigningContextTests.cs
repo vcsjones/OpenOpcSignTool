@@ -18,11 +18,11 @@ namespace OpenVsixSignTool.Core.Tests
                 using (var hash = SHA256.Create())
                 {
                     var digest = hash.ComputeHash(new byte[] { 1, 2, 3 });
-                    var signature = await context.SignDigest(digest);
+                    var signature = await context.SignDigestAsync(digest);
                     Assert.Equal(OpcKnownUris.SignatureAlgorithms.rsaSHA256, context.XmlDSigIdentifier);
                     Assert.Equal(SigningAlgorithm.RSA, context.SignatureAlgorithm);
 
-                    var roundtrips = await context.VerifyDigest(digest, signature);
+                    var roundtrips = await context.VerifyDigestAsync(digest, signature);
                     Assert.True(roundtrips);
                 }
             }
@@ -39,11 +39,11 @@ namespace OpenVsixSignTool.Core.Tests
                 using (var hash = SHA1.Create())
                 {
                     var digest = hash.ComputeHash(new byte[] { 1, 2, 3 });
-                    var signature = await context.SignDigest(digest);
+                    var signature = await context.SignDigestAsync(digest);
                     Assert.Equal(OpcKnownUris.SignatureAlgorithms.rsaSHA1, context.XmlDSigIdentifier);
                     Assert.Equal(SigningAlgorithm.RSA, context.SignatureAlgorithm);
 
-                    var roundtrips = await context.VerifyDigest(digest, signature);
+                    var roundtrips = await context.VerifyDigestAsync(digest, signature);
                     Assert.True(roundtrips);
                 }
             }
@@ -59,11 +59,11 @@ namespace OpenVsixSignTool.Core.Tests
                 using (var hash = SHA256.Create())
                 {
                     var digest = hash.ComputeHash(new byte[] { 1, 2, 3 });
-                    var signature = await context.SignDigest(digest);
+                    var signature = await context.SignDigestAsync(digest);
                     Assert.Equal(OpcKnownUris.SignatureAlgorithms.ecdsaSHA256, context.XmlDSigIdentifier);
                     Assert.Equal(SigningAlgorithm.ECDSA, context.SignatureAlgorithm);
 
-                    var roundtrips = await context.VerifyDigest(digest, signature);
+                    var roundtrips = await context.VerifyDigestAsync(digest, signature);
                     Assert.True(roundtrips);
                 }
             }

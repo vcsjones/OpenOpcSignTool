@@ -29,7 +29,7 @@ namespace OpenVsixSignTool.Core
 
         private XmlElement CreateDSigElement(string name) => _document.CreateElement(name, OpcKnownUris.XmlDSig.AbsoluteUri);
 
-        public async Task<XmlDocument> Build()
+        public async Task<XmlDocument> BuildAsync()
         {
             if (_objectElement == null)
             {
@@ -54,7 +54,7 @@ namespace OpenVsixSignTool.Core
                 {
                     signerInfoElementHash = canonicalHashAlgorithm.ComputeHash(signerInfoCanonicalStream);
                 }
-                signatureValue = await BuildSignatureValue(signerInfoElementHash);
+                signatureValue = await BuildSignatureValueAsync(signerInfoElementHash);
             }
 
             _signatureElement.AppendChild(signedInfo);
@@ -65,10 +65,10 @@ namespace OpenVsixSignTool.Core
             return _document;
         }
 
-        private async Task<XmlElement> BuildSignatureValue(byte[] signerInfoElementHash)
+        private async Task<XmlElement> BuildSignatureValueAsync(byte[] signerInfoElementHash)
         {
             var signatureValueElement = CreateDSigElement("SignatureValue");
-            signatureValueElement.InnerText = Convert.ToBase64String(await _signingContext.SignDigest(signerInfoElementHash));
+            signatureValueElement.InnerText = Convert.ToBase64String(await _signingContext.SignDigestAsync(signerInfoElementHash));
             return signatureValueElement;
         }
 

@@ -22,7 +22,7 @@ namespace OpenVsixSignTool
                     signConfiguration.OnExecute(async () =>
                     {
                         var sign = new SignCommand(signConfiguration);
-                        return await sign.Sign(sha1, pfxPath, password, timestamp, timestampAlgorithm, fileDigest, force, file);
+                        return await sign.SignAsync(sha1, pfxPath, password, timestamp, timestampAlgorithm, fileDigest, force, file);
                     });
                 }
             );
