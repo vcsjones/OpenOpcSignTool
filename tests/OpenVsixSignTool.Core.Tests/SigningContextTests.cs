@@ -12,7 +12,7 @@ namespace OpenVsixSignTool.Core.Tests
         public void ShouldSignABlobOfDataWithRsaSha256(string pfxPath)
         {
             var certificate = new X509Certificate2(pfxPath, "test");
-            using (var context = new SigningContext(certificate, HashAlgorithmName.SHA256, HashAlgorithmName.SHA256))
+            using (var context = new CertificateSigningContext(certificate, HashAlgorithmName.SHA256, HashAlgorithmName.SHA256))
             {
                 using (var hash = SHA256.Create())
                 {
@@ -33,7 +33,7 @@ namespace OpenVsixSignTool.Core.Tests
         public void ShouldSignABlobOfDataWithRsaSha1(string pfxPath)
         {
             var certificate = new X509Certificate2(pfxPath, "test");
-            using (var context = new SigningContext(certificate, HashAlgorithmName.SHA1, HashAlgorithmName.SHA1))
+            using (var context = new CertificateSigningContext(certificate, HashAlgorithmName.SHA1, HashAlgorithmName.SHA1))
             {
                 using (var hash = SHA1.Create())
                 {
@@ -53,7 +53,7 @@ namespace OpenVsixSignTool.Core.Tests
         public void ShouldSignABlobOfDataWithEcdsaP256Sha256(string pfxPath)
         {
             var certificate = new X509Certificate2(pfxPath, "test");
-            using (var context = new SigningContext(certificate, HashAlgorithmName.SHA256, HashAlgorithmName.SHA256))
+            using (var context = new CertificateSigningContext(certificate, HashAlgorithmName.SHA256, HashAlgorithmName.SHA256))
             {
                 using (var hash = SHA256.Create())
                 {

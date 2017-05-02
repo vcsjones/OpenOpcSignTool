@@ -9,7 +9,7 @@ namespace OpenVsixSignTool.Core
     internal class XmlSignatureBuilder
     {
         private readonly XmlDocument _document;
-        private readonly SigningContext _signingContext;
+        private readonly ISigningContext _signingContext;
         private readonly XmlElement _signatureElement;
         private XmlElement _objectElement;
 
@@ -17,7 +17,7 @@ namespace OpenVsixSignTool.Core
         /// <summary>
         /// Creates a new signature with the correct namespace and empty root <c>Signature</c> element.
         /// </summary>
-        internal XmlSignatureBuilder(SigningContext signingContext)
+        internal XmlSignatureBuilder(ISigningContext signingContext)
         {
             _signingContext = signingContext;
             _document = new XmlDocument();

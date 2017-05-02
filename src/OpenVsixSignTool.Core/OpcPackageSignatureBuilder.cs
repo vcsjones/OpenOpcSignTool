@@ -85,7 +85,7 @@ namespace OpenVsixSignTool.Core
             allParts.Add(_package.GetPart(_package.Relationships.DocumentUri));
             allParts.Add(_package.GetPart(originFile.Relationships.DocumentUri));
 
-            using (var signingContext = new SigningContext(certificate, fileDigestAlgorithm, fileDigestAlgorithm))
+            using (var signingContext = new CertificateSigningContext(certificate, fileDigestAlgorithm, fileDigestAlgorithm))
             {
                 var fileManifest = OpcSignatureManifest.Build(signingContext, allParts);
                 var builder = new XmlSignatureBuilder(signingContext);
