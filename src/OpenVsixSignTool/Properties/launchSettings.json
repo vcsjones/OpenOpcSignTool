@@ -1,8 +1,0 @@
-{
-  "profiles": {
-    "OpenVsixSignTool": {
-      "commandName": "Project",
-      "commandLineArgs": "sign -f --sha1 08b22cffb3ffeb0d9ed0e7b1996df5b07f1c539e C:\\Users\\KevinJones\\Desktop\\OpenVsixSignToolTest.vsix"
-    }
-  }
-}
