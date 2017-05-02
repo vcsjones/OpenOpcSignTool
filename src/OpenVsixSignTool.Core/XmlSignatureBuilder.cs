@@ -2,6 +2,7 @@
 using System.IO;
 using System.Security.Cryptography.X509Certificates;
 using System.Security.Cryptography.Xml;
+using System.Threading.Tasks;
 using System.Xml;
 
 namespace OpenVsixSignTool.Core
@@ -28,7 +29,7 @@ namespace OpenVsixSignTool.Core
 
         private XmlElement CreateDSigElement(string name) => _document.CreateElement(name, OpcKnownUris.XmlDSig.AbsoluteUri);
 
-        public XmlDocument Build()
+        public async Task<XmlDocument> Build()
         {
             if (_objectElement == null)
             {
@@ -53,7 +54,7 @@ namespace OpenVsixSignTool.Core
                 {
                     signerInfoElementHash = canonicalHashAlgorithm.ComputeHash(signerInfoCanonicalStream);
                 }
-                signatureValue = BuildSignatureValue(signerInfoElementHash);
+                signatureValue = await BuildSignatureValue(signerInfoElementHash);
             }
 
             _signatureElement.AppendChild(signedInfo);
@@ -64,10 +65,10 @@ namespace OpenVsixSignTool.Core
             return _document;
         }
 
-        private XmlElement BuildSignatureValue(byte[] signerInfoElementHash)
+        private async Task<XmlElement> BuildSignatureValue(byte[] signerInfoElementHash)
         {
             var signatureValueElement = CreateDSigElement("SignatureValue");
-            signatureValueElement.InnerText = Convert.ToBase64String(_signingContext.SignDigest(signerInfoElementHash));
+            signatureValueElement.InnerText = Convert.ToBase64String(await _signingContext.SignDigest(signerInfoElementHash));
             return signatureValueElement;
         }
 

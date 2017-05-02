@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
+using System.Threading.Tasks;
 using System.Xml;
 
 namespace OpenVsixSignTool.Core
@@ -48,7 +49,7 @@ namespace OpenVsixSignTool.Core
         /// </summary>
         /// <param name="fileDigestAlgorithm">The hash algorithm used to digest the files. The recommended value is <see cref="HashAlgorithmName.SHA256"/>.</param>
         /// <param name="certificate">The certificate to sign with.</param>
-        public OpcSignature Sign(HashAlgorithmName fileDigestAlgorithm, X509Certificate2 certificate)
+        public async Task<OpcSignature> Sign(HashAlgorithmName fileDigestAlgorithm, X509Certificate2 certificate)
         {
             var originFileUri = new Uri("package:///package/services/digital-signature/origin.psdor", UriKind.Absolute);
             var signatureUriRoot = new Uri("package:///package/services/digital-signature/xml-signature/", UriKind.Absolute);
@@ -90,7 +91,7 @@ namespace OpenVsixSignTool.Core
                 var fileManifest = OpcSignatureManifest.Build(signingContext, allParts);
                 var builder = new XmlSignatureBuilder(signingContext);
                 builder.SetFileManifest(fileManifest);
-                var result = builder.Build();
+                var result = await builder.Build();
                 using (var copySignatureStream = signatureFile.Open())
                 {
                     copySignatureStream.SetLength(0L);

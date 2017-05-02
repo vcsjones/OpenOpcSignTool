@@ -5,6 +5,7 @@ using System.IO.Packaging;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace OpenVsixSignTool.Core.Tests
@@ -18,14 +19,14 @@ namespace OpenVsixSignTool.Core.Tests
 
         [Theory]
         [MemberData(nameof(RsaSigningTheories))]
-        public void ShouldSignFileWithRsa(string pfxPath, HashAlgorithmName fileDigestAlgorithm, string expectedAlgorithm)
+        public async Task ShouldSignFileWithRsa(string pfxPath, HashAlgorithmName fileDigestAlgorithm, string expectedAlgorithm)
         {
             string path;
             using (var package = ShadowCopyPackage(SamplePackage, out path, OpcPackageFileMode.ReadWrite))
             {
                 var builder = package.CreateSignatureBuilder();
                 builder.EnqueueNamedPreset<VSIXSignatureBuilderPreset>();
-                builder.Sign(fileDigestAlgorithm, new X509Certificate2(pfxPath, "test"));
+                await builder.Sign(fileDigestAlgorithm, new X509Certificate2(pfxPath, "test"));
             }
             using (var netfxPackage = Package.Open(path, FileMode.Open))
             {
@@ -57,13 +58,13 @@ namespace OpenVsixSignTool.Core.Tests
 
         [Theory]
         [MemberData(nameof(RsaTimestampTheories))]
-        public void ShouldTimestampFileWithRsa(string pfxPath, HashAlgorithmName timestampDigestAlgorithm)
+        public async Task ShouldTimestampFileWithRsa(string pfxPath, HashAlgorithmName timestampDigestAlgorithm)
         {
             using (var package = ShadowCopyPackage(SamplePackage, out _, OpcPackageFileMode.ReadWrite))
             {
                 var signerBuilder = package.CreateSignatureBuilder();
                 signerBuilder.EnqueueNamedPreset<VSIXSignatureBuilderPreset>();
-                var signature = signerBuilder.Sign(HashAlgorithmName.SHA256, new X509Certificate2(pfxPath, "test"));
+                var signature = await signerBuilder.Sign(HashAlgorithmName.SHA256, new X509Certificate2(pfxPath, "test"));
                 var timestampBuilder = signature.CreateTimestampBuilder();
                 var result = timestampBuilder.Sign(new Uri("http://timestamp.digicert.com"), timestampDigestAlgorithm);
                 Assert.Equal(TimestampResult.Success, result);
@@ -98,20 +99,20 @@ namespace OpenVsixSignTool.Core.Tests
         }
 
         [Fact]
-        public void ShouldSupportReSigningWithDifferentCertificate()
+        public async Task ShouldSupportReSigningWithDifferentCertificate()
         {
             string path;
             using (var package = ShadowCopyPackage(SamplePackage, out path, OpcPackageFileMode.ReadWrite))
             {
                 var signerBuilder = package.CreateSignatureBuilder();
                 signerBuilder.EnqueueNamedPreset<VSIXSignatureBuilderPreset>();
-                signerBuilder.Sign(HashAlgorithmName.SHA1, new X509Certificate2(@"certs\rsa-2048-sha1.pfx", "test"));
+                await signerBuilder.Sign(HashAlgorithmName.SHA1, new X509Certificate2(@"certs\rsa-2048-sha1.pfx", "test"));
             }
             using (var package = OpcPackage.Open(path, OpcPackageFileMode.ReadWrite))
             {
                 var signerBuilder = package.CreateSignatureBuilder();
                 signerBuilder.EnqueueNamedPreset<VSIXSignatureBuilderPreset>();
-                signerBuilder.Sign(HashAlgorithmName.SHA256, new X509Certificate2(@"certs\rsa-2048-sha256.pfx", "test"));
+                await signerBuilder.Sign(HashAlgorithmName.SHA256, new X509Certificate2(@"certs\rsa-2048-sha256.pfx", "test"));
             }
             using (var netfxPackage = Package.Open(path, FileMode.Open))
             {
@@ -127,14 +128,14 @@ namespace OpenVsixSignTool.Core.Tests
         }
 
         [Fact]
-        public void ShouldRemoveSignature()
+        public async Task ShouldRemoveSignature()
         {
             string path;
             using (var package = ShadowCopyPackage(SamplePackage, out path, OpcPackageFileMode.ReadWrite))
             {
                 var signerBuilder = package.CreateSignatureBuilder();
                 signerBuilder.EnqueueNamedPreset<VSIXSignatureBuilderPreset>();
-                signerBuilder.Sign(HashAlgorithmName.SHA1, new X509Certificate2(@"certs\rsa-2048-sha1.pfx", "test"));
+                await signerBuilder.Sign(HashAlgorithmName.SHA1, new X509Certificate2(@"certs\rsa-2048-sha1.pfx", "test"));
             }
             using (var package = OpcPackage.Open(path, OpcPackageFileMode.ReadWrite))
             {

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
+using System.Threading.Tasks;
 
 namespace OpenVsixSignTool.Core
 {
@@ -60,7 +61,7 @@ namespace OpenVsixSignTool.Core
         /// </summary>
         /// <param name="digest">The digest to sign.</param>
         /// <returns>A signature. The kind and size varies by algorithm and padding scheme.</returns>
-        public byte[] SignDigest(byte[] digest) => _signProvider.SignDigest(digest, _pkcsHashAlgorithmName);
+        public Task<byte[]> SignDigest(byte[] digest) => Task.FromResult(_signProvider.SignDigest(digest, _pkcsHashAlgorithmName));
 
         /// <summary>
         /// Verifies a digest.
@@ -68,7 +69,7 @@ namespace OpenVsixSignTool.Core
         /// <param name="digest">The digest to verify.</param>
         /// <param name="signature">The signature for the digest.</param>
         /// <returns>True if the signature is valid, otherwise false.</returns>
-        public bool VerifyDigest(byte[] digest, byte[] signature) => _signProvider.VerifyDigest(digest, signature, _pkcsHashAlgorithmName);
+        public Task<bool> VerifyDigest(byte[] digest, byte[] signature) => Task.FromResult(_signProvider.VerifyDigest(digest, signature, _pkcsHashAlgorithmName));
 
         public Uri XmlDSigIdentifier
         {
