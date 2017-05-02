@@ -10,7 +10,7 @@ namespace OpenVsixSignTool.Core
     /// </summary>
     public class CertificateSigningContext : ISigningContext
     {
-        private readonly ISign _signProvider;
+        private readonly ICertificateSign _signProvider;
         private readonly HashAlgorithmName _pkcsHashAlgorithmName;
 
         public SigningAlgorithm SignatureAlgorithm { get; }
@@ -33,11 +33,11 @@ namespace OpenVsixSignTool.Core
             {
                 case KnownOids.X509Algorithms.RSA:
                     SignatureAlgorithm = SigningAlgorithm.RSA;
-                    _signProvider = new RSAPkcsSign(certificate);
+                    _signProvider = new RSAPkcsCertificateSign(certificate);
                     break;
                 case KnownOids.X509Algorithms.Ecc:
                     SignatureAlgorithm = SigningAlgorithm.ECDSA;
-                    _signProvider = new ECDsaSign(certificate);
+                    _signProvider = new ECDsaCertificateSign(certificate);
                     break;
                 default:
                     throw new NotSupportedException("The specified signature algorithm is not supported.");

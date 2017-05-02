@@ -4,12 +4,12 @@ using System.Security.Cryptography.X509Certificates;
 
 namespace OpenVsixSignTool.Core
 {
-    internal class ECDsaSign : ISign
+    internal class ECDsaCertificateSign : ICertificateSign
     {
         public ECDsaCurve ECDsaCurve { get; }
         private readonly ECDsa _algorithm;
 
-        public ECDsaSign(X509Certificate2 certificate)
+        public ECDsaCertificateSign(X509Certificate2 certificate)
         {
             var curveOid = OidParser.ReadFromBytes(certificate.PublicKey.EncodedParameters.RawData);
             switch (curveOid.Value)
