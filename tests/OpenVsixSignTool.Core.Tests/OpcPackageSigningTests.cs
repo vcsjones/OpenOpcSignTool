@@ -66,7 +66,7 @@ namespace OpenVsixSignTool.Core.Tests
                 signerBuilder.EnqueueNamedPreset<VSIXSignatureBuilderPreset>();
                 var signature = await signerBuilder.SignAsync(HashAlgorithmName.SHA256, new X509Certificate2(pfxPath, "test"));
                 var timestampBuilder = signature.CreateTimestampBuilder();
-                var result = timestampBuilder.Sign(new Uri("http://timestamp.digicert.com"), timestampDigestAlgorithm);
+                var result = await timestampBuilder.SignAsync(new Uri("http://timestamp.digicert.com"), timestampDigestAlgorithm);
                 Assert.Equal(TimestampResult.Success, result);
             }
         }

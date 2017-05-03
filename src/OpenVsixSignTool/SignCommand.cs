@@ -131,7 +131,7 @@ namespace OpenVsixSignTool
                 if (timestampUri != null)
                 {
                     var timestampBuilder = signature.CreateTimestampBuilder();
-                    var result = timestampBuilder.Sign(timestampUri, timestampDigestAlgorithm);
+                    var result = await timestampBuilder.SignAsync(timestampUri, timestampDigestAlgorithm);
                     if (result == TimestampResult.Failed)
                     {
                         return EXIT_CODES.FAILED;
