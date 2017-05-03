@@ -2,9 +2,9 @@
 using System;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
+using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Linq;
-using System.Xml.XPath;
 
 namespace OpenVsixSignTool.Core
 {
@@ -33,7 +33,7 @@ namespace OpenVsixSignTool.Core
         /// <param name="timestampServer">The URI of the timestamp server.</param>
         /// <param name="timestampAlgorithm">The hash algorithm to timestamp with.</param>
         /// <returns>A result of the timestamp operation.</returns>
-        public TimestampResult Sign(Uri timestampServer, HashAlgorithmName timestampAlgorithm)
+        public Task<TimestampResult> SignAsync(Uri timestampServer, HashAlgorithmName timestampAlgorithm)
         {
             if (timestampServer == null)
             {
@@ -67,7 +67,7 @@ namespace OpenVsixSignTool.Core
                 );
                 if (!winResult)
                 {
-                    return TimestampResult.Failed;
+                    return Task.FromResult(TimestampResult.Failed);
                 }
                 using (context)
                 {
@@ -77,13 +77,13 @@ namespace OpenVsixSignTool.Core
                         context.DangerousAddRef(ref refSuccess);
                         if (!refSuccess)
                         {
-                            return TimestampResult.Failed;
+                            return Task.FromResult(TimestampResult.Failed);
                         }
                         var structure = Marshal.PtrToStructure<CRYPT_TIMESTAMP_CONTEXT>(context.DangerousGetHandle());
                         var encoded = new byte[structure.cbEncoded];
                         Marshal.Copy(structure.pbEncoded, encoded, 0, encoded.Length);
                         ApplyTimestamp(signatureDocument, _part, encoded);
-                        return TimestampResult.Success;
+                        return Task.FromResult(TimestampResult.Success);
                     }
                     finally
                     {

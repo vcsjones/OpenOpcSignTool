@@ -1,8 +1,0 @@
-{
-  "profiles": {
-    "OpenVsixSignTool": {
-      "commandName": "Project",
-      "commandLineArgs": "unsign C:\\Users\\Administrator\\Desktop\\OpenVsixSignToolTest.vsix"
-    }
-  }
-}

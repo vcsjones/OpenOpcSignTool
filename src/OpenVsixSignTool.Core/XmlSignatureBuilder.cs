@@ -2,6 +2,7 @@
 using System.IO;
 using System.Security.Cryptography.X509Certificates;
 using System.Security.Cryptography.Xml;
+using System.Threading.Tasks;
 using System.Xml;
 
 namespace OpenVsixSignTool.Core
@@ -9,7 +10,7 @@ namespace OpenVsixSignTool.Core
     internal class XmlSignatureBuilder
     {
         private readonly XmlDocument _document;
-        private readonly SigningContext _signingContext;
+        private readonly ISigningContext _signingContext;
         private readonly XmlElement _signatureElement;
         private XmlElement _objectElement;
 
@@ -17,7 +18,7 @@ namespace OpenVsixSignTool.Core
         /// <summary>
         /// Creates a new signature with the correct namespace and empty root <c>Signature</c> element.
         /// </summary>
-        internal XmlSignatureBuilder(SigningContext signingContext)
+        internal XmlSignatureBuilder(ISigningContext signingContext)
         {
             _signingContext = signingContext;
             _document = new XmlDocument();
@@ -28,7 +29,7 @@ namespace OpenVsixSignTool.Core
 
         private XmlElement CreateDSigElement(string name) => _document.CreateElement(name, OpcKnownUris.XmlDSig.AbsoluteUri);
 
-        public XmlDocument Build()
+        public async Task<XmlDocument> BuildAsync()
         {
             if (_objectElement == null)
             {
@@ -53,7 +54,7 @@ namespace OpenVsixSignTool.Core
                 {
                     signerInfoElementHash = canonicalHashAlgorithm.ComputeHash(signerInfoCanonicalStream);
                 }
-                signatureValue = BuildSignatureValue(signerInfoElementHash);
+                signatureValue = await BuildSignatureValueAsync(signerInfoElementHash);
             }
 
             _signatureElement.AppendChild(signedInfo);
@@ -64,10 +65,10 @@ namespace OpenVsixSignTool.Core
             return _document;
         }
 
-        private XmlElement BuildSignatureValue(byte[] signerInfoElementHash)
+        private async Task<XmlElement> BuildSignatureValueAsync(byte[] signerInfoElementHash)
         {
             var signatureValueElement = CreateDSigElement("SignatureValue");
-            signatureValueElement.InnerText = Convert.ToBase64String(_signingContext.SignDigest(signerInfoElementHash));
+            signatureValueElement.InnerText = Convert.ToBase64String(await _signingContext.SignDigestAsync(signerInfoElementHash));
             return signatureValueElement;
         }
 

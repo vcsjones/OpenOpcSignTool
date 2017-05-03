@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.CommandLineUtils;
-using System;
 
 namespace OpenVsixSignTool
 {
@@ -20,9 +19,10 @@ namespace OpenVsixSignTool
                     var fileDigest = signConfiguration.Option("-fd | --file-digest", "A URL of the timestamping server to timestamp the signature.", CommandOptionType.SingleValue);
                     var force = signConfiguration.Option("-f | --force", "Force the signature by overwriting any existing signatures.", CommandOptionType.NoValue);
                     var file = signConfiguration.Argument("file", "A to the VSIX file.");
-                    signConfiguration.OnExecute(() =>
+                    signConfiguration.OnExecute(async () =>
                     {
-                        return new SignCommand(signConfiguration).Sign(sha1, pfxPath, password, timestamp, timestampAlgorithm, fileDigest, force, file);
+                        var sign = new SignCommand(signConfiguration);
+                        return await sign.SignAsync(sha1, pfxPath, password, timestamp, timestampAlgorithm, fileDigest, force, file);
                     });
                 }
             );

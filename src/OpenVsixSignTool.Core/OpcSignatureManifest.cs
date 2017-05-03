@@ -12,7 +12,7 @@ namespace OpenVsixSignTool.Core
             _digests = digests;
         }
 
-        public static OpcSignatureManifest Build(SigningContext context, IEnumerable<OpcPart> parts)
+        public static OpcSignatureManifest Build(CertificateSigningContext context, IEnumerable<OpcPart> parts)
         {
             var digests = new List<OpcPartDigest>();
             foreach (var part in parts)

@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
+using System.Threading.Tasks;
 
 namespace OpenVsixSignTool
 {
@@ -24,7 +25,7 @@ namespace OpenVsixSignTool
             _signCommandApplication = signCommandApplication;
         }
 
-        internal int Sign
+        internal Task<int> SignAsync
         (
             CommandOption sha1,
             CommandOption pfxPath,
@@ -39,7 +40,7 @@ namespace OpenVsixSignTool
             {
                 _signCommandApplication.Out.WriteLine("Either --sha1 or --certificate must be specified, but not both.");
                 _signCommandApplication.ShowHelp();
-                return EXIT_CODES.INVALID_OPTIONS;
+                return Task.FromResult(EXIT_CODES.INVALID_OPTIONS);
             }
             X509Certificate2 certificate;
             if (sha1.HasValue())
@@ -48,7 +49,7 @@ namespace OpenVsixSignTool
                 if (certificate == null)
                 {
                     _signCommandApplication.Out.WriteLine("Unable to locate certificate by thumbprint.");
-                    return EXIT_CODES.FAILED;
+                    return Task.FromResult(EXIT_CODES.FAILED);
                 }
             }
             else
@@ -57,7 +58,7 @@ namespace OpenVsixSignTool
                 if (!File.Exists(pfxFilePath))
                 {
                     _signCommandApplication.Out.WriteAsync("Specified PFX file does not exist.");
-                    return EXIT_CODES.INVALID_OPTIONS;
+                    return Task.FromResult(EXIT_CODES.INVALID_OPTIONS);
                 }
                 if (!password.HasValue())
                 {
@@ -74,26 +75,26 @@ namespace OpenVsixSignTool
                 if (!Uri.TryCreate(timestampUrl.Value(), UriKind.Absolute, out timestampServer))
                 {
                     _signCommandApplication.Out.WriteLine("Specified timestamp URL is invalid.");
-                    return EXIT_CODES.FAILED;
+                    return Task.FromResult(EXIT_CODES.FAILED);
                 }
                 if (timestampServer.Scheme != Uri.UriSchemeHttp && timestampServer.Scheme != Uri.UriSchemeHttps)
                 {
                     _signCommandApplication.Out.WriteLine("Specified timestamp URL is invalid.");
-                    return EXIT_CODES.FAILED;
+                    return Task.FromResult(EXIT_CODES.FAILED);
                 }
             }
             var vsixPathValue = vsixPath.Value;
             if (!File.Exists(vsixPathValue))
             {
                 _signCommandApplication.Out.WriteLine("Specified file does not exist.");
-                return EXIT_CODES.FAILED;
+                return Task.FromResult(EXIT_CODES.FAILED);
             }
             HashAlgorithmName fileDigestAlgorithm, timestampDigestAlgorithm;
             var fileDigestResult = AlgorithmFromInput(fileDigest.HasValue() ? fileDigest.Value() : null);
             if (fileDigestResult == null)
             {
                 _signCommandApplication.Out.WriteLine("Specified file digest algorithm is not supported.");
-                return EXIT_CODES.INVALID_OPTIONS;
+                return Task.FromResult(EXIT_CODES.INVALID_OPTIONS);
             }
             else
             {
@@ -103,16 +104,16 @@ namespace OpenVsixSignTool
             if (timestampDigestResult == null)
             {
                 _signCommandApplication.Out.WriteLine("Specified timestamp digest algorithm is not supported.");
-                return EXIT_CODES.INVALID_OPTIONS;
+                return Task.FromResult(EXIT_CODES.INVALID_OPTIONS);
             }
             else
             {
                 timestampDigestAlgorithm = timestampDigestResult.Value;
             }
-            return PerformSignOnVsix(vsixPathValue, force.HasValue(), timestampServer, fileDigestAlgorithm, timestampDigestAlgorithm, certificate);
+            return PerformSignOnVsixAsync(vsixPathValue, force.HasValue(), timestampServer, fileDigestAlgorithm, timestampDigestAlgorithm, certificate);
         }
 
-        private int PerformSignOnVsix(string vsixPath, bool force,
+        private async Task<int> PerformSignOnVsixAsync(string vsixPath, bool force,
             Uri timestampUri, HashAlgorithmName fileDigestAlgorithm, HashAlgorithmName timestampDigestAlgorithm,
             X509Certificate2 certificate
             )
@@ -126,11 +127,11 @@ namespace OpenVsixSignTool
                 }
                 var signBuilder = package.CreateSignatureBuilder();
                 signBuilder.EnqueueNamedPreset<VSIXSignatureBuilderPreset>();
-                var signature = signBuilder.Sign(fileDigestAlgorithm, certificate);
+                var signature = await signBuilder.SignAsync(fileDigestAlgorithm, certificate);
                 if (timestampUri != null)
                 {
                     var timestampBuilder = signature.CreateTimestampBuilder();
-                    var result = timestampBuilder.Sign(timestampUri, timestampDigestAlgorithm);
+                    var result = await timestampBuilder.SignAsync(timestampUri, timestampDigestAlgorithm);
                     if (result == TimestampResult.Failed)
                     {
                         return EXIT_CODES.FAILED;
