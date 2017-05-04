@@ -54,6 +54,9 @@ namespace OpenVsixSignTool.Core
         /// </summary>
         public HashAlgorithmName FileDigestAlgorithmName { get; }
 
+        /// <summary>
+        /// Gets the certificate used to sign the package.
+        /// </summary>
         public X509Certificate2 Certificate { get; }
 
         /// <summary>

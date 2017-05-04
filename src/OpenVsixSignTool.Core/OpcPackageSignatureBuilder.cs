@@ -51,6 +51,36 @@ namespace OpenVsixSignTool.Core
         /// See the documented of <see cref="CertificateSignConfigurationSet"/> for more information.</param>
         public async Task<OpcSignature> SignAsync(CertificateSignConfigurationSet configuration)
         {
+            var fileName = configuration.SigningCertificate.GetCertHashString() + ".psdsxs";
+            var (allParts, signatureFile) = SignCore(fileName);
+            using (var signingContext = new CertificateSigningContext(configuration.SigningCertificate, configuration.PkcsDigestAlgorithm, configuration.FileDigestAlgorithm))
+            {
+                var fileManifest = OpcSignatureManifest.Build(signingContext, allParts);
+                var builder = new XmlSignatureBuilder(signingContext);
+                builder.SetFileManifest(fileManifest);
+                var result = await builder.BuildAsync();
+                PublishSignature(result, signatureFile);
+            }
+            _package.Flush();
+            return new OpcSignature(signatureFile);
+        }
+
+        private void PublishSignature(XmlDocument document, OpcPart signatureFile)
+        {
+            using (var copySignatureStream = signatureFile.Open())
+            {
+                copySignatureStream.SetLength(0L);
+                using (var xmlWriter = new XmlTextWriter(copySignatureStream, System.Text.Encoding.UTF8))
+                {
+                    //The .NET implementation of OPC used by Visual Studio does not tollerate "white space" nodes.
+                    xmlWriter.Formatting = Formatting.None;
+                    document.Save(xmlWriter);
+                }
+            }
+        }
+
+        private (HashSet<OpcPart> partsToSign, OpcPart signaturePart) SignCore(string signatureFileName)
+        {
             var originFileUri = new Uri("package:///package/services/digital-signature/origin.psdor", UriKind.Absolute);
             var signatureUriRoot = new Uri("package:///package/services/digital-signature/xml-signature/", UriKind.Absolute);
             var originFileRelationship = _package.Relationships.FirstOrDefault(r => r.Type.Equals(OpcKnownUris.DigitalSignatureOrigin));
@@ -75,7 +105,7 @@ namespace OpenVsixSignTool.Core
             }
             else
             {
-                var target = new Uri(signatureUriRoot, configuration.SigningCertificate.GetCertHashString() + ".psdsxs");
+                var target = new Uri(signatureUriRoot, signatureFileName);
                 signatureFile = _package.GetPart(target) ?? _package.CreatePart(target, OpcKnownMimeTypes.DigitalSignatureSignature);
                 originFile.Relationships.Add(new OpcRelationship(target, OpcKnownUris.DigitalSignatureSignature));
             }
@@ -85,26 +115,7 @@ namespace OpenVsixSignTool.Core
             allParts.Add(originFile);
             allParts.Add(_package.GetPart(_package.Relationships.DocumentUri));
             allParts.Add(_package.GetPart(originFile.Relationships.DocumentUri));
-
-            using (var signingContext = new CertificateSigningContext(configuration.SigningCertificate, configuration.PkcsDigestAlgorithm, configuration.FileDigestAlgorithm))
-            {
-                var fileManifest = OpcSignatureManifest.Build(signingContext, allParts);
-                var builder = new XmlSignatureBuilder(signingContext);
-                builder.SetFileManifest(fileManifest);
-                var result = await builder.BuildAsync();
-                using (var copySignatureStream = signatureFile.Open())
-                {
-                    copySignatureStream.SetLength(0L);
-                    using (var xmlWriter = new XmlTextWriter(copySignatureStream, System.Text.Encoding.UTF8))
-                    {
-                        //The .NET implementation of OPC used by Visual Studio does not tollerate "white space" nodes.
-                        xmlWriter.Formatting = Formatting.None;
-                        result.Save(xmlWriter);
-                    }
-                }
-            }
-            _package.Flush();
-            return new OpcSignature(signatureFile);
+            return (allParts, signatureFile);
         }
     }
 }
