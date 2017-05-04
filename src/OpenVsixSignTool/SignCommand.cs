@@ -127,7 +127,14 @@ namespace OpenVsixSignTool
                 }
                 var signBuilder = package.CreateSignatureBuilder();
                 signBuilder.EnqueueNamedPreset<VSIXSignatureBuilderPreset>();
-                var signature = await signBuilder.SignAsync(fileDigestAlgorithm, certificate);
+                var signingConfiguration = new CertificateSignConfigurationSet
+                {
+                    FileDigestAlgorithm = fileDigestAlgorithm,
+                    PkcsDigestAlgorithm = fileDigestAlgorithm,
+                    SigningCertificate = certificate
+                };
+
+                var signature = await signBuilder.SignAsync(signingConfiguration);
                 if (timestampUri != null)
                 {
                     var timestampBuilder = signature.CreateTimestampBuilder();

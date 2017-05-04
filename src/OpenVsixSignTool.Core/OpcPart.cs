@@ -11,14 +11,11 @@ namespace OpenVsixSignTool.Core
     /// </summary>
     public class OpcPart : IEquatable<OpcPart>
     {
+        internal OpcRelationships _relationships;
         private readonly OpcPackageFileMode _mode;
         private readonly string _path;
         private readonly ZipArchiveEntry _entry;
-        internal OpcRelationships _relationships;
         private readonly OpcPackage _package;
-
-        public Uri Uri { get; }
-        internal ZipArchiveEntry Entry => _entry;
 
         internal OpcPart(OpcPackage package, string path, ZipArchiveEntry entry, OpcPackageFileMode mode)
         {
@@ -29,25 +26,11 @@ namespace OpenVsixSignTool.Core
             _mode = mode;
         }
 
-        public bool Equals(OpcPart other)
-        {
-            if (ReferenceEquals(other, null))
-            {
-                return false;
-            }
-            return Uri.Equals(other.Uri);
-        }
+        internal OpcPackage Package => _package;
 
-        public Stream Open() => _entry.Open();
+        internal ZipArchiveEntry Entry => _entry;
 
-        public override bool Equals(object obj)
-        {
-            if(obj is OpcPart part)
-            {
-                return Equals(part);
-            }
-            return false;
-        }
+        public Uri Uri { get; }
 
         public OpcRelationships Relationships
         {
@@ -69,8 +52,6 @@ namespace OpenVsixSignTool.Core
                 return _package.ContentTypes.FirstOrDefault(ct => string.Equals(ct.Extension, extension, StringComparison.OrdinalIgnoreCase))?.ContentType ?? OpcKnownMimeTypes.OctetString;
             }
         }
-
-        internal OpcPackage Package => _package;
 
         private string GetRelationshipFilePath()
         {
@@ -94,6 +75,26 @@ namespace OpenVsixSignTool.Core
                     return new OpcRelationships(location, XDocument.Load(stream, LoadOptions.PreserveWhitespace), readOnlyMode);
                 }
             }
+        }
+
+        public Stream Open() => _entry.Open();
+
+        public bool Equals(OpcPart other)
+        {
+            if (ReferenceEquals(other, null))
+            {
+                return false;
+            }
+            return Uri.Equals(other.Uri);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is OpcPart part)
+            {
+                return Equals(part);
+            }
+            return false;
         }
 
         public override int GetHashCode() => Uri.GetHashCode();

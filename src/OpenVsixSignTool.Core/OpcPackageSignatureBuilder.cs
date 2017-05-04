@@ -47,9 +47,9 @@ namespace OpenVsixSignTool.Core
         /// <summary>
         /// Creates a signature from the enqueued parts.
         /// </summary>
-        /// <param name="fileDigestAlgorithm">The hash algorithm used to digest the files. The recommended value is <see cref="HashAlgorithmName.SHA256"/>.</param>
-        /// <param name="certificate">The certificate to sign with.</param>
-        public async Task<OpcSignature> SignAsync(HashAlgorithmName fileDigestAlgorithm, X509Certificate2 certificate)
+        /// <param name="configuration">The configuration of properties used to create the signature.
+        /// See the documented of <see cref="CertificateSignConfigurationSet"/> for more information.</param>
+        public async Task<OpcSignature> SignAsync(CertificateSignConfigurationSet configuration)
         {
             var originFileUri = new Uri("package:///package/services/digital-signature/origin.psdor", UriKind.Absolute);
             var signatureUriRoot = new Uri("package:///package/services/digital-signature/xml-signature/", UriKind.Absolute);
@@ -75,7 +75,7 @@ namespace OpenVsixSignTool.Core
             }
             else
             {
-                var target = new Uri(signatureUriRoot, certificate.GetCertHashString() + ".psdsxs");
+                var target = new Uri(signatureUriRoot, configuration.SigningCertificate.GetCertHashString() + ".psdsxs");
                 signatureFile = _package.GetPart(target) ?? _package.CreatePart(target, OpcKnownMimeTypes.DigitalSignatureSignature);
                 originFile.Relationships.Add(new OpcRelationship(target, OpcKnownUris.DigitalSignatureSignature));
             }
@@ -86,7 +86,7 @@ namespace OpenVsixSignTool.Core
             allParts.Add(_package.GetPart(_package.Relationships.DocumentUri));
             allParts.Add(_package.GetPart(originFile.Relationships.DocumentUri));
 
-            using (var signingContext = new CertificateSigningContext(certificate, fileDigestAlgorithm, fileDigestAlgorithm))
+            using (var signingContext = new CertificateSigningContext(configuration.SigningCertificate, configuration.PkcsDigestAlgorithm, configuration.FileDigestAlgorithm))
             {
                 var fileManifest = OpcSignatureManifest.Build(signingContext, allParts);
                 var builder = new XmlSignatureBuilder(signingContext);
