@@ -19,10 +19,24 @@ namespace OpenVsixSignTool
                     var fileDigest = signConfiguration.Option("-fd | --file-digest", "A URL of the timestamping server to timestamp the signature.", CommandOptionType.SingleValue);
                     var force = signConfiguration.Option("-f | --force", "Force the signature by overwriting any existing signatures.", CommandOptionType.NoValue);
                     var file = signConfiguration.Argument("file", "A to the VSIX file.");
+
+                    var azureKeyVaultUrl = signConfiguration.Option("-kvu | --azure-key-vault-url", "The URL to an Azure Key Vault.", CommandOptionType.SingleValue);
+                    var azureKeyVaultClientId = signConfiguration.Option("-kvi | --azure-key-vault-client-id", "The Client ID to authenticate to the Azure Key Vault.", CommandOptionType.SingleValue);
+                    var azureKeyVaultClientSecret = signConfiguration.Option("-kvs | --azure-key-vault-client-secret", "The Client Secret to authenticate to the Azure Key Vault.", CommandOptionType.SingleValue);
+                    var azureKeyVaultCertificateName = signConfiguration.Option("-kvc | --azure-key-vault-certificate", "The name of the certificate in Azure Key Vault.", CommandOptionType.SingleValue);
+
                     signConfiguration.OnExecute(async () =>
                     {
                         var sign = new SignCommand(signConfiguration);
-                        return await sign.SignAsync(sha1, pfxPath, password, timestamp, timestampAlgorithm, fileDigest, force, file);
+                        if (sha1.HasValue() || pfxPath.HasValue() || password.HasValue())
+                        {
+                            return await sign.SignAsync(sha1, pfxPath, password, timestamp, timestampAlgorithm, fileDigest, force, file);
+                        }
+                        else
+                        {
+                            return await sign.SignAzure(azureKeyVaultUrl, azureKeyVaultClientId, azureKeyVaultClientSecret,
+                                azureKeyVaultCertificateName, force, fileDigest, timestamp, timestampAlgorithm, file);
+                        }
                     });
                 }
             );
