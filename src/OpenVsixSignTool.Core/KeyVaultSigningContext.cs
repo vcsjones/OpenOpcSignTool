@@ -47,7 +47,8 @@ namespace OpenVsixSignTool.Core
         public async Task<byte[]> SignDigestAsync(byte[] digest)
         {
             var client = _configuration.Client;
-            var signature = await client.SignAsync(_configuration.Key.KeyIdentifier.Identifier, "RS256", digest);
+            var algorithm = SignatureAlgorithmTranslator.SignatureAlgorithmToJwsAlgId(SignatureAlgorithm, _configuration.PkcsDigestAlgorithm);
+            var signature = await client.SignAsync(_configuration.Key.KeyIdentifier.Identifier, algorithm, digest);
             return signature.Result;
         }
 
