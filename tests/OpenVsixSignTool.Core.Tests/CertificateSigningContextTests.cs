@@ -5,7 +5,7 @@ using Xunit;
 
 namespace OpenVsixSignTool.Core.Tests
 {
-    public class SigningContextTests
+    public class CertificateSigningContextTests
     {
         [Theory]
         [InlineData(@"certs\rsa-2048-sha256.pfx")]
