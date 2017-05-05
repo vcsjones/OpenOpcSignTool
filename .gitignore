@@ -2,6 +2,8 @@
 .vs/
 obj/
 bin/
+private/
+!private/.gitkeep
 
 # ReSharper
 _ReSharper*/

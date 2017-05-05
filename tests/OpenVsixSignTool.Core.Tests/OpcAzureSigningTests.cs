@@ -12,26 +12,27 @@ namespace OpenVsixSignTool.Core.Tests
         private const string SamplePackageSigned = @"sample\OpenVsixSignToolTest-Signed.vsix";
         private readonly List<string> _shadowFiles = new List<string>();
 
-        [Fact]
+        [AzureFact]
         public async Task ShouldSignWithAzureCertificate()
         {
-            return;
+            var creds = TestAzureCredentials.Credentials;
             string path;
             using (var package = ShadowCopyPackage(SamplePackage, out path, OpcPackageFileMode.ReadWrite))
             {
                 var builder = package.CreateSignatureBuilder();
                 builder.EnqueueNamedPreset<VSIXSignatureBuilderPreset>();
-                await builder.SignAsync(
+                var signature = await builder.SignAsync(
                     new AzureKeyVaultSignConfigurationSet
                     {
                         FileDigestAlgorithm = HashAlgorithmName.SHA256,
                         PkcsDigestAlgorithm = HashAlgorithmName.SHA256,
-                        AzureClientId = "<FILL OUT>",
-                        AzureClientSecret = "<FILL OUT>",
-                        AzureKeyVaultUrl = "<FILL OUT>",
-                        AzureKeyVaultCertificateName = "<FILL OUT>"
+                        AzureClientId = creds.ClientId,
+                        AzureClientSecret = creds.ClientSecret,
+                        AzureKeyVaultUrl = creds.AzureKeyVaultUrl,
+                        AzureKeyVaultCertificateName = creds.AzureKeyVaultCertificateName
                     }
                 );
+                Assert.NotNull(signature);
             }
         }
 
