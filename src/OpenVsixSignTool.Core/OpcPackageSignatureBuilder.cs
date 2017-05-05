@@ -44,6 +44,29 @@ namespace OpenVsixSignTool.Core
             _enqueuedParts.AddRange(new TPreset().GetPartsForSigning(_package));
         }
 
+
+        /// <summary>
+        /// Creates a signature from the enqueued parts.
+        /// </summary>
+        /// <param name="configuration">The configuration of properties used to create the signature.
+        /// See the documented of <see cref="AzureKeyVaultSignConfigurationSet"/> for more information.</param>
+        public async Task<OpcSignature> SignAsync(AzureKeyVaultSignConfigurationSet configuration)
+        {
+            var azureConfiguration = await KeyVaultConfigurationDiscoverer.Materialize(configuration);
+            var fileName = azureConfiguration.PublicCertificate.GetCertHashString() + ".psdsxs";
+            var (allParts, signatureFile) = SignCore(fileName);
+            using (var signingContext = new KeyVaultSigningContext(azureConfiguration))
+            {
+                var fileManifest = OpcSignatureManifest.Build(signingContext, allParts);
+                var builder = new XmlSignatureBuilder(signingContext);
+                builder.SetFileManifest(fileManifest);
+                var result = await builder.BuildAsync();
+                PublishSignature(result, signatureFile);
+            }
+            _package.Flush();
+            return new OpcSignature(signatureFile);
+        }
+
         /// <summary>
         /// Creates a signature from the enqueued parts.
         /// </summary>
