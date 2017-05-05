@@ -54,6 +54,9 @@ namespace OpenVsixSignTool.Core
         /// </summary>
         public HashAlgorithmName FileDigestAlgorithmName { get; }
 
+        /// <summary>
+        /// Gets the certificate used to sign the package.
+        /// </summary>
         public X509Certificate2 Certificate { get; }
 
         /// <summary>
@@ -71,36 +74,7 @@ namespace OpenVsixSignTool.Core
         /// <returns>True if the signature is valid, otherwise false.</returns>
         public Task<bool> VerifyDigestAsync(byte[] digest, byte[] signature) => Task.FromResult(_signProvider.VerifyDigest(digest, signature, _pkcsHashAlgorithmName));
 
-        public Uri XmlDSigIdentifier
-        {
-            get
-            {
-                switch (SignatureAlgorithm)
-                {
-                    case SigningAlgorithm.RSA when _pkcsHashAlgorithmName.Name == HashAlgorithmName.MD5.Name:
-                        return OpcKnownUris.SignatureAlgorithms.rsaMD5;
-                    case SigningAlgorithm.RSA when _pkcsHashAlgorithmName.Name == HashAlgorithmName.SHA1.Name:
-                        return OpcKnownUris.SignatureAlgorithms.rsaSHA1;
-                    case SigningAlgorithm.RSA when _pkcsHashAlgorithmName.Name == HashAlgorithmName.SHA256.Name:
-                        return OpcKnownUris.SignatureAlgorithms.rsaSHA256;
-                    case SigningAlgorithm.RSA when _pkcsHashAlgorithmName.Name == HashAlgorithmName.SHA384.Name:
-                        return OpcKnownUris.SignatureAlgorithms.rsaSHA384;
-                    case SigningAlgorithm.RSA when _pkcsHashAlgorithmName.Name == HashAlgorithmName.SHA512.Name:
-                        return OpcKnownUris.SignatureAlgorithms.rsaSHA512;
-
-                    case SigningAlgorithm.ECDSA when _pkcsHashAlgorithmName.Name == HashAlgorithmName.SHA1.Name:
-                        return OpcKnownUris.SignatureAlgorithms.ecdsaSHA1;
-                    case SigningAlgorithm.ECDSA when _pkcsHashAlgorithmName.Name == HashAlgorithmName.SHA256.Name:
-                        return OpcKnownUris.SignatureAlgorithms.ecdsaSHA256;
-                    case SigningAlgorithm.ECDSA when _pkcsHashAlgorithmName.Name == HashAlgorithmName.SHA384.Name:
-                        return OpcKnownUris.SignatureAlgorithms.ecdsaSHA384;
-                    case SigningAlgorithm.ECDSA when _pkcsHashAlgorithmName.Name == HashAlgorithmName.SHA512.Name:
-                        return OpcKnownUris.SignatureAlgorithms.ecdsaSHA512;
-                    default:
-                        throw new NotSupportedException("The algorithm specified is not supported.");
-                }
-            }
-        }
+        public Uri XmlDSigIdentifier => SignatureAlgorithmTranslator.SignatureAlgorithmToXmlDSigUri(SignatureAlgorithm, _pkcsHashAlgorithmName);
 
         public void Dispose()
         {

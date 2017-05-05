@@ -109,10 +109,10 @@ namespace OpenVsixSignTool.Tests
                 {
                     new [] { "sign", "-c", @"certs\idontexist.pfx", "-p", "test" }, 1, "Specified PFX file does not exist."
                 };
-                //Neither the PFX or the digest were specified.
+                //Only password specified.
                 yield return new object[]
                 {
-                    new[] { "sign" }, 1, "Either --sha1 or --certificate must be specified, but not both."
+                    new[] { "sign", "-p", "blah" }, 1, "Either --sha1 or --certificate must be specified, but not both."
                 };
                 //Both SHA1 thumbprint and PFX were specified.
                 yield return new object[]

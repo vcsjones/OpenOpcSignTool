@@ -22,6 +22,23 @@ file digest and SHA256 timestamp digest algorithm.
 
 For more information about usage, use `OpenVsixSignTool sign --help` for more information.
 
+## Azure Key Vault Unit Tests
+
+The Azure Key Vault unit tests depend on a file called `azure-creds.json` in the
+`tests\OpenVsixSignTool.Core.Tests\private` directory. The file should look something like this:
+
+```json
+{
+  "ClientId": "abcd1234-5678-90ef-bebe-ab1234567890",
+  "ClientSecret": "your-awesome-appid-secret",
+  "AzureKeyVaultUrl": "https://vault-name.vault.azure.net",
+  "AzureKeyVaultCertificateName": "Certificate-Name"
+}
+```
+
+This file will automatically be ignored by Git to it isn't accidentally commited, but still please take care to review any
+commits to ensure this didn't accidentally get added somehow.
+
 ## Known Issues
 
 See the list of [bugs][2] in GitHub for known bugs.
