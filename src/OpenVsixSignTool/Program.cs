@@ -28,7 +28,7 @@ namespace OpenVsixSignTool
                     signConfiguration.OnExecute(async () =>
                     {
                         var sign = new SignCommand(signConfiguration);
-                        if (sha1.HasValue() || pfxPath.HasValue() || password.HasValue())
+                        if (sha1.HasValue() || pfxPath.HasValue() || password.HasValue() || pfxPath.HasValue())
                         {
                             return await sign.SignAsync(sha1, pfxPath, password, timestamp, timestampAlgorithm, fileDigest, force, file);
                         }
