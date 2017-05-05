@@ -52,19 +52,21 @@ namespace OpenVsixSignTool.Core
         /// See the documented of <see cref="AzureKeyVaultSignConfigurationSet"/> for more information.</param>
         public async Task<OpcSignature> SignAsync(AzureKeyVaultSignConfigurationSet configuration)
         {
-            var azureConfiguration = await KeyVaultConfigurationDiscoverer.Materialize(configuration);
-            var fileName = azureConfiguration.PublicCertificate.GetCertHashString() + ".psdsxs";
-            var (allParts, signatureFile) = SignCore(fileName);
-            using (var signingContext = new KeyVaultSigningContext(azureConfiguration))
+            using (var azureConfiguration = await KeyVaultConfigurationDiscoverer.Materialize(configuration))
             {
-                var fileManifest = OpcSignatureManifest.Build(signingContext, allParts);
-                var builder = new XmlSignatureBuilder(signingContext);
-                builder.SetFileManifest(fileManifest);
-                var result = await builder.BuildAsync();
-                PublishSignature(result, signatureFile);
+                var fileName = azureConfiguration.PublicCertificate.GetCertHashString() + ".psdsxs";
+                var (allParts, signatureFile) = SignCore(fileName);
+                using (var signingContext = new KeyVaultSigningContext(azureConfiguration))
+                {
+                    var fileManifest = OpcSignatureManifest.Build(signingContext, allParts);
+                    var builder = new XmlSignatureBuilder(signingContext);
+                    builder.SetFileManifest(fileManifest);
+                    var result = await builder.BuildAsync();
+                    PublishSignature(result, signatureFile);
+                }
+                _package.Flush();
+                return new OpcSignature(signatureFile);
             }
-            _package.Flush();
-            return new OpcSignature(signatureFile);
         }
 
         /// <summary>
