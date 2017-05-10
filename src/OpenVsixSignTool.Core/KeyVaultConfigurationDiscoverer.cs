@@ -18,6 +18,7 @@ namespace OpenVsixSignTool.Core
             {
                 var context = new AuthenticationContext(authority);
                 ClientCredential credential = new ClientCredential(configuration.AzureClientId, configuration.AzureClientSecret);
+
                 AuthenticationResult result = await context.AcquireTokenAsync(resource, credential);
                 if (result == null)
                 {

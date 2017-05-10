@@ -20,10 +20,10 @@ namespace OpenVsixSignTool.Core
             public static readonly Uri rsaSHA384 = new Uri("http://www.w3.org/2001/04/xmldsig-more#rsa-sha384", UriKind.Absolute);
             public static readonly Uri rsaSHA512 = new Uri("http://www.w3.org/2001/04/xmldsig-more#rsa-sha512", UriKind.Absolute);
 
-            public static readonly Uri ecdsaSHA1 = new Uri("http://www.w3.org/2000/09/xmldsig#ecdsa-sha1", UriKind.Absolute);
-            public static readonly Uri ecdsaSHA256 = new Uri("http://www.w3.org/2000/09/xmldsig#ecdsa-sha256", UriKind.Absolute);
-            public static readonly Uri ecdsaSHA384 = new Uri("http://www.w3.org/2000/09/xmldsig#ecdsa-sha384", UriKind.Absolute);
-            public static readonly Uri ecdsaSHA512 = new Uri("http://www.w3.org/2000/09/xmldsig#ecdsa-sha512", UriKind.Absolute);
+            public static readonly Uri ecdsaSHA1 = new Uri("http://www.w3.org/2001/04/xmldsig-more#ecdsa-sha1", UriKind.Absolute);
+            public static readonly Uri ecdsaSHA256 = new Uri("http://www.w3.org/2001/04/xmldsig-more#ecdsa-sha256", UriKind.Absolute);
+            public static readonly Uri ecdsaSHA384 = new Uri("http://www.w3.org/2001/04/xmldsig-more#ecdsa-sha384", UriKind.Absolute);
+            public static readonly Uri ecdsaSHA512 = new Uri("http://www.w3.org/2001/04/xmldsig-more#ecdsa-sha512", UriKind.Absolute);
         }
 
         public static class HashAlgorithms
