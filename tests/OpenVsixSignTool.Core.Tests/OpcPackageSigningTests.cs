@@ -6,6 +6,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
+using System.Xml;
 using Xunit;
 
 namespace OpenVsixSignTool.Core.Tests
@@ -26,6 +27,27 @@ namespace OpenVsixSignTool.Core.Tests
             {
                 var builder = package.CreateSignatureBuilder();
                 builder.EnqueueNamedPreset<VSIXSignatureBuilderPreset>();
+                var result = await builder.SignAsync(
+                    new CertificateSignConfigurationSet
+                    {
+                        FileDigestAlgorithm = fileDigestAlgorithm,
+                        PkcsDigestAlgorithm = fileDigestAlgorithm,
+                        SigningCertificate = new X509Certificate2(pfxPath, "test")
+                    }
+                );
+                Assert.NotNull(result);
+            }
+        }
+
+        [Theory]
+        [MemberData(nameof(EcdsaSigningTheories))]
+        public async Task ShouldSignFileWithEcdsa(string pfxPath, HashAlgorithmName fileDigestAlgorithm, string expectedAlgorithm)
+        {
+            string path;
+            using (var package = ShadowCopyPackage(SamplePackage, out path, OpcPackageFileMode.ReadWrite))
+            {
+                var builder = package.CreateSignatureBuilder();
+                builder.EnqueueNamedPreset<VSIXSignatureBuilderPreset>();
                 await builder.SignAsync(
                     new CertificateSignConfigurationSet
                     {
@@ -34,17 +56,6 @@ namespace OpenVsixSignTool.Core.Tests
                         SigningCertificate = new X509Certificate2(pfxPath, "test")
                     }
                 );
-            }
-            using (var netfxPackage = Package.Open(path, FileMode.Open))
-            {
-                var signatureManager = new PackageDigitalSignatureManager(netfxPackage);
-                Assert.Equal(VerifyResult.Success, signatureManager.VerifySignatures(true));
-                if (signatureManager.Signatures.Count != 1 || signatureManager.Signatures[0].SignedParts.Count != netfxPackage.GetParts().Count() - 1)
-                {
-                    Assert.True(false, "Missing parts");
-                }
-                var packageSignature = signatureManager.Signatures[0];
-                Assert.Equal(expectedAlgorithm, packageSignature.Signature.SignedInfo.SignatureMethod);
             }
         }
 
@@ -60,6 +71,15 @@ namespace OpenVsixSignTool.Core.Tests
                 yield return new object[] { @"certs\rsa-2048-sha1.pfx", HashAlgorithmName.SHA384, OpcKnownUris.SignatureAlgorithms.rsaSHA384.AbsoluteUri };
                 yield return new object[] { @"certs\rsa-2048-sha1.pfx", HashAlgorithmName.SHA256, OpcKnownUris.SignatureAlgorithms.rsaSHA256.AbsoluteUri };
                 yield return new object[] { @"certs\rsa-2048-sha1.pfx", HashAlgorithmName.SHA1, OpcKnownUris.SignatureAlgorithms.rsaSHA1.AbsoluteUri };
+            }
+        }
+
+        public static IEnumerable<object[]> EcdsaSigningTheories
+        {
+            get
+            {
+                yield return new object[] { @"certs\ecdsa-p256-sha256.pfx", HashAlgorithmName.SHA256, OpcKnownUris.SignatureAlgorithms.ecdsaSHA256.AbsoluteUri };
+                yield return new object[] { @"certs\ecdsa-p256-sha256.pfx", HashAlgorithmName.SHA1, OpcKnownUris.SignatureAlgorithms.ecdsaSHA1.AbsoluteUri };
             }
         }
 
