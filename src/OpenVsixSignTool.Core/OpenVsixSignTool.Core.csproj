@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net462</TargetFrameworks>
+    <TargetFrameworks>net461</TargetFrameworks>
     <AssemblyName>OpenVsixSignTool.Core</AssemblyName>
     <PackageId>OpenVsixSignTool.Core</PackageId>
     <VersionPrefix>0.1.0</VersionPrefix>
