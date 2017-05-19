@@ -16,6 +16,11 @@ namespace OpenVsixSignTool.Core
         {
             async Task<string> Authenticate(string authority, string resource, string scope)
             {
+                if (!string.IsNullOrWhiteSpace(configuration.AzureAccessToken))
+                {
+                    return configuration.AzureAccessToken;
+                }
+
                 var context = new AuthenticationContext(authority);
                 ClientCredential credential = new ClientCredential(configuration.AzureClientId, configuration.AzureClientSecret);
 
