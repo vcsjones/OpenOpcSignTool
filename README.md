@@ -1,8 +1,8 @@
-OpenVisxSignTool
+OpenVsixSignTool
 ================
 
 
-OpenVsixSignTool ("OVST") is an open-source implement of [VsixSignTool][1] to digitally sign VSIX packages.
+OpenVsixSignTool ("OVST") is an open-source implemention of [VsixSignTool][1] to digitally sign VSIX packages.
 
 It offers a number of benefits, such as easily using certificates from hardware tokens, HSMs, etc by allowing
 any certificate from the Certificate Store to be used instead of a PFX.
@@ -36,7 +36,7 @@ The Azure Key Vault unit tests depend on a file called `azure-creds.json` in the
 }
 ```
 
-This file will automatically be ignored by Git to it isn't accidentally commited, but still please take care to review any
+This file will automatically be ignored by Git so it isn't accidentally commited, but still please take care to review any
 commits to ensure this didn't accidentally get added somehow.
 
 ## Known Issues
