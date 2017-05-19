@@ -2,7 +2,7 @@
 
 namespace OpenVsixSignTool
 {
-    class Program
+    static class Program
     {
         internal static int Main(string[] args)
         {

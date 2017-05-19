@@ -6,7 +6,7 @@ namespace OpenVsixSignTool
 {
     internal class UnsignCommand
     {
-        internal class EXIT_CODES
+        internal static class EXIT_CODES
         {
             public const int SUCCESS = 0;
             public const int INVALID_OPTIONS = 1;

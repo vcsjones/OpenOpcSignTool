@@ -1,6 +1,6 @@
 ﻿namespace OpenVsixSignTool.Core
 {
-    internal class OpcKnownMimeTypes
+    internal static class OpcKnownMimeTypes
     {
         public const string DigitalSignatureOrigin = "application/vnd.openxmlformats-package.digital-signature-origin";
         public const string DigitalSignatureSignature = "application/vnd.openxmlformats-package.digital-signature-xmlsignature+xml";
