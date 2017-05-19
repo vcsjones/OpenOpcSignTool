@@ -90,7 +90,7 @@ namespace OpenVsixSignTool.Core
             return new OpcSignature(signatureFile);
         }
 
-        private void PublishSignature(XmlDocument document, OpcPart signatureFile)
+        private static void PublishSignature(XmlDocument document, OpcPart signatureFile)
         {
             using (var copySignatureStream = signatureFile.Open())
             {
