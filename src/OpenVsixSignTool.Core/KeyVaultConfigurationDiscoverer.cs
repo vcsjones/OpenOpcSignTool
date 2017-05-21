@@ -10,7 +10,7 @@ using Crypto = System.Security.Cryptography;
 
 namespace OpenVsixSignTool.Core
 {
-    internal class KeyVaultConfigurationDiscoverer
+    internal static class KeyVaultConfigurationDiscoverer
     {
         public static async Task<AzureKeyVaultMaterializedConfiguration> Materialize(AzureKeyVaultSignConfigurationSet configuration)
         {

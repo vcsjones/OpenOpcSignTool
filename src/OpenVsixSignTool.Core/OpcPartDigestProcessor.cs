@@ -3,7 +3,7 @@ using System.Security.Cryptography;
 
 namespace OpenVsixSignTool.Core
 {
-    internal class OpcPartDigestProcessor
+    internal static class OpcPartDigestProcessor
     {
         public static (byte[] digest, Uri identifier) Digest(OpcPart part, HashAlgorithmName algorithmName)
         {
