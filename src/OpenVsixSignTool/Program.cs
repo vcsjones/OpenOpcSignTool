@@ -2,7 +2,7 @@
 
 namespace OpenVsixSignTool
 {
-    class Program
+    static class Program
     {
         internal static int Main(string[] args)
         {
@@ -26,16 +26,16 @@ namespace OpenVsixSignTool
                     var azureKeyVaultCertificateName = signConfiguration.Option("-kvc | --azure-key-vault-certificate", "The name of the certificate in Azure Key Vault.", CommandOptionType.SingleValue);
                     var azureKeyVaultAccessToken = signConfiguration.Option("-kva | --azure-key-vault-accesstoken", "The Access Token to authenticate to the Azure Key Vault.", CommandOptionType.SingleValue);
 
-                    signConfiguration.OnExecute(async () =>
+                    signConfiguration.OnExecute(() =>
                     {
                         var sign = new SignCommand(signConfiguration);
                         if (sha1.HasValue() || pfxPath.HasValue() || password.HasValue() || pfxPath.HasValue())
                         {
-                            return await sign.SignAsync(sha1, pfxPath, password, timestamp, timestampAlgorithm, fileDigest, force, file);
+                            return sign.SignAsync(sha1, pfxPath, password, timestamp, timestampAlgorithm, fileDigest, force, file);
                         }
                         else
                         {
-                            return await sign.SignAzure(azureKeyVaultUrl, azureKeyVaultClientId, azureKeyVaultClientSecret,
+                            return sign.SignAzure(azureKeyVaultUrl, azureKeyVaultClientId, azureKeyVaultClientSecret,
                                 azureKeyVaultCertificateName, azureKeyVaultAccessToken, force, fileDigest, timestamp, timestampAlgorithm, file);
                         }
                     });

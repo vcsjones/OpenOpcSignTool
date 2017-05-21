@@ -263,7 +263,7 @@ namespace OpenVsixSignTool.Core
                 yield break;
             }
             var signatureRelationships = originPart.Relationships.Where(r => r.Type.Equals(OpcKnownUris.DigitalSignatureSignature)).ToList();
-            foreach (var signatureRelationship in signatureRelationships.ToList())
+            foreach (var signatureRelationship in signatureRelationships)
             {
                 var signaturePart = GetPart(signatureRelationship.Target);
                 if (signaturePart == null)
