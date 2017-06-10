@@ -79,22 +79,20 @@ namespace OpenVsixSignTool.Core
         /// <returns>An enumerable source of parts.</returns>
         public IEnumerable<OpcPart> GetParts()
         {
-            foreach(var entry in _archive.Entries)
+            foreach (var entry in _archive.Entries)
             {
                 if (entry.FullName.Equals(CONTENT_TYPES_XML, StringComparison.OrdinalIgnoreCase))
                 {
                     continue;
                 }
-                if (_partTracker.ContainsKey(entry.FullName))
+
+                OpcPart part;
+                if (!_partTracker.TryGetValue(entry.FullName, out part))
                 {
-                    yield return _partTracker[entry.FullName];
-                }
-                else
-                {
-                    var part = new OpcPart(this, entry.FullName, entry, _mode);
+                    part = new OpcPart(this, entry.FullName, entry, _mode);
                     _partTracker.Add(entry.FullName, part);
-                    yield return part;
                 }
+                yield return part;
             }
         }
 
@@ -106,21 +104,19 @@ namespace OpenVsixSignTool.Core
         public OpcPart GetPart(Uri partUri)
         {
             var path = partUri.ToPackagePath();
-            if (_partTracker.ContainsKey(path))
-            {
-                return _partTracker[path];
-            }
-            else
+
+            OpcPart part;
+            if (!_partTracker.TryGetValue(path, out part))
             {
                 var entry = _archive.GetEntry(path);
                 if (entry == null)
                 {
                     return null;
                 }
-                var part = new OpcPart(this, entry.FullName, entry, _mode);
+                part = new OpcPart(this, entry.FullName, entry, _mode);
                 _partTracker.Add(path, part);
-                return part;
             }
+            return part;
         }
 
         /// <summary>
@@ -198,7 +194,7 @@ namespace OpenVsixSignTool.Core
         /// </summary>
         public void Flush()
         {
-            foreach(var part in _partTracker.Values)
+            foreach (var part in _partTracker.Values)
             {
                 if (part._relationships?.IsDirty == true)
                 {
