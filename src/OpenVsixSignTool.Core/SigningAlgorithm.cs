@@ -2,7 +2,7 @@
 {
     public enum SigningAlgorithm
     {
-        Unkonwn = 0,
+        Unknown = 0,
         RSA,
         ECDSA
     }
