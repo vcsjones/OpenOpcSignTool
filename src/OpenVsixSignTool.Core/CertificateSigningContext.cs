@@ -28,7 +28,7 @@ namespace OpenVsixSignTool.Core
         /// </param>
         public CertificateSigningContext(X509Certificate2 certificate, HashAlgorithmName pkcsHashAlgorithmName, HashAlgorithmName fileDigestAlgorithmName)
         {
-            Certificate = certificate;
+            Certificate = certificate ?? throw new ArgumentNullException(nameof(certificate));
             ContextCreationTime = DateTimeOffset.Now;
             _pkcsHashAlgorithmName = pkcsHashAlgorithmName;
             FileDigestAlgorithmName = fileDigestAlgorithmName;

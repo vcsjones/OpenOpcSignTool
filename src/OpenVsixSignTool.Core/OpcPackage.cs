@@ -134,9 +134,9 @@ namespace OpenVsixSignTool.Core
                 throw new InvalidOperationException("The part already exists.");
             }
             var extension = Path.GetExtension(path).TrimStart('.');
-            if (!ContentTypes.Any(ct => string.Equals(extension, ct.Extension, StringComparison.OrdinalIgnoreCase)))
+            if (!ContentTypes.OfType<OpcContentTypeDefault>().Any(ct => string.Equals(extension, ct.Extension, StringComparison.OrdinalIgnoreCase)))
             {
-                ContentTypes.Add(new OpcContentType(extension, mimeType.ToLower(), OpcContentTypeMode.Default));
+                ContentTypes.Add(new OpcContentTypeDefault(extension, mimeType.ToLower(), OpcContentTypeMode.Default));
             }
             var zipEntry = Archive.CreateEntry(path, CompressionLevel.NoCompression);
             var part = new OpcPart(this, zipEntry.FullName, zipEntry, _mode);
@@ -222,9 +222,9 @@ namespace OpenVsixSignTool.Core
 
         private void SaveRelationships(OpcRelationships relationships)
         {
-            if (!ContentTypes.Any(ct => ct.Extension.Equals("rels", StringComparison.OrdinalIgnoreCase)))
+            if (!ContentTypes.OfType<OpcContentTypeDefault>().Any(ct => ct.Extension.Equals("rels", StringComparison.OrdinalIgnoreCase)))
             {
-                ContentTypes.Add(new OpcContentType("rels", OpcKnownMimeTypes.OpenXmlRelationship, OpcContentTypeMode.Default));
+                ContentTypes.Add(new OpcContentTypeDefault("rels", OpcKnownMimeTypes.OpenXmlRelationship, OpcContentTypeMode.Default));
             }
             var path = relationships.DocumentUri.ToPackagePath();
             var entry = Archive.GetEntry(path) ?? Archive.CreateEntry(path);

@@ -1,12 +1,11 @@
 ﻿using Microsoft.Azure.KeyVault;
-using Microsoft.Azure.KeyVault.Cryptography;
 using Microsoft.Azure.KeyVault.Models;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using System;
 using System.Net.Http;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
-using Crypto = System.Security.Cryptography;
+using System.Security.Cryptography;
 
 namespace OpenVsixSignTool.Core
 {
@@ -44,7 +43,7 @@ namespace OpenVsixSignTool.Core
     public class AzureKeyVaultMaterializedConfiguration : IDisposable
     {
         public AzureKeyVaultMaterializedConfiguration(KeyVaultClient client, X509Certificate2 publicCertificate,
-            KeyBundle key, Crypto.HashAlgorithmName fileDigestAlgorithm, Crypto.HashAlgorithmName pkcsDigestAlgorithm)
+            KeyBundle key, HashAlgorithmName fileDigestAlgorithm, HashAlgorithmName pkcsDigestAlgorithm)
         {
             Client = client;
             Key = key;
@@ -53,8 +52,8 @@ namespace OpenVsixSignTool.Core
             PkcsDigestAlgorithm = pkcsDigestAlgorithm;
         }
 
-        public Crypto.HashAlgorithmName FileDigestAlgorithm { get; }
-        public Crypto.HashAlgorithmName PkcsDigestAlgorithm { get; }
+        public HashAlgorithmName FileDigestAlgorithm { get; }
+        public HashAlgorithmName PkcsDigestAlgorithm { get; }
 
         public X509Certificate2 PublicCertificate { get; }
         public KeyVaultClient Client { get; }

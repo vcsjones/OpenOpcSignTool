@@ -48,8 +48,17 @@ namespace OpenVsixSignTool.Core
         {
             get
             {
+                //Check overrides first.
+                var overrides = _package.ContentTypes.OfType<OpcContentTypeOverride>();
+                var overrideContentType = overrides.FirstOrDefault(ov => ov.PartName.Equals(Uri));
+                if (overrideContentType != null)
+                {
+                    return overrideContentType.ContentType;
+                }
                 var extension = Path.GetExtension(_path)?.TrimStart('.');
-                return _package.ContentTypes.FirstOrDefault(ct => string.Equals(ct.Extension, extension, StringComparison.OrdinalIgnoreCase))?.ContentType ?? OpcKnownMimeTypes.OctetString;
+                return _package.ContentTypes
+                    .OfType<OpcContentTypeDefault>()
+                    .FirstOrDefault(ct => string.Equals(ct.Extension, extension, StringComparison.OrdinalIgnoreCase))?.ContentType ?? OpcKnownMimeTypes.OctetString;
             }
         }
 

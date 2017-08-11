@@ -26,13 +26,53 @@ namespace OpenVsixSignTool.Core
     /// Represents a content type defined in a package.
     /// </summary>
     [DebuggerDisplay("Extension = {Extension}; ContentType = {ContentType};")]
-    public class OpcContentType
+    public class OpcContentTypeDefault : OpcContentType
     {
         /// <summary>
         /// The extension, without a leading period, of the content type.
         /// </summary>
         public string Extension { get; }
 
+        /// <summary>
+        /// Creates a new instance of a content type.
+        /// </summary>
+        /// <param name="extension">The extension, without a leading period, of the content type.</param>
+        /// <param name="contentType">The MIME type of the content.</param>
+        /// <param name="mode">The mode within the content type.</param>
+        public OpcContentTypeDefault(string extension, string contentType, OpcContentTypeMode mode)
+            : base(contentType, mode)
+        {
+            Extension = extension;
+        }
+    }
+
+    /// <summary>
+    /// Represents a content type defined in a package.
+    /// </summary>
+    [DebuggerDisplay("PartName = {PartName}; ContentType = {ContentType};")]
+    public class OpcContentTypeOverride : OpcContentType
+    {
+        /// <summary>
+        /// The extension, without a leading period, of the content type.
+        /// </summary>
+        public Uri PartName { get; }
+
+        /// <summary>
+        /// Creates a new instance of a content type.
+        /// </summary>
+        /// <param name="partName">The part name which the override applies.</param>
+        /// <param name="contentType">The MIME type of the content.</param>
+        /// <param name="mode">The mode within the content type.</param>
+        public OpcContentTypeOverride(Uri partName, string contentType, OpcContentTypeMode mode)
+            : base(contentType, mode)
+        {
+            PartName = partName;
+        }
+    }
+
+    [DebuggerDisplay("ContentType = {" + nameof(ContentType) + "};")]
+    public class OpcContentType
+    {
         /// <summary>
         /// The MIME type of the content.
         /// </summary>
@@ -46,12 +86,10 @@ namespace OpenVsixSignTool.Core
         /// <summary>
         /// Creates a new instance of a content type.
         /// </summary>
-        /// <param name="extension">The extension, without a leading peroid, of the content type.</param>
         /// <param name="contentType">The MIME type of the content.</param>
         /// <param name="mode">The mode within the content type.</param>
-        public OpcContentType(string extension, string contentType, OpcContentTypeMode mode)
+        public OpcContentType(string contentType, OpcContentTypeMode mode)
         {
-            Extension = extension;
             ContentType = contentType;
             Mode = mode;
         }
@@ -114,9 +152,18 @@ namespace OpenVsixSignTool.Core
             foreach(var contentType in _contentTypes)
             {
                 var element = new XElement(TranslateToElementName(contentType.Mode));
-                element.SetAttributeValue("Extension", contentType.Extension);
                 element.SetAttributeValue("ContentType", contentType.ContentType);
-                root.Add(element);
+                switch (contentType)
+                {
+                    case OpcContentTypeDefault defaultContentType:
+                        element.SetAttributeValue("Extension", defaultContentType.Extension);
+                        root.Add(element);
+                        break;
+                    case OpcContentTypeOverride overrideContentType:
+                        element.SetAttributeValue("PartName", overrideContentType.PartName);
+                        root.Add(element);
+                        break;
+                }
             }
             document.Add(root);
             return document;
@@ -131,9 +178,27 @@ namespace OpenVsixSignTool.Core
         {
             var extension = element.Attribute("Extension")?.Value;
             var contentType = element.Attribute("ContentType")?.Value;
-            if (extension != null && contentType != null)
+            if (extension == null || contentType == null)
             {
-                _contentTypes.Add(new OpcContentType(extension, contentType, mode));
+                return;
+            }
+            switch (mode)
+            {
+                case OpcContentTypeMode.Default:
+                    _contentTypes.Add(new OpcContentTypeDefault(extension, contentType, mode));
+                    break;
+                case OpcContentTypeMode.Override:
+                    var partNameValue = element.Attribute("PartName")?.Value;
+                    if (partNameValue == null)
+                    {
+                        return;
+                    }
+                    var uri = new Uri(partNameValue, UriKind.Relative);
+                    var partName = uri.ToQualifiedUri();
+                    _contentTypes.Add(new OpcContentTypeOverride(partName, contentType, mode));
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(mode), mode, null);
             }
         }
 

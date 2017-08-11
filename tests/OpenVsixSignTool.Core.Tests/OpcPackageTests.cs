@@ -26,7 +26,7 @@ namespace OpenVsixSignTool.Core.Tests
             using (var package = OpcPackage.Open(SamplePackage))
             {
                 Assert.Equal(3, package.ContentTypes.Count);
-                var first = package.ContentTypes[0];
+                var first = Assert.IsType<OpcContentTypeDefault>(package.ContentTypes[0]);
                 Assert.Equal("vsixmanifest", first.Extension);
                 Assert.Equal("text/xml", first.ContentType);
                 Assert.Equal(OpcContentTypeMode.Default, first.Mode);
@@ -38,7 +38,7 @@ namespace OpenVsixSignTool.Core.Tests
         {
             using (var package = OpcPackage.Open(SamplePackage))
             {
-                var newItem = new OpcContentType("test", "test", OpcContentTypeMode.Default);
+                var newItem = new OpcContentTypeDefault("test", "test", OpcContentTypeMode.Default);
                 var contentTypes = package.ContentTypes;
                 Assert.Throws<InvalidOperationException>(() => contentTypes.Add(newItem));
             }
@@ -52,7 +52,7 @@ namespace OpenVsixSignTool.Core.Tests
             using (var package = ShadowCopyPackage(SamplePackage, out shadowPath, OpcPackageFileMode.ReadWrite))
             {
                 initialCount = package.ContentTypes.Count;
-                var newItem = new OpcContentType("test", "application/test", OpcContentTypeMode.Default);
+                var newItem = new OpcContentTypeDefault("test", "application/test", OpcContentTypeMode.Default);
                 package.ContentTypes.Add(newItem);
             }
             using (var reopenedPackage = OpcPackage.Open(shadowPath))
