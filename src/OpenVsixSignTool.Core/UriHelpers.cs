@@ -35,5 +35,27 @@ namespace OpenVsixSignTool.Core
             var pathUri = new Uri(absolute.GetComponents(UriComponents.SchemeAndServer | UriComponents.PathAndQuery, UriFormat.Unescaped), UriKind.Absolute);
             return _rootedPackageBaseUri.MakeRelativeUri(pathUri);
         }
+
+        public static bool EqualOrContainedBy(this Uri uri, Uri parent)
+        {
+            var seperator = new char[] { '/' };
+            //These should be canonicalized by the Uri class already.
+            var fullPath = uri.ToPackagePath();
+            var parentPath = parent.ToPackagePath();
+            var fullPathComponents = fullPath.Split(seperator, StringSplitOptions.RemoveEmptyEntries);
+            var parentPathComponents = parentPath.Split(seperator, StringSplitOptions.RemoveEmptyEntries);
+            if (fullPathComponents.Length < parentPathComponents.Length)
+            {
+                return false;
+            }
+            for(var i = 0; i < parentPathComponents.Length; i++)
+            {
+                if (!parentPathComponents[i].Equals(fullPathComponents[i], StringComparison.OrdinalIgnoreCase))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
     }
 }

@@ -74,7 +74,7 @@ namespace OpenVsixSignTool.Core
 
         private Stream CanonicalizeElement(XmlElement element, out string canonicalizationMethodUri, Action<string> setCanonicalization = null)
         {
-            //The canonicalization transformer can't reasonable do just an element. It
+            //The canonicalization transformer can't reasonably do just an element. It
             //seems content to do an entire XmlDocument.
             var transformer = new XmlDsigC14NTransform(false);
             setCanonicalization?.Invoke(transformer.Algorithm);

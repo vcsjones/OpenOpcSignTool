@@ -9,7 +9,7 @@ namespace OpenVsixSignTool
             var application = new CommandLineApplication(throwOnUnexpectedArg: false);
             var signCommand = application.Command("sign", throwOnUnexpectedArg: false, configuration: signConfiguration =>
                 {
-                    signConfiguration.Description = "Signs a VSIX package.";
+                    signConfiguration.Description = "Signs an OPC package.";
                     signConfiguration.HelpOption("-? | -h | --help");
                     var sha1 = signConfiguration.Option("-s | --sha1", "A hex-encoded SHA-1 thumbprint of the certificate used to sign the executable.", CommandOptionType.SingleValue);
                     var pfxPath = signConfiguration.Option("-c | --certificate", "A path to a PFX file to perform the signature.", CommandOptionType.SingleValue);
@@ -18,7 +18,8 @@ namespace OpenVsixSignTool
                     var timestampAlgorithm = signConfiguration.Option("-ta | --timestamp-algorithm", "The digest algorithm of the timestamp.", CommandOptionType.SingleValue);
                     var fileDigest = signConfiguration.Option("-fd | --file-digest", "A URL of the timestamping server to timestamp the signature.", CommandOptionType.SingleValue);
                     var force = signConfiguration.Option("-f | --force", "Force the signature by overwriting any existing signatures.", CommandOptionType.NoValue);
-                    var file = signConfiguration.Argument("file", "A to the VSIX file.");
+                    var engine = signConfiguration.Option("-e | --engine", "The engine used to generate the signature.", CommandOptionType.SingleValue);
+                    var file = signConfiguration.Argument("file", "A to the OPC file.");
 
                     var azureKeyVaultUrl = signConfiguration.Option("-kvu | --azure-key-vault-url", "The URL to an Azure Key Vault.", CommandOptionType.SingleValue);
                     var azureKeyVaultClientId = signConfiguration.Option("-kvi | --azure-key-vault-client-id", "The Client ID to authenticate to the Azure Key Vault.", CommandOptionType.SingleValue);
@@ -31,12 +32,12 @@ namespace OpenVsixSignTool
                         var sign = new SignCommand(signConfiguration);
                         if (sha1.HasValue() || pfxPath.HasValue() || password.HasValue() || pfxPath.HasValue())
                         {
-                            return sign.SignAsync(sha1, pfxPath, password, timestamp, timestampAlgorithm, fileDigest, force, file);
+                            return sign.SignAsync(sha1, pfxPath, password, timestamp, timestampAlgorithm, fileDigest, force, engine, file);
                         }
                         else
                         {
                             return sign.SignAzure(azureKeyVaultUrl, azureKeyVaultClientId, azureKeyVaultClientSecret,
-                                azureKeyVaultCertificateName, azureKeyVaultAccessToken, force, fileDigest, timestamp, timestampAlgorithm, file);
+                                azureKeyVaultCertificateName, azureKeyVaultAccessToken, force, fileDigest, timestamp, timestampAlgorithm, engine, file);
                         }
                     });
                 }

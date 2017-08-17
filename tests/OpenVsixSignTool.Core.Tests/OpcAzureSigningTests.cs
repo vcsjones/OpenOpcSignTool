@@ -19,8 +19,8 @@ namespace OpenVsixSignTool.Core.Tests
             string path;
             using (var package = ShadowCopyPackage(SamplePackage, out path, OpcPackageFileMode.ReadWrite))
             {
-                var builder = package.CreateSignatureBuilder();
-                builder.EnqueueNamedPreset<VSIXSignatureBuilderPreset>();
+                var builder = package.CreateSignatureBuilder<VSIXPackageSignatureEngine>();
+                builder.EnqueueEngineDefaults();
                 var signature = await builder.SignAsync(
                     new AzureKeyVaultSignConfigurationSet
                     {
@@ -47,8 +47,8 @@ namespace OpenVsixSignTool.Core.Tests
             string path;
             using (var package = ShadowCopyPackage(SamplePackage, out path, OpcPackageFileMode.ReadWrite))
             {
-                var builder = package.CreateSignatureBuilder();
-                builder.EnqueueNamedPreset<VSIXSignatureBuilderPreset>();
+                var builder = package.CreateSignatureBuilder<VSIXPackageSignatureEngine>();
+                builder.EnqueueEngineDefaults();
                 var signature = await builder.SignAsync(
                     new AzureKeyVaultSignConfigurationSet
                     {

@@ -240,7 +240,8 @@ namespace OpenVsixSignTool.Core
         /// Creates a signature builder for applying a digital signature to the package.
         /// </summary>
         /// <returns>A builder instance for configuring and applying a signature.</returns>
-        public OpcPackageSignatureBuilder CreateSignatureBuilder() => new OpcPackageSignatureBuilder(this);
+        public IOpcPackageSignatureBuilder CreateSignatureBuilder<TEngine>() where TEngine : OpcPackageSignatureEngineBase, new()
+            => new OpcPackageSignatureBuilder<TEngine>(this);
 
         /// <summary>
         /// Enumerates over all of the signatures in the package.

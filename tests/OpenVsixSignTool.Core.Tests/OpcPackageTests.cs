@@ -149,7 +149,7 @@ namespace OpenVsixSignTool.Core.Tests
         {
             using (var package = OpcPackage.Open(SamplePackage))
             {
-                var builder = package.CreateSignatureBuilder();
+                var builder = package.CreateSignatureBuilder<VSIXPackageSignatureEngine>();
                 foreach (var part in package.GetParts())
                 {
                     builder.EnqueuePart(part);

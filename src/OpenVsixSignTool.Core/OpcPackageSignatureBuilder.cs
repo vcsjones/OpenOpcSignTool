@@ -9,15 +9,17 @@ namespace OpenVsixSignTool.Core
     /// <summary>
     /// A builder to sign an OPC package.
     /// </summary>
-    public class OpcPackageSignatureBuilder
+    public class OpcPackageSignatureBuilder<TEngine> : IOpcPackageSignatureBuilder where TEngine : OpcPackageSignatureEngineBase, new()
     {
         private readonly OpcPackage _package;
         private readonly List<OpcPart> _enqueuedParts;
+        private readonly TEngine _engine;
 
         internal OpcPackageSignatureBuilder(OpcPackage package)
         {
             _enqueuedParts = new List<OpcPart>();
             _package = package;
+            _engine = new TEngine();
         }
 
         /// <summary>
@@ -36,10 +38,9 @@ namespace OpenVsixSignTool.Core
         /// <summary>
         /// Enqueues a list of parts that are known for a standard configuration.
         /// </summary>
-        /// <typeparam name="TPreset">The type of preset to enqueue.</typeparam>
-        public void EnqueueNamedPreset<TPreset>() where TPreset : ISignatureBuilderPreset, new()
+        public void EnqueueEngineDefaults()
         {
-            _enqueuedParts.AddRange(new TPreset().GetPartsForSigning(_package));
+            _enqueuedParts.AddRange(_engine.SigningPreset.GetPartsForSigning(_package));
         }
 
 
@@ -57,10 +58,8 @@ namespace OpenVsixSignTool.Core
                 using (var signingContext = new KeyVaultSigningContext(azureConfiguration))
                 {
                     var fileManifest = OpcSignatureManifest.Build(signingContext, allParts);
-                    var builder = new XmlSignatureBuilder(signingContext);
-                    builder.SetFileManifest(fileManifest);
-                    var result = await builder.BuildAsync();
-                    PublishSignature(result, signatureFile);
+                    var document = await _engine.SignCore(signingContext, fileManifest);
+                    PublishSignature(document, signatureFile);
                 }
                 _package.Flush();
                 return new OpcSignature(signatureFile);
@@ -79,10 +78,8 @@ namespace OpenVsixSignTool.Core
             using (var signingContext = new CertificateSigningContext(configuration.SigningCertificate, configuration.PkcsDigestAlgorithm, configuration.FileDigestAlgorithm))
             {
                 var fileManifest = OpcSignatureManifest.Build(signingContext, allParts);
-                var builder = new XmlSignatureBuilder(signingContext);
-                builder.SetFileManifest(fileManifest);
-                var result = await builder.BuildAsync();
-                PublishSignature(result, signatureFile);
+                var document = await _engine.SignCore(signingContext, fileManifest);
+                PublishSignature(document, signatureFile);
             }
             _package.Flush();
             return new OpcSignature(signatureFile);

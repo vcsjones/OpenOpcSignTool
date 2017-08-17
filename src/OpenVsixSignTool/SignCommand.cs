@@ -34,7 +34,8 @@ namespace OpenVsixSignTool
             CommandOption timestampAlgorithm,
             CommandOption fileDigest,
             CommandOption force,
-            CommandArgument vsixPath)
+            CommandOption engine,
+            CommandArgument filePath)
         {
             if (!(sha1.HasValue() ^ pfxPath.HasValue()))
             {
@@ -83,8 +84,8 @@ namespace OpenVsixSignTool
                     return Task.FromResult(EXIT_CODES.FAILED);
                 }
             }
-            var vsixPathValue = vsixPath.Value;
-            if (!File.Exists(vsixPathValue))
+            var filePathValue = filePath.Value;
+            if (!File.Exists(filePathValue))
             {
                 _signCommandApplication.Out.WriteLine("Specified file does not exist.");
                 return Task.FromResult(EXIT_CODES.FAILED);
@@ -110,12 +111,14 @@ namespace OpenVsixSignTool
             {
                 timestampDigestAlgorithm = timestampDigestResult.Value;
             }
-            return PerformSignOnVsixAsync(vsixPathValue, force.HasValue(), timestampServer, fileDigestAlgorithm, timestampDigestAlgorithm, certificate);
+
+            var engineValue = GetEngine(filePathValue, engine.HasValue() ? engine.Value() : null);
+            return PerformSignOnFileAsync(filePathValue, force.HasValue(), timestampServer, fileDigestAlgorithm, timestampDigestAlgorithm, certificate, engineValue);
         }
 
         internal async Task<int> SignAzure(CommandOption azureKeyVaultUrl, CommandOption azureKeyVaultClientId,
             CommandOption azureKeyVaultClientSecret, CommandOption azureKeyVaultCertificateName, CommandOption azureKeyVaultAccessToken, CommandOption force,
-            CommandOption fileDigest, CommandOption timestampUrl, CommandOption timestampAlgorithm, CommandArgument vsixPath)
+            CommandOption fileDigest, CommandOption timestampUrl, CommandOption timestampAlgorithm, CommandOption engine, CommandArgument filePath)
         {
             if (!azureKeyVaultUrl.HasValue())
             {
@@ -159,7 +162,7 @@ namespace OpenVsixSignTool
                     return EXIT_CODES.FAILED;
                 }
             }
-            var vsixPathValue = vsixPath.Value;
+            var vsixPathValue = filePath.Value;
             if (!File.Exists(vsixPathValue))
             {
                 _signCommandApplication.Out.WriteLine("Specified file does not exist.");
@@ -186,7 +189,7 @@ namespace OpenVsixSignTool
             {
                 timestampDigestAlgorithm = timestampDigestResult.Value;
             }
-            return await PerformAzureSignOnVsixAsync(
+            return await PerformAzureSignOnPackageAsync(
                 vsixPathValue,
                 force.HasValue(),
                 timestampServer,
@@ -200,20 +203,29 @@ namespace OpenVsixSignTool
             );
         }
 
-        private async Task<int> PerformSignOnVsixAsync(string vsixPath, bool force,
+        private async Task<int> PerformSignOnFileAsync(string vsixPath, bool force,
             Uri timestampUri, HashAlgorithmName fileDigestAlgorithm, HashAlgorithmName timestampDigestAlgorithm,
-            X509Certificate2 certificate
+            X509Certificate2 certificate, OpcSigningEngine engine
             )
         {
             using (var package = OpcPackage.Open(vsixPath, OpcPackageFileMode.ReadWrite))
             {
                 if (package.GetSignatures().Any() && !force)
                 {
-                    _signCommandApplication.Out.WriteLine("The VSIX is already signed.");
+                    _signCommandApplication.Out.WriteLine("The file is already signed.");
                     return EXIT_CODES.FAILED;
                 }
-                var signBuilder = package.CreateSignatureBuilder();
-                signBuilder.EnqueueNamedPreset<VSIXSignatureBuilderPreset>();
+                IOpcPackageSignatureBuilder signBuilder;
+                switch (engine)
+                {
+                    case OpcSigningEngine.VSIX:
+                        signBuilder = package.CreateSignatureBuilder<VSIXPackageSignatureEngine>();
+                        break;
+                    default:
+                        throw new InvalidOperationException("Signing engine is not supported.");
+                }
+
+                signBuilder.EnqueueEngineDefaults();
                 var signingConfiguration = new CertificateSignConfigurationSet
                 {
                     FileDigestAlgorithm = fileDigestAlgorithm,
@@ -236,20 +248,20 @@ namespace OpenVsixSignTool
             }
         }
 
-        private async Task<int> PerformAzureSignOnVsixAsync(string vsixPath, bool force,
+        private async Task<int> PerformAzureSignOnPackageAsync(string filePath, bool force,
             Uri timestampUri, HashAlgorithmName fileDigestAlgorithm, HashAlgorithmName timestampDigestAlgorithm,
             string azureUri, string azureClientId, string azureClientCertificateName, string azureClientSecret, string azureAccessToken
             )
         {
-            using (var package = OpcPackage.Open(vsixPath, OpcPackageFileMode.ReadWrite))
+            using (var package = OpcPackage.Open(filePath, OpcPackageFileMode.ReadWrite))
             {
                 if (package.GetSignatures().Any() && !force)
                 {
-                    _signCommandApplication.Out.WriteLine("The VSIX is already signed.");
+                    _signCommandApplication.Out.WriteLine("The file is already signed.");
                     return EXIT_CODES.FAILED;
                 }
-                var signBuilder = package.CreateSignatureBuilder();
-                signBuilder.EnqueueNamedPreset<VSIXSignatureBuilderPreset>();
+                var signBuilder = package.CreateSignatureBuilder<VSIXPackageSignatureEngine>();
+                signBuilder.EnqueueEngineDefaults();
                 var signingConfiguration = new AzureKeyVaultSignConfigurationSet
                 {
                     FileDigestAlgorithm = fileDigestAlgorithm,
@@ -307,6 +319,31 @@ namespace OpenVsixSignTool
                 }
                 return certificates[0];
             }
+        }
+
+        private static OpcSigningEngine GetEngine(string fileName, string value)
+        {
+            if (value != null)
+            {
+                if (Enum.TryParse<OpcSigningEngine>(value, true, out var result))
+                {
+                    return result;
+                }
+            }
+            if (fileName != null)
+            {
+                var extension = Path.GetExtension(fileName);
+                switch (extension)
+                {
+                    case ".vsix":
+                        return OpcSigningEngine.VSIX;
+                    case ".docx":
+                    case ".xlsx":
+                    case ".pptx":
+                        return OpcSigningEngine.Office;
+                }
+            }
+            return OpcSigningEngine.Unknown;
         }
     }
 }

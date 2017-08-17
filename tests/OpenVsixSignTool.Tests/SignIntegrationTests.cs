@@ -92,7 +92,7 @@ namespace OpenVsixSignTool.Tests
                     new[]
                     {
                         (new [] {"sign", "-c", @"certs\rsa-2048-sha256.pfx", "-p", "test"}, "The signing operation is complete.", 0),
-                        (new [] {"sign", "-c", @"certs\rsa-2048-sha256.pfx", "-p", "test"}, "The VSIX is already signed.", 2)
+                        (new [] {"sign", "-c", @"certs\rsa-2048-sha256.pfx", "-p", "test"}, "The file is already signed.", 2)
                     }
                 };
                 //Sign it once, then try signing it again with the force option.
