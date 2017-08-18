@@ -225,7 +225,6 @@ namespace OpenVsixSignTool
                         throw new InvalidOperationException("Signing engine is not supported.");
                 }
 
-                signBuilder.EnqueueEngineDefaults();
                 var signingConfiguration = new CertificateSignConfigurationSet
                 {
                     FileDigestAlgorithm = fileDigestAlgorithm,
@@ -261,7 +260,6 @@ namespace OpenVsixSignTool
                     return EXIT_CODES.FAILED;
                 }
                 var signBuilder = package.CreateSignatureBuilder<VSIXPackageSignatureEngine>();
-                signBuilder.EnqueueEngineDefaults();
                 var signingConfiguration = new AzureKeyVaultSignConfigurationSet
                 {
                     FileDigestAlgorithm = fileDigestAlgorithm,

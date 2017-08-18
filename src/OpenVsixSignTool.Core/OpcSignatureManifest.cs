@@ -6,10 +6,12 @@ namespace OpenVsixSignTool.Core
     internal class OpcSignatureManifest
     {
         private readonly List<OpcPartDigest> _digests;
+        private readonly HashSet<OpcPart> _parts;
 
-        private OpcSignatureManifest(List<OpcPartDigest> digests)
+        private OpcSignatureManifest(List<OpcPartDigest> digests, HashSet<OpcPart> parts)
         {
             _digests = digests;
+            _parts = parts;
         }
 
         public static OpcSignatureManifest Build(ISigningContext context, HashSet<OpcPart> parts)
@@ -22,9 +24,10 @@ namespace OpenVsixSignTool.Core
                 builder.Query = "ContentType=" + part.ContentType;
                 digests.Add(new OpcPartDigest(builder.Uri, identifier, digest));
             }
-            return new OpcSignatureManifest(digests);
+            return new OpcSignatureManifest(digests, parts);
         }
 
         public IReadOnlyList<OpcPartDigest> Manifest => _digests;
+        public HashSet<OpcPart> Parts => _parts;
     }
 }

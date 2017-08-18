@@ -12,37 +12,13 @@ namespace OpenVsixSignTool.Core
     public class OpcPackageSignatureBuilder<TEngine> : IOpcPackageSignatureBuilder where TEngine : OpcPackageSignatureEngineBase, new()
     {
         private readonly OpcPackage _package;
-        private readonly List<OpcPart> _enqueuedParts;
         private readonly TEngine _engine;
 
         internal OpcPackageSignatureBuilder(OpcPackage package)
         {
-            _enqueuedParts = new List<OpcPart>();
             _package = package;
             _engine = new TEngine();
         }
-
-        /// <summary>
-        /// Enqueues a part that will be part of the package signature.
-        /// </summary>
-        /// <param name="part">The part to enqueue.</param>
-        public void EnqueuePart(OpcPart part) => _enqueuedParts.Add(part);
-
-        /// <summary>
-        /// Dequeues a part from the signature builder. This file will not be part of the signature.
-        /// </summary>
-        /// <param name="part">The part to dequeue.</param>
-        /// <returns>True if the file was dequeued, otherwise false.</returns>
-        public bool DequeuePart(OpcPart part) => _enqueuedParts.Remove(part);
-
-        /// <summary>
-        /// Enqueues a list of parts that are known for a standard configuration.
-        /// </summary>
-        public void EnqueueEngineDefaults()
-        {
-            _enqueuedParts.AddRange(_engine.SigningPreset.GetPartsForSigning(_package));
-        }
-
 
         /// <summary>
         /// Creates a signature from the enqueued parts.
@@ -54,11 +30,10 @@ namespace OpenVsixSignTool.Core
             using (var azureConfiguration = await KeyVaultConfigurationDiscoverer.Materialize(configuration))
             {
                 var fileName = azureConfiguration.PublicCertificate.GetCertHashString() + ".psdsxs";
-                var (allParts, signatureFile) = SignCore(fileName);
+                var signatureFile = SignCore(fileName);
                 using (var signingContext = new KeyVaultSigningContext(azureConfiguration))
                 {
-                    var fileManifest = OpcSignatureManifest.Build(signingContext, allParts);
-                    var document = await _engine.SignCore(signingContext, fileManifest);
+                    var document = await _engine.SignCore(signingContext, _package);
                     PublishSignature(document, signatureFile);
                 }
                 _package.Flush();
@@ -74,11 +49,10 @@ namespace OpenVsixSignTool.Core
         public async Task<OpcSignature> SignAsync(CertificateSignConfigurationSet configuration)
         {
             var fileName = configuration.SigningCertificate.GetCertHashString() + ".psdsxs";
-            var (allParts, signatureFile) = SignCore(fileName);
+            var signatureFile = SignCore(fileName);
             using (var signingContext = new CertificateSigningContext(configuration.SigningCertificate, configuration.PkcsDigestAlgorithm, configuration.FileDigestAlgorithm))
             {
-                var fileManifest = OpcSignatureManifest.Build(signingContext, allParts);
-                var document = await _engine.SignCore(signingContext, fileManifest);
+                var document = await _engine.SignCore(signingContext, _package);
                 PublishSignature(document, signatureFile);
             }
             _package.Flush();
@@ -99,7 +73,7 @@ namespace OpenVsixSignTool.Core
             }
         }
 
-        private (HashSet<OpcPart> partsToSign, OpcPart signaturePart) SignCore(string signatureFileName)
+        private OpcPart SignCore(string signatureFileName)
         {
             var originFileUri = new Uri("package:///package/services/digital-signature/origin.psdor", UriKind.Absolute);
             var signatureUriRoot = new Uri("package:///package/services/digital-signature/xml-signature/", UriKind.Absolute);
@@ -131,11 +105,7 @@ namespace OpenVsixSignTool.Core
             }
 
             _package.Flush();
-            var allParts = new HashSet<OpcPart>(_enqueuedParts);
-            allParts.Add(originFile);
-            allParts.Add(_package.GetPart(_package.Relationships.DocumentUri));
-            allParts.Add(_package.GetPart(originFile.Relationships.DocumentUri));
-            return (allParts, signatureFile);
+            return signatureFile;
         }
     }
 }

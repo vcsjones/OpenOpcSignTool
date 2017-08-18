@@ -144,20 +144,6 @@ namespace OpenVsixSignTool.Core.Tests
             }
         }
 
-        [Fact]
-        public void ShouldCreateSignatureBuilder()
-        {
-            using (var package = OpcPackage.Open(SamplePackage))
-            {
-                var builder = package.CreateSignatureBuilder<VSIXPackageSignatureEngine>();
-                foreach (var part in package.GetParts())
-                {
-                    builder.EnqueuePart(part);
-                    Assert.True(builder.DequeuePart(part));
-                }
-            }
-        }
-
         [Theory]
         [InlineData("extension.vsixmanifest")]
         [InlineData("/extension.vsixmanifest")]
