@@ -8,7 +8,7 @@
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
-  
+
   <ItemGroup Condition="$(TargetFramework) == 'net462'">
     <Reference Include="System.Security" />
   </ItemGroup>

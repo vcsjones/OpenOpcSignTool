@@ -11,12 +11,11 @@ namespace OpenVsixSignTool.Core
         internal override async Task<XmlDocument> SignCore(ISigningContext signingContext, OpcPackage package)
         {
             var builder = new XmlDSigBuilder(signingContext);
-            var manifest = new XmlDSigObjectManifest();
+            var manifest = new XmlDSigObjectManifestBuilder();
             foreach(var part in GetPartsForSigning(package))
             {
                 manifest.AddPart(part);
             }
-            builder.SignedInfo.Objects.Add(manifest);
             return await builder.BuildAsync();
         }
 
@@ -38,7 +37,7 @@ namespace OpenVsixSignTool.Core
         internal override async Task<XmlDocument> SignCore(ISigningContext signingContext, OpcPackage package)
         {
             var builder = new XmlDSigBuilder(signingContext);
-            var objects = new XmlDSigObjectManifest();
+            var objects = new XmlDSigObjectManifestBuilder();
             return await builder.BuildAsync();
         }
     }

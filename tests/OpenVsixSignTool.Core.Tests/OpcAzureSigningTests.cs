@@ -7,7 +7,7 @@ using Xunit;
 
 namespace OpenVsixSignTool.Core.Tests
 {
-    public class OpcAzureSigningTests
+    public class OpcAzureSigningTests : IDisposable
     {
         private const string SamplePackage = @"sample\OpenVsixSignToolTest.vsix";
         private readonly List<string> _shadowFiles = new List<string>();
@@ -39,7 +39,7 @@ namespace OpenVsixSignTool.Core.Tests
             }
         }
 
-        [AzureFact]
+        [Fact]
         public async Task ShouldSignWithAzureCertificateAndTimestamp()
         {
             var creds = TestAzureCredentials.Credentials;
@@ -79,7 +79,7 @@ namespace OpenVsixSignTool.Core.Tests
             return OpcPackage.Open(temp, mode);
         }
 
-        public void Dispose()
+        void IDisposable.Dispose()
         {
             void CleanUpShadows()
             {

@@ -188,12 +188,12 @@ namespace OpenVsixSignTool.Core.Tests
             using (var package = OpcPackage.Open(path, OpcPackageFileMode.ReadWrite))
             {
                 var signatures = package.GetSignatures().ToList();
-                Assert.Equal(1, signatures.Count);
+                Assert.Single(signatures);
                 var signature = signatures[0];
                 signature.Remove();
                 Assert.Null(signature.Part);
                 Assert.Throws<InvalidOperationException>(() => signature.CreateTimestampBuilder());
-                Assert.Equal(0, package.GetSignatures().Count());
+                Assert.Empty(package.GetSignatures());
             }
         }
 
