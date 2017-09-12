@@ -17,7 +17,7 @@ namespace OpenVsixSignTool.Core.Interop
             [param: In, MarshalAs(UnmanagedType.U4)] CryptRetrieveTimeStampRetrievalFlags dwRetrievalFlags,
             [param: In, MarshalAs(UnmanagedType.U4)] uint dwTimeout,
             [param: In, MarshalAs(UnmanagedType.LPStr)] string pszHashId,
-            [param: In, MarshalAs(UnmanagedType.Struct)] ref CRYPT_TIMESTAMP_PARA pPara,
+            [param: In] ref CRYPT_TIMESTAMP_PARA pPara,
             [param: In, MarshalAs(UnmanagedType.LPArray)] byte[] pbData,
             [param: In, MarshalAs(UnmanagedType.U4)] uint cbData,
             [param: Out] out CryptMemorySafeHandle ppTsContext,

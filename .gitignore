@@ -4,6 +4,8 @@ obj/
 bin/
 private/
 !private/.gitkeep
+*.user
+*.suo
 
 # ReSharper
 _ReSharper*/
