@@ -6,6 +6,27 @@ using Xunit;
 
 namespace OpenVsixSignTool.Tests
 {
+    internal sealed class ConsoleIntercepter : IDisposable
+    {
+        private readonly TextWriter _writer;
+        private readonly TextWriter _new;
+
+        public ConsoleIntercepter()
+        {
+            _writer = Console.Out;
+            _new = new StringWriter();
+            Console.SetOut(_new);
+        }
+
+        public string Content => _new.ToString();
+
+        public void Dispose()
+        {
+            Console.SetOut(_writer);
+            _new.Dispose();
+        }
+    }
+
     public class SignIntegrationTests : IDisposable
     {
         private readonly List<string> _shadowFiles = new List<string>();
@@ -14,26 +35,23 @@ namespace OpenVsixSignTool.Tests
         [MemberData(nameof(HandleInvalidCommandLineOptionsTheories))]
         public void ShouldHandleInvalidCommandLineOptions(string[] args, int expectedExitCode, string expectedMessage)
         {
-            using (var consoleWriter = new StringWriter())
+            using (var consoleWriter = new ConsoleIntercepter())
             {
-                Console.SetOut(consoleWriter);
                 var shadow = ShadowCopyPackage(@"sample\OpenVsixSignToolTest.vsix");
                 Assert.Equal(expectedExitCode, Program.Main(args.Concat(new[] {shadow}).ToArray()));
-                Assert.Contains(expectedMessage, consoleWriter.ToString());
+                Assert.Contains(expectedMessage, consoleWriter.Content);
             }
         }
-
 
         [Theory]
         [MemberData(nameof(HandleValidCommandLineOptionsTheories))]
         public void ShouldHandleValidCommandLineOptions(string[] args, string expectedMessage)
         {
-            using (var consoleWriter = new StringWriter())
+            using (var consoleWriter = new ConsoleIntercepter())
             {
-                Console.SetOut(consoleWriter);
                 var shadow = ShadowCopyPackage(@"sample\OpenVsixSignToolTest.vsix");
                 Assert.Equal(0, Program.Main(args.Concat(new[] { shadow }).ToArray()));
-                Assert.Contains(expectedMessage, consoleWriter.ToString());
+                Assert.Contains(expectedMessage, consoleWriter.Content);
             }
         }
 
@@ -44,15 +62,13 @@ namespace OpenVsixSignTool.Tests
             var shadow = ShadowCopyPackage(@"sample\OpenVsixSignToolTest.vsix");
             foreach (var (args, expectedMessage, expectedExitCode) in argsSets)
             {
-                using (var consoleWriter = new StringWriter())
+                using (var consoleWriter = new ConsoleIntercepter())
                 {
-                    Console.SetOut(consoleWriter);
                     Assert.Equal(expectedExitCode, Program.Main(args.Concat(new[] {shadow}).ToArray()));
-                    Assert.Contains(expectedMessage, consoleWriter.ToString());
+                    Assert.Contains(expectedMessage, consoleWriter.Content);
                 }
             }
         }
-
 
         public static IEnumerable<object[]> HandleValidCommandLineOptionsTheories
         {

@@ -97,9 +97,11 @@ namespace OpenVsixSignTool.Core
         private Task<TimestampResult> Win32TimeStamp(Uri timestampServer, HashAlgorithmName timestampAlgorithm, TimestampNonceFactory nonce)
         {
             var oid = HashAlgorithmTranslator.TranslateFromNameToOid(timestampAlgorithm);
-            var parameters = new CRYPT_TIMESTAMP_PARA();
-            parameters.cExtension = 0;
-            parameters.fRequestCerts = true;
+            var parameters = new CRYPT_TIMESTAMP_PARA
+            {
+                cExtension = 0,
+                fRequestCerts = true
+            };
             parameters.Nonce.cbData = nonce.Size;
             parameters.Nonce.pbData = nonce.NoncePointer;
             parameters.pszTSAPolicyId = null;
