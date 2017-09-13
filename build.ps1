@@ -3,11 +3,15 @@ If ($lastexitcode -ne 0) {
 	Write-Host "Restore failed."
 	exit 1
 }
-dotnet test --framework net462 $PSScriptRoot\tests\OpenVsixSignTool.Core.Tests\OpenVsixSignTool.Core.Tests.csproj
+pushd $PSScriptRoot\tests\OpenVsixSignTool.Core.Tests
+dotnet xunit
 $CoreTestsFailed = $lastexitcode
+popd
 
-dotnet test --framework net462 $PSScriptRoot\tests\OpenVsixSignTool.Tests\OpenVsixSignTool.Tests.csproj
+pushd $PSScriptRoot\tests\OpenVsixSignTool.Tests
+dotnet xunit
 $IntegrationTestsFailed = $lastexitcode
+popd
 
 If (($CoreTestsFailed -ne 0) -or ($IntegrationTestsFailed -ne 0)) {
 	Write-Host "Tests failed."
