@@ -22,9 +22,9 @@ namespace OpenVsixSignTool.Core
                 }
 
                 var context = new AuthenticationContext(authority);
-                ClientCredential credential = new ClientCredential(configuration.AzureClientId, configuration.AzureClientSecret);
+                var credential = new ClientCredential(configuration.AzureClientId, configuration.AzureClientSecret);
 
-                AuthenticationResult result = await context.AcquireTokenAsync(resource, credential);
+                var result = await context.AcquireTokenAsync(resource, credential);
                 if (result == null)
                 {
                     throw new InvalidOperationException("Authentication to Azure failed.");

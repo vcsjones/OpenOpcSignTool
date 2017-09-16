@@ -11,6 +11,7 @@ namespace OpenVsixSignTool.Core
         public static readonly Uri XmlDigitalSignature = new Uri("http://schemas.openxmlformats.org/package/2006/digital-signature", UriKind.Absolute);
         public static readonly Uri XmlDSigObject = new Uri("http://www.w3.org/2000/09/xmldsig#Object", UriKind.Absolute);
 
+        // ReSharper disable InconsistentNaming
         public static class SignatureAlgorithms
         {
             public static readonly Uri rsaMD5 = new Uri("http://www.w3.org/2001/04/xmldsig-more#rsa-md5", UriKind.Absolute);
@@ -36,5 +37,6 @@ namespace OpenVsixSignTool.Core
             public static readonly Uri sha384DigestUri = new Uri("http://www.w3.org/2001/04/xmldsig-more#sha384", UriKind.Absolute);
             public static readonly Uri sha512DigestUri = new Uri("http://www.w3.org/2001/04/xmlenc#sha512", UriKind.Absolute);
         }
+        // ReSharper restore InconsistentNaming
     }
 }

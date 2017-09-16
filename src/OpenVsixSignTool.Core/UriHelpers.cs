@@ -4,8 +4,8 @@ namespace OpenVsixSignTool.Core
 {
     public static class UriHelpers
     {
-        private static Uri PackageBaseUri = new Uri("package:///", UriKind.Absolute);
-        private static Uri RootedPackageBaseUri = new Uri("package:", UriKind.Absolute);
+        private static readonly Uri _packageBaseUri = new Uri("package:///", UriKind.Absolute);
+        private static readonly Uri _rootedPackageBaseUri = new Uri("package:", UriKind.Absolute);
 
 
         /// <summary>
@@ -15,25 +15,25 @@ namespace OpenVsixSignTool.Core
         /// <returns>A string to the path in a zip file.</returns>
         public static string ToPackagePath(this Uri partUri)
         {
-            var absolute = partUri.IsAbsoluteUri ? partUri : new Uri(PackageBaseUri, partUri);
+            var absolute = partUri.IsAbsoluteUri ? partUri : new Uri(_packageBaseUri, partUri);
             var pathUri = new Uri(absolute.GetComponents(UriComponents.SchemeAndServer | UriComponents.Path, UriFormat.Unescaped), UriKind.Absolute);
-            var resolved = PackageBaseUri.MakeRelativeUri(pathUri);
+            var resolved = _packageBaseUri.MakeRelativeUri(pathUri);
             return resolved.ToString();
         }
 
         public static string ToQualifiedPath(this Uri partUri)
         {
-            var absolute = partUri.IsAbsoluteUri ? partUri : new Uri(RootedPackageBaseUri, partUri);
+            var absolute = partUri.IsAbsoluteUri ? partUri : new Uri(_rootedPackageBaseUri, partUri);
             var pathUri = new Uri(absolute.GetComponents(UriComponents.SchemeAndServer | UriComponents.PathAndQuery, UriFormat.Unescaped), UriKind.Absolute);
-            var resolved = RootedPackageBaseUri.MakeRelativeUri(pathUri);
+            var resolved = _rootedPackageBaseUri.MakeRelativeUri(pathUri);
             return resolved.ToString();
         }
 
         public static Uri ToQualifiedUri(this Uri partUri)
         {
-            var absolute = partUri.IsAbsoluteUri ? partUri : new Uri(RootedPackageBaseUri, partUri);
+            var absolute = partUri.IsAbsoluteUri ? partUri : new Uri(_rootedPackageBaseUri, partUri);
             var pathUri = new Uri(absolute.GetComponents(UriComponents.SchemeAndServer | UriComponents.PathAndQuery, UriFormat.Unescaped), UriKind.Absolute);
-            return RootedPackageBaseUri.MakeRelativeUri(pathUri);
+            return _rootedPackageBaseUri.MakeRelativeUri(pathUri);
         }
     }
 }

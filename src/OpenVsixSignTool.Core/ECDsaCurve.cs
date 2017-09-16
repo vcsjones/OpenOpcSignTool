@@ -1,4 +1,5 @@
-﻿namespace OpenVsixSignTool.Core
+﻿// ReSharper disable InconsistentNaming
+namespace OpenVsixSignTool.Core
 {
     public enum ECDsaCurve
     {

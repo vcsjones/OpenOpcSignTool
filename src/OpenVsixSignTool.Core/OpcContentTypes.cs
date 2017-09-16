@@ -67,16 +67,26 @@ namespace OpenVsixSignTool.Core
 
         internal OpcContentTypes(XDocument document, bool isReadOnly)
         {
-            IsReadOnly = isReadOnly;
-            var defaults = document.Root.Elements(_opcContentTypeNamespace + "Default");
-            var overrides = document.Root.Elements(_opcContentTypeNamespace + "Override");
-            foreach(var @default in defaults)
+            if (document == null)
             {
-                ProcessElement(OpcContentTypeMode.Default, @default);
+                throw new ArgumentNullException(nameof(document));
             }
-            foreach (var @override in overrides)
+            IsReadOnly = isReadOnly;
+            var defaults = document.Root?.Elements(_opcContentTypeNamespace + "Default");
+            var overrides = document.Root?.Elements(_opcContentTypeNamespace + "Override");
+            if (defaults != null)
             {
-                ProcessElement(OpcContentTypeMode.Override, @override);
+                foreach (var @default in defaults)
+                {
+                    ProcessElement(OpcContentTypeMode.Default, @default);
+                }
+            }
+            if (overrides != null)
+            {
+                foreach (var @override in overrides)
+                {
+                    ProcessElement(OpcContentTypeMode.Override, @override);
+                }
             }
         }
 
@@ -119,7 +129,12 @@ namespace OpenVsixSignTool.Core
 
         private void ProcessElement(OpcContentTypeMode mode, XElement element)
         {
-            _contentTypes.Add(new OpcContentType(element.Attribute("Extension").Value, element.Attribute("ContentType").Value, mode));
+            var extension = element.Attribute("Extension")?.Value;
+            var contentType = element.Attribute("ContentType")?.Value;
+            if (extension != null && contentType != null)
+            {
+                _contentTypes.Add(new OpcContentType(extension, contentType, mode));
+            }
         }
 
         /// <summary>
