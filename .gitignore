@@ -12,3 +12,7 @@ _ReSharper*/
 *.[Rr]e[Ss]harper
 *.DotSettings.user
 launchSettings.json
+
+# Rider
+.idea/
+*.sln.iml
