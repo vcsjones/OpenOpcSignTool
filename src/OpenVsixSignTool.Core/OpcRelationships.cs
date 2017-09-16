@@ -45,7 +45,7 @@ namespace OpenVsixSignTool.Core
 
     public class OpcRelationships : IList<OpcRelationship>
     {
-        private static readonly XNamespace OpcRelationshipNamespace = "http://schemas.openxmlformats.org/package/2006/relationships";
+        private static readonly XNamespace _opcRelationshipNamespace = "http://schemas.openxmlformats.org/package/2006/relationships";
         private readonly List<OpcRelationship> _relationships = new List<OpcRelationship>();
 
 
@@ -53,7 +53,7 @@ namespace OpenVsixSignTool.Core
         {
             IsReadOnly = isReadOnly;
             DocumentUri = documentUri;
-            var relationships = document?.Root?.Elements(OpcRelationshipNamespace + "Relationship");
+            var relationships = document?.Root?.Elements(_opcRelationshipNamespace + "Relationship");
             if (relationships == null)
             {
                 return;
@@ -81,10 +81,10 @@ namespace OpenVsixSignTool.Core
         public XDocument ToXml()
         {
             var document = new XDocument();
-            var root = new XElement(OpcRelationshipNamespace + "Relationships");
+            var root = new XElement(_opcRelationshipNamespace + "Relationships");
             foreach (var relationship in _relationships)
             {
-                var element = new XElement(OpcRelationshipNamespace + "Relationship");
+                var element = new XElement(_opcRelationshipNamespace + "Relationship");
                 element.SetAttributeValue("Target", relationship.Target.ToQualifiedPath());
                 element.SetAttributeValue("Id", relationship.Id);
                 element.SetAttributeValue("Type", relationship.Type);

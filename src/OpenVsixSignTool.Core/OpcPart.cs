@@ -61,7 +61,7 @@ namespace OpenVsixSignTool.Core
         private OpcRelationships ConstructRelationships()
         {
             var path = GetRelationshipFilePath();
-            var entry = _package._archive.GetEntry(path);
+            var entry = _package.Archive.GetEntry(path);
             var readOnlyMode = _mode != OpcPackageFileMode.ReadWrite;
             var location = new Uri(OpcPackage.BasePackageUri, path);
             if (entry == null)

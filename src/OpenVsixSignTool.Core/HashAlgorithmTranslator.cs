@@ -53,7 +53,6 @@ namespace OpenVsixSignTool.Core
         /// Translates the name of a hash algorithm.
         /// </summary>
         /// <param name="hashAlgorithmName">The hash algorithm to translate.</param>
-        /// <param name="xmlDSigIdentifierUri">An XmlDSig URI that corresponds to the hash algorithm.</param>
         /// <remarks>The caller is expected to call <c>Dispose</c> on the return value.</remarks>
         public static Oid TranslateFromNameToOid(HashAlgorithmName hashAlgorithmName)
         {

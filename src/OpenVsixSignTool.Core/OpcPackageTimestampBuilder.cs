@@ -4,13 +4,12 @@ using System.Security.Cryptography;
 using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Linq;
-using System.Net.Http;
 
 #if NETSTANDARD2_0
 using System.Net;
+using System.Net.Http;
 using Org.BouncyCastle.Tsp;
 using Org.BouncyCastle.Asn1;
-using Org.BouncyCastle.Asn1.Tsp;
 #elif NET462
 using OpenVsixSignTool.Core.Interop;
 #endif
@@ -54,7 +53,7 @@ namespace OpenVsixSignTool.Core
             }
             using (var nonce = new TimestampNonceFactory())
             {
-#if NET462 
+#if NET462
                 return Win32TimeStamp(timestampServer, timestampAlgorithm, nonce);
 #elif NETSTANDARD2_0
                 return BouncyCastleTimeStamp(timestampServer, timestampAlgorithm, nonce);

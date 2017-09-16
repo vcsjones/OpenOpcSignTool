@@ -7,7 +7,7 @@ namespace OpenVsixSignTool.Core
     /// Represents an OPC signature.
     /// </summary>
     /// <remarks>
-    /// This type cannot be directly created. To create a signature on a package, use <see cref="OpcPackage.CreateSignatureBuilder". />
+    /// This type cannot be directly created. To create a signature on a package, use <see cref="OpcPackage.CreateSignatureBuilder" />.
     /// </remarks>
     public sealed class OpcSignature
     {

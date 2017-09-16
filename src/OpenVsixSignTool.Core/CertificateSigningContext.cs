@@ -23,6 +23,9 @@ namespace OpenVsixSignTool.Core
         /// A hash algorithm. Currently, this is used in the PKCS#1 padding operation with RSA. The value is ignored for
         /// ECC signatures. This should usually match the algorithm used to hash the data that will be signed and verified.
         /// </param>
+        /// <param name="fileDigestAlgorithmName">
+        /// A hash algorithm. This is the digest algorting used for digesting files.
+        /// </param>
         public CertificateSigningContext(X509Certificate2 certificate, HashAlgorithmName pkcsHashAlgorithmName, HashAlgorithmName fileDigestAlgorithmName)
         {
             Certificate = certificate;

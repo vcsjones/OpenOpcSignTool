@@ -12,31 +12,5 @@ namespace OpenVsixSignTool.Core
 
         public Crypto.HashAlgorithmName FileDigestAlgorithm { get; set; }
         public Crypto.HashAlgorithmName PkcsDigestAlgorithm { get; set; }
-
-        public bool Validate()
-        {
-            // Logging candidate.
-            if (string.IsNullOrWhiteSpace(AzureAccessToken))
-            {
-                if (string.IsNullOrWhiteSpace(AzureClientId))
-                {
-                    return false;
-                }
-                if (string.IsNullOrWhiteSpace(AzureClientSecret))
-                {
-                    return false;
-                }
-            }
-            
-            if (string.IsNullOrWhiteSpace(AzureKeyVaultUrl))
-            {
-                return false;
-            }
-            if (string.IsNullOrWhiteSpace(AzureKeyVaultCertificateName))
-            {
-                return false;
-            }
-            return true;
-        }
     }
 }
