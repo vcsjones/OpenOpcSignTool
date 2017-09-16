@@ -16,7 +16,7 @@ namespace OpenVsixSignTool.Core.Tests
 
         [Fact]
         public async Task ShouldGenerateSimpleSignature()
-        { 
+        {
             var certificate = new X509Certificate2(@"certs\rsa-2048-sha256.pfx", "test");
             string path;
             using (var package = ShadowCopyPackage(SamplePackage, out path, OpcPackageFileMode.ReadWrite))
@@ -25,11 +25,17 @@ namespace OpenVsixSignTool.Core.Tests
                 {
                     var builder = new XmlDSigBuilder(context);
                     var manifestBuilder = new XmlDSigObjectManifestBuilder();
+                    var time = new XmlSignatureTimeSignatureProperty
+                    {
+                        Value = DateTimeOffset.Now
+                    };
+                    manifestBuilder.AddSignatureProperty(null, "idSignatureTime", time);
                     foreach(var part in package.GetParts())
                     {
                         manifestBuilder.AddPart(part);
                     }
                     builder.Objects.Add(manifestBuilder);
+                    builder.SignedInfo.AddReference(manifestBuilder);
                     var result = await builder.BuildAsync();
                     using (var ms = new MemoryStream())
                     {

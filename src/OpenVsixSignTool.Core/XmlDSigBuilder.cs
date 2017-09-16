@@ -27,6 +27,22 @@ namespace OpenVsixSignTool.Core
         {
             [XmlElement]
             public XmlCanonicalizationMethodElement CanonicalizationMethod { get; set; }
+
+            [XmlElement("Reference")]
+            public List<XmlSignedInfoReferenceElement> References { get; set; }
+        }
+
+        public sealed class XmlSignedInfoReferenceElement
+        {
+
+            [XmlAttribute]
+            public string URI { get; set; }
+
+            [XmlAttribute]
+            public string Type { get; set; }
+
+            public XmlDigestMethodElement DigestMethod { get; set; }
+            public string DigestValue { get; set; }
         }
 
         public sealed class XmlCanonicalizationMethodElement
@@ -47,14 +63,13 @@ namespace OpenVsixSignTool.Core
             [XmlAttribute]
             public string Id { get; set; }
 
-            [XmlArray(ElementName = "SignatureProperties")]
-            [XmlArrayItem(ElementName = "SignatureProperty")]
-            public List<XmlSignaturePropertyElement> SignatureProperties { get; set; }
-
             [XmlArray(ElementName = "Manifest")]
             [XmlArrayItem(ElementName = "Reference")]
             public List<XmlReferenceElement> Manifest { get; set; } = new List<XmlReferenceElement>();
 
+            [XmlArray(ElementName = "SignatureProperties")]
+            [XmlArrayItem(ElementName = "SignatureProperty")]
+            public List<XmlSignaturePropertyElement> SignatureProperties { get; set; }
         }
 
 
@@ -74,10 +89,15 @@ namespace OpenVsixSignTool.Core
 
         }
 
+        [XmlInclude(typeof(XmlSignatureTimeElement))]
         public sealed class XmlSignaturePropertyElement
         {
+            [XmlAttribute]
             public string Id { get; set; }
+            [XmlAttribute]
             public string Target { get; set; }
+            [XmlElement(typeof(XmlSignatureTimeElement), ElementName = "SignatureTime", Namespace = "http://schemas.openxmlformats.org/package/2006/digital-signature")]
+            public object Contents { get; set; }
         }
 
         public sealed class XmlDigestMethodElement
@@ -85,11 +105,18 @@ namespace OpenVsixSignTool.Core
             [XmlAttribute]
             public string Algorithm { get; set; }
         }
+
+        public sealed class XmlSignatureTimeElement
+        {
+            public string Format { get; set; }
+            public string Value { get; set; }
+        }
     }
 
     public interface IXmlDSigReferencable
     {
         string Id { get; }
+        string Type { get; }
     }
 
     public class XmlDSigBuilder : IXmlDSigReferencable
@@ -98,6 +125,7 @@ namespace OpenVsixSignTool.Core
 
         public SignedInfoBuilder SignedInfo { get; }
         public string Id => "idPackageSignature";
+        public string Type => null;
         public IList<XmlDSigObjectBase> Objects { get; } = new List<XmlDSigObjectBase>();
 
 
@@ -120,7 +148,7 @@ namespace OpenVsixSignTool.Core
                     SignedInfo = await SignedInfo.Build()
                 };
 
-                foreach(var obj in Objects)
+                foreach (var obj in Objects)
                 {
                     element.Objects.Add(await obj.Build());
                 }
@@ -129,23 +157,45 @@ namespace OpenVsixSignTool.Core
                 memoryStream.Position = 0;
                 var document = new XmlDocument();
                 document.Load(memoryStream);
+                await CompleteSigning(document);
                 return document;
             }
+        }
+
+        public async Task CompleteSigning(XmlDocument document)
+        {
         }
 
         public class SignedInfoBuilder
         {
             private readonly XmlDSigBuilder _builder;
+            private readonly List<IXmlDSigReferencable> _references = new List<IXmlDSigReferencable>();
+
+            public void AddReference(IXmlDSigReferencable reference)
+            {
+                _references.Add(reference);
+            }
 
             internal SignedInfoBuilder(XmlDSigBuilder builder)
             {
                 _builder = builder;
             }
 
-            internal async Task<Internal.XmlSignedInfoElement> Build()
+            internal Task<Internal.XmlSignedInfoElement> Build()
             {
-                var element = new Internal.XmlSignedInfoElement();
-                return element;
+                var element = new Internal.XmlSignedInfoElement
+                {
+                    References = new List<Internal.XmlSignedInfoReferenceElement>()
+                };
+                foreach (var reference in _references)
+                {
+                    element.References.Add(new Internal.XmlSignedInfoReferenceElement
+                    {
+                        URI = $"#{reference.Id}",
+                        Type = reference.Type
+                    });
+                }
+                return Task.FromResult(element);
             }
         }
     }
@@ -155,46 +205,29 @@ namespace OpenVsixSignTool.Core
         private readonly List<XmlDSigSignatureProperty> _properties = new List<XmlDSigSignatureProperty>();
 
         public string Id { get; }
+        public string Type { get; }
 
-        protected XmlDSigObjectBase(string id)
+        protected XmlDSigObjectBase(string id, string type)
         {
             Id = id;
+            Type = type;
         }
 
-        public void AddSignatureProperty(IXmlDSigReferencable target, string id, object contents) =>
+        internal IReadOnlyList<XmlDSigSignatureProperty> Properties => _properties;
+
+        public void AddSignatureProperty(IXmlDSigReferencable target, string id, IXmlObjectProperty contents) =>
             _properties.Add(new XmlDSigSignatureProperty(target, id, contents));
 
         internal abstract Task<Internal.XmlObjectManifestElement> Build();
     }
 
-    public sealed class XmlDSigObject : XmlDSigObjectBase
-    {
-
-        public XmlDSigObject(string id) : base(id)
-        {
-        }
-
-        internal override async Task<Internal.XmlObjectManifestElement> Build()
-        {
-            return new Internal.XmlObjectManifestElement()
-            {
-                SignatureProperties = new List<Internal.XmlSignaturePropertyElement>
-                {
-                    new Internal.XmlSignaturePropertyElement(),
-                    new Internal.XmlSignaturePropertyElement(),
-                },
-                Id = Id
-            };
-        }
-    }
-
     internal class XmlDSigSignatureProperty
     {
-        public object Contents { get; }
+        public IXmlObjectProperty Contents { get; }
         public IXmlDSigReferencable Target { get; }
         public string Id { get; }
 
-        public XmlDSigSignatureProperty(IXmlDSigReferencable target, string id, object contents)
+        public XmlDSigSignatureProperty(IXmlDSigReferencable target, string id, IXmlObjectProperty contents)
         {
             Target = target;
             Contents = contents;
@@ -206,7 +239,7 @@ namespace OpenVsixSignTool.Core
     {
         private readonly Dictionary<OpcPart, bool> _parts = new Dictionary<OpcPart, bool>();
 
-        public XmlDSigObjectManifestBuilder() : base("idPackageObject")
+        public XmlDSigObjectManifestBuilder() : base("idPackageObject", "http://www.w3.org/2000/09/xmldsig#Object")
         {
         }
 
@@ -245,7 +278,7 @@ namespace OpenVsixSignTool.Core
             {
                 Id = Id
             };
-            foreach(var (part, includeRelationship) in _parts)
+            foreach (var (part, includeRelationship) in _parts)
             {
                 var (digest, identifer) = OpcPartDigestProcessor.Digest(part, HashAlgorithmName.SHA256);
                 var builder = new UriBuilder(part.Uri);
@@ -260,9 +293,44 @@ namespace OpenVsixSignTool.Core
                     Uri = builder.Uri.ToQualifiedPath()
                 });
             }
+            if (Properties.Count > 0)
+            {
+                manifestObject.SignatureProperties = new List<Internal.XmlSignaturePropertyElement>();
+                foreach (var property in Properties)
+                {
+                    manifestObject.SignatureProperties.Add(new Internal.XmlSignaturePropertyElement
+                    {
+                        Id = property.Id,
+                        Target = property.Target?.Id ?? "",
+                        Contents = property.Contents.ToNativeFormat()
+                    });
+                }
+            }
             return manifestObject;
+
         }
     }
+
+    public class XmlSignatureTimeSignatureProperty : IXmlObjectProperty
+    {
+        public DateTimeOffset Value { get; set; }
+        public string Format { get; } = "YYYY-MM-DDThh:mm:ss.sTZD";
+
+        object IXmlObjectProperty.ToNativeFormat()
+        {
+            return new Internal.XmlSignatureTimeElement
+            {
+                Format = Format,
+                Value = Value.ToString("yyyy-MM-ddTHH:mm:ss.fzzz")
+            };
+        }
+    }
+
+    public interface IXmlObjectProperty
+    {
+        object ToNativeFormat();
+    }
+
 
     internal static class CanonicalizationHelper
     {

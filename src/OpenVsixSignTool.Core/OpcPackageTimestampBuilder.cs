@@ -66,28 +66,35 @@ namespace OpenVsixSignTool.Core
 #if NETSTANDARD2_0
         private async Task<TimestampResult> BouncyCastleTimeStamp(Uri timestampServer, HashAlgorithmName timestampAlgorithm, TimestampNonceFactory nonce)
         {
-            var oid = HashAlgorithmTranslator.TranslateFromNameToOid(timestampAlgorithm);
-            var requestGenerator = new TimeStampRequestGenerator();
-            var (signatureDocument, timestampSubject) = GetSignatureToTimestamp(_part);
-            using (var hash = HashAlgorithmTranslator.TranslateFromNameToxmlDSigUri(timestampAlgorithm, out _))
+            try
             {
-                var digest = hash.ComputeHash(timestampSubject);
-                var request = requestGenerator.Generate(oid.Value, digest, new Org.BouncyCastle.Math.BigInteger(nonce.Nonce));
-                var encodedRequest = request.GetEncoded();
-                var client = new HttpClient();
-                var content = new ByteArrayContent(encodedRequest);
-                content.Headers.Add("Content-Type", "application/timestamp-query");
-                var post = await client.PostAsync(timestampServer, content);
-                if (post.StatusCode != HttpStatusCode.OK)
+                var oid = HashAlgorithmTranslator.TranslateFromNameToOid(timestampAlgorithm);
+                var requestGenerator = new TimeStampRequestGenerator();
+                var (signatureDocument, timestampSubject) = GetSignatureToTimestamp(_part);
+                using (var hash = HashAlgorithmTranslator.TranslateFromNameToxmlDSigUri(timestampAlgorithm, out _))
                 {
-                    return TimestampResult.Failed;
+                    var digest = hash.ComputeHash(timestampSubject);
+                    var request = requestGenerator.Generate(oid.Value, digest, new Org.BouncyCastle.Math.BigInteger(nonce.Nonce));
+                    var encodedRequest = request.GetEncoded();
+                    var client = new HttpClient();
+                    var content = new ByteArrayContent(encodedRequest);
+                    content.Headers.Add("Content-Type", "application/timestamp-query");
+                    var post = await client.PostAsync(timestampServer, content);
+                    if (post.StatusCode != HttpStatusCode.OK)
+                    {
+                        return TimestampResult.Failed;
+                    }
+                    var responseBytes = await post.Content.ReadAsByteArrayAsync();
+                    var responseParser = new Asn1StreamParser(responseBytes);
+                    var timeStampResponse = new TimeStampResponse(responseBytes);
+                    var tokenResponse = timeStampResponse.TimeStampToken.GetEncoded();
+                    ApplyTimestamp(signatureDocument, _part, tokenResponse);
+                    return TimestampResult.Success;
                 }
-                var responseBytes = await post.Content.ReadAsByteArrayAsync();
-                var responseParser = new Asn1StreamParser(responseBytes);
-                var timeStampResponse = new TimeStampResponse(responseBytes);
-                var tokenResponse = timeStampResponse.TimeStampToken.GetEncoded();
-                ApplyTimestamp(signatureDocument, _part, tokenResponse);
-                return TimestampResult.Success;
+            }
+            catch
+            {
+                return TimestampResult.Failed;
             }
         }
 #endif
