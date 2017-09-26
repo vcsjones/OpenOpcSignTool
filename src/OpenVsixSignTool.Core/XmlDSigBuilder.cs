@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Security.Cryptography;
 using System.Security.Cryptography.Xml;
 using System.Threading.Tasks;
 using System.Xml;
@@ -35,8 +34,8 @@ namespace OpenVsixSignTool.Core
         public sealed class XmlSignedInfoReferenceElement
         {
 
-            [XmlAttribute]
-            public string URI { get; set; }
+            [XmlAttribute("URI")]
+            public string Uri { get; set; }
 
             [XmlAttribute]
             public string Type { get; set; }
@@ -94,9 +93,13 @@ namespace OpenVsixSignTool.Core
         {
             [XmlAttribute]
             public string Id { get; set; }
+
             [XmlAttribute]
             public string Target { get; set; }
-            [XmlElement(typeof(XmlSignatureTimeElement), ElementName = "SignatureTime", Namespace = "http://schemas.openxmlformats.org/package/2006/digital-signature")]
+
+            [XmlElement(typeof(XmlSignatureTimeElement),
+                ElementName = "SignatureTime",
+                Namespace = "http://schemas.openxmlformats.org/package/2006/digital-signature")]
             public object Contents { get; set; }
         }
 
@@ -150,7 +153,7 @@ namespace OpenVsixSignTool.Core
 
                 foreach (var obj in Objects)
                 {
-                    element.Objects.Add(await obj.Build());
+                    element.Objects.Add(await obj.Build(_signingContext));
                 }
 
                 serializer.Serialize(memoryStream, element, ns);
@@ -162,8 +165,9 @@ namespace OpenVsixSignTool.Core
             }
         }
 
-        public async Task CompleteSigning(XmlDocument document)
+        public Task CompleteSigning(XmlDocument document)
         {
+            return Task.CompletedTask;
         }
 
         public class SignedInfoBuilder
@@ -191,7 +195,7 @@ namespace OpenVsixSignTool.Core
                 {
                     element.References.Add(new Internal.XmlSignedInfoReferenceElement
                     {
-                        URI = $"#{reference.Id}",
+                        Uri = $"#{reference.Id}",
                         Type = reference.Type
                     });
                 }
@@ -218,7 +222,7 @@ namespace OpenVsixSignTool.Core
         public void AddSignatureProperty(IXmlDSigReferencable target, string id, IXmlObjectProperty contents) =>
             _properties.Add(new XmlDSigSignatureProperty(target, id, contents));
 
-        internal abstract Task<Internal.XmlObjectManifestElement> Build();
+        internal abstract Task<Internal.XmlObjectManifestElement> Build(ISigningContext context);
     }
 
     internal class XmlDSigSignatureProperty
@@ -272,17 +276,19 @@ namespace OpenVsixSignTool.Core
             }
         }
 
-        internal override async Task<Internal.XmlObjectManifestElement> Build()
+        internal override Task<Internal.XmlObjectManifestElement> Build(ISigningContext context)
         {
             var manifestObject = new Internal.XmlObjectManifestElement
             {
                 Id = Id
             };
-            foreach (var (part, includeRelationship) in _parts)
+            foreach (var (part, _) in _parts)
             {
-                var (digest, identifer) = OpcPartDigestProcessor.Digest(part, HashAlgorithmName.SHA256);
-                var builder = new UriBuilder(part.Uri);
-                builder.Query = "ContentType=" + part.ContentType;
+                var (digest, identifer) = OpcPartDigestProcessor.Digest(part, context.FileDigestAlgorithmName);
+                var builder = new UriBuilder(part.Uri)
+                {
+                    Query = "ContentType=" + part.ContentType
+                };
                 manifestObject.Manifest.Add(new Internal.XmlReferenceElement
                 {
                     DigestMethod = new Internal.XmlDigestMethodElement
@@ -306,7 +312,7 @@ namespace OpenVsixSignTool.Core
                     });
                 }
             }
-            return manifestObject;
+            return Task.FromResult(manifestObject);
 
         }
     }
@@ -336,6 +342,10 @@ namespace OpenVsixSignTool.Core
     {
         public static Stream CanonicalizeElement(XmlElement element, Internal.XmlCanonicalizationMethodElement canonicalizationMethod)
         {
+            if (element.OwnerDocument == null)
+            {
+                throw new InvalidOperationException("Cannot canonicalize detached element.");
+            }
             //The canonicalization transformer can't reasonably do just an element. It
             //seems content to do an entire XmlDocument.
             var transformer = new XmlDsigC14NTransform(false);
