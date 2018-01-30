@@ -297,6 +297,16 @@ namespace OpenVsixSignTool
 
         private static X509Certificate2 GetCertificateFromCertificateStore(string sha1)
         {
+            using (var store = new X509Store(StoreName.My, StoreLocation.LocalMachine))
+            {
+                store.Open(OpenFlags.OpenExistingOnly | OpenFlags.ReadOnly);
+                var certificates = store.Certificates.Find(X509FindType.FindByThumbprint, sha1, false);
+                if (certificates.Count > 0)
+                {
+                    return certificates[0];
+                }
+            }
+
             using (var store = new X509Store(StoreName.My, StoreLocation.CurrentUser))
             {
                 store.Open(OpenFlags.OpenExistingOnly | OpenFlags.ReadOnly);
@@ -307,6 +317,7 @@ namespace OpenVsixSignTool
                 }
                 return certificates[0];
             }
+
         }
     }
 }
