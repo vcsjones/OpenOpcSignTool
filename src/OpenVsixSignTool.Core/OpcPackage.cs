@@ -86,6 +86,11 @@ namespace OpenVsixSignTool.Core
                     continue;
                 }
 
+                if (string.IsNullOrEmpty(Path.GetExtension(entry.FullName)))
+                {
+                    continue;
+                }
+
                 OpcPart part;
                 if (!_partTracker.TryGetValue(entry.FullName, out part))
                 {
