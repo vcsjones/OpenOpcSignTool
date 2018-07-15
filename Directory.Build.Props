@@ -1,0 +1,16 @@
+<Project>
+  <PropertyGroup>
+    <Authors>Kevin Jones</Authors>    
+    <PackageProjectUrl>https://github.com/vcsjones/OpenOpcSignTool</PackageProjectUrl>
+    <PackageLicenseUrl>https://raw.githubusercontent.com/vcsjones/OpenOpcSignTool/master/LICENSE</PackageLicenseUrl>
+    
+    <DebugType>embedded</DebugType>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta-63102-01" PrivateAssets="All"/>
+    <PackageReference Include="Nerdbank.GitVersioning" Version="2.1.65" PrivateAssets="all" />
+  </ItemGroup>
+</Project>
