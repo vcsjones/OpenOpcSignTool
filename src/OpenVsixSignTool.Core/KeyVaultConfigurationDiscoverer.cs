@@ -41,14 +41,14 @@ namespace OpenVsixSignTool.Core
         }
     }
 
-    public class AzureKeyVaultMaterializedConfiguration : IDisposable
+    public class AzureKeyVaultMaterializedConfiguration : ISignConfigurationSet, IDisposable
     {
         public AzureKeyVaultMaterializedConfiguration(KeyVaultClient client, X509Certificate2 publicCertificate,
             KeyBundle key, Crypto.HashAlgorithmName fileDigestAlgorithm, Crypto.HashAlgorithmName pkcsDigestAlgorithm)
         {
             Client = client;
             Key = key;
-            PublicCertificate = publicCertificate;
+            SigningCertificate = publicCertificate;
             FileDigestAlgorithm = fileDigestAlgorithm;
             PkcsDigestAlgorithm = pkcsDigestAlgorithm;
         }
@@ -56,7 +56,7 @@ namespace OpenVsixSignTool.Core
         public Crypto.HashAlgorithmName FileDigestAlgorithm { get; }
         public Crypto.HashAlgorithmName PkcsDigestAlgorithm { get; }
 
-        public X509Certificate2 PublicCertificate { get; }
+        public X509Certificate2 SigningCertificate { get; }
         public KeyVaultClient Client { get; }
         public KeyBundle Key { get; }
 

@@ -26,21 +26,21 @@ namespace OpenVsixSignTool.Core
         /// <param name="fileDigestAlgorithmName">
         /// A hash algorithm. This is the digest algorting used for digesting files.
         /// </param>
-        public CertificateSigningContext(X509Certificate2 certificate, HashAlgorithmName pkcsHashAlgorithmName, HashAlgorithmName fileDigestAlgorithmName)
+        public CertificateSigningContext(CertificateSignConfigurationSet configuration)
         {
-            Certificate = certificate;
+            Certificate = configuration.SigningCertificate;
             ContextCreationTime = DateTimeOffset.Now;
-            _pkcsHashAlgorithmName = pkcsHashAlgorithmName;
-            FileDigestAlgorithmName = fileDigestAlgorithmName;
-            switch (certificate.PublicKey.Oid.Value)
+            _pkcsHashAlgorithmName = configuration.PkcsDigestAlgorithm;
+            FileDigestAlgorithmName = configuration.FileDigestAlgorithm;
+            switch (Certificate.PublicKey.Oid.Value)
             {
                 case KnownOids.X509Algorithms.RSA:
                     SignatureAlgorithm = SigningAlgorithm.RSA;
-                    _signProvider = new RSAPkcsCertificateSign(certificate);
+                    _signProvider = new RSAPkcsCertificateSign(Certificate);
                     break;
                 case KnownOids.X509Algorithms.Ecc:
                     SignatureAlgorithm = SigningAlgorithm.ECDSA;
-                    _signProvider = new ECDsaCertificateSign(certificate);
+                    _signProvider = new ECDsaCertificateSign(Certificate);
                     break;
                 default:
                     throw new NotSupportedException("The specified signature algorithm is not supported.");

@@ -12,14 +12,14 @@ namespace OpenVsixSignTool.Core
     {
         private readonly RSA _rsa;
 
-        public RsaSigningContext(RSA rsa, X509Certificate2 publicCertificate, HashAlgorithmName fileDigestAlgorithmName, HashAlgorithmName pkcsDigestAlgorithmName)
+        public RsaSigningContext(RsaSignConfigurationSet configuration)
         {
             ContextCreationTime = DateTimeOffset.Now;
-            _rsa = rsa;
+            _rsa = configuration.Rsa;
 
-            FileDigestAlgorithmName = fileDigestAlgorithmName;
-            PkcsDigestAlgorithmName = pkcsDigestAlgorithmName;
-            Certificate = publicCertificate;
+            FileDigestAlgorithmName = configuration.FileDigestAlgorithm;
+            PkcsDigestAlgorithmName = configuration.PkcsDigestAlgorithm;
+            Certificate = configuration.SigningCertificate;
         }
 
         /// <summary>

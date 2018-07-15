@@ -4,7 +4,7 @@ using Crypto = System.Security.Cryptography;
 
 namespace OpenVsixSignTool.Core
 {
-    public sealed class RsaSignConfigurationSet
+    public sealed class RsaSignConfigurationSet : ISignConfigurationSet
     {
         public Crypto.HashAlgorithmName FileDigestAlgorithm { get; set; }
         public Crypto.HashAlgorithmName PkcsDigestAlgorithm { get; set; }

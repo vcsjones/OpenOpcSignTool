@@ -4,7 +4,7 @@ using System.Security.Cryptography.X509Certificates;
 namespace OpenVsixSignTool.Core
 {
 
-    public sealed class CertificateSignConfigurationSet
+    public sealed class CertificateSignConfigurationSet : ISignConfigurationSet
     {
         public X509Certificate2 SigningCertificate { get; set; }
         public HashAlgorithmName FileDigestAlgorithm { get; set; }

@@ -52,18 +52,7 @@ namespace OpenVsixSignTool.Core
         {
             using (var azureConfiguration = await KeyVaultConfigurationDiscoverer.Materialize(configuration))
             {
-                var fileName = azureConfiguration.PublicCertificate.GetCertHashString() + ".psdsxs";
-                var (allParts, signatureFile) = SignCore(fileName);
-                using (var signingContext = new KeyVaultSigningContext(azureConfiguration))
-                {
-                    var fileManifest = OpcSignatureManifest.Build(signingContext, allParts);
-                    var builder = new XmlSignatureBuilder(signingContext);
-                    builder.SetFileManifest(fileManifest);
-                    var result = await builder.BuildAsync();
-                    PublishSignature(result, signatureFile);
-                }
-                _package.Flush();
-                return new OpcSignature(signatureFile);
+                return await SignAsyncImpl<AzureKeyVaultMaterializedConfiguration, KeyVaultSigningContext>(azureConfiguration);
             }
         }
 
@@ -72,11 +61,19 @@ namespace OpenVsixSignTool.Core
         /// </summary>
         /// <param name="configuration">The configuration of properties used to create the signature.
         /// See the documented of <see cref="CertificateSignConfigurationSet"/> for more information.</param>
-        public async Task<OpcSignature> SignAsync(CertificateSignConfigurationSet configuration)
+        public Task<OpcSignature> SignAsync(CertificateSignConfigurationSet configuration)
+        {
+            return SignAsyncImpl<CertificateSignConfigurationSet, CertificateSigningContext>(configuration);
+        }
+
+        private async Task<OpcSignature> SignAsyncImpl<TConfig, TContext>(TConfig configuration) where TConfig : ISignConfigurationSet
+                                                                                                 where TContext : ISigningContext
         {
             var fileName = configuration.SigningCertificate.GetCertHashString() + ".psdsxs";
             var (allParts, signatureFile) = SignCore(fileName);
-            using (var signingContext = new CertificateSigningContext(configuration.SigningCertificate, configuration.PkcsDigestAlgorithm, configuration.FileDigestAlgorithm))
+
+            var signingContext = (TContext)Activator.CreateInstance(typeof(TContext), configuration);
+            using (signingContext)
             {
                 var fileManifest = OpcSignatureManifest.Build(signingContext, allParts);
                 var builder = new XmlSignatureBuilder(signingContext);
@@ -93,20 +90,9 @@ namespace OpenVsixSignTool.Core
         /// </summary>
         /// <param name="configuration">The configuration of properties used to create the signature.
         /// See the documented of <see cref="RsaSignConfigurationSet"/> for more information.</param>
-        public async Task<OpcSignature> SignAsync(RsaSignConfigurationSet configuration)
+        public Task<OpcSignature> SignAsync(RsaSignConfigurationSet configuration)
         {
-            var fileName = configuration.SigningCertificate.GetCertHashString() + ".psdsxs";
-            var (allParts, signatureFile) = SignCore(fileName);
-            using (var signingContext = new RsaSigningContext(configuration.Rsa, configuration.SigningCertificate, configuration.PkcsDigestAlgorithm, configuration.FileDigestAlgorithm))
-            {
-                var fileManifest = OpcSignatureManifest.Build(signingContext, allParts);
-                var builder = new XmlSignatureBuilder(signingContext);
-                builder.SetFileManifest(fileManifest);
-                var result = await builder.BuildAsync();
-                PublishSignature(result, signatureFile);
-            }
-            _package.Flush();
-            return new OpcSignature(signatureFile);
+            return SignAsyncImpl<RsaSignConfigurationSet, RsaSigningContext>(configuration);
         }
 
 
