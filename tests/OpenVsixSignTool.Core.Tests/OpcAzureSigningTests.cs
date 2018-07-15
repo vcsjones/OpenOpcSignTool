@@ -7,7 +7,7 @@ using Xunit;
 
 namespace OpenVsixSignTool.Core.Tests
 {
-    public class OpcAzureSigningTests
+    public class OpcAzureSigningTests : IDisposable
     {
         private const string SamplePackage = @"sample\OpenVsixSignToolTest.vsix";
         private readonly List<string> _shadowFiles = new List<string>();

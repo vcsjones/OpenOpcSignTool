@@ -28,7 +28,7 @@ namespace OpenVsixSignTool.Core
 
         public bool Equals(OpcRelationship other)
         {
-            return !ReferenceEquals(other, null) && Target == other.Target && Type == other.Type && Id == other.Id;
+            return !(other is null) && Target == other.Target && Type == other.Type && Id == other.Id;
         }
 
         public override bool Equals(object obj)

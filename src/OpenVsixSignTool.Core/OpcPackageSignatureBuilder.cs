@@ -142,10 +142,12 @@ namespace OpenVsixSignTool.Core
             }
 
             _package.Flush();
-            var allParts = new HashSet<OpcPart>(_enqueuedParts);
-            allParts.Add(originFile);
-            allParts.Add(_package.GetPart(_package.Relationships.DocumentUri));
-            allParts.Add(_package.GetPart(originFile.Relationships.DocumentUri));
+            var allParts = new HashSet<OpcPart>(_enqueuedParts)
+            {
+                originFile,
+                _package.GetPart(_package.Relationships.DocumentUri),
+                _package.GetPart(originFile.Relationships.DocumentUri)
+            };
             return (allParts, signatureFile);
         }
     }

@@ -81,7 +81,7 @@ namespace OpenVsixSignTool.Core
 
         public bool Equals(OpcPart other)
         {
-            if (ReferenceEquals(other, null))
+            if (other is null)
             {
                 return false;
             }

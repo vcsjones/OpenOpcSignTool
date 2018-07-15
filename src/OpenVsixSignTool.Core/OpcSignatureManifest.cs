@@ -18,8 +18,10 @@ namespace OpenVsixSignTool.Core
             foreach (var part in parts)
             {
                 var (digest, identifier) = OpcPartDigestProcessor.Digest(part, context.FileDigestAlgorithmName);
-                var builder = new UriBuilder(part.Uri);
-                builder.Query = "ContentType=" + part.ContentType;
+                var builder = new UriBuilder(part.Uri)
+                {
+                    Query = "ContentType=" + part.ContentType
+                };
                 digests.Add(new OpcPartDigest(builder.Uri, identifier, digest));
             }
             return new OpcSignatureManifest(digests);

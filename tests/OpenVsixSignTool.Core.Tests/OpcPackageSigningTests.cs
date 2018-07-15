@@ -21,8 +21,7 @@ namespace OpenVsixSignTool.Core.Tests
         [MemberData(nameof(RsaSigningTheories))]
         public async Task ShouldSignFileWithRsa(string pfxPath, HashAlgorithmName fileDigestAlgorithm, string expectedAlgorithm)
         {
-            string path;
-            using (var package = ShadowCopyPackage(SamplePackage, out path, OpcPackageFileMode.ReadWrite))
+            using (var package = ShadowCopyPackage(SamplePackage, out string path, OpcPackageFileMode.ReadWrite))
             {
                 var builder = package.CreateSignatureBuilder();
                 builder.EnqueueNamedPreset<VSIXSignatureBuilderPreset>();
@@ -42,8 +41,7 @@ namespace OpenVsixSignTool.Core.Tests
         [MemberData(nameof(EcdsaSigningTheories))]
         public async Task ShouldSignFileWithEcdsa(string pfxPath, HashAlgorithmName fileDigestAlgorithm, string expectedAlgorithm)
         {
-            string path;
-            using (var package = ShadowCopyPackage(SamplePackage, out path, OpcPackageFileMode.ReadWrite))
+            using (var package = ShadowCopyPackage(SamplePackage, out string path, OpcPackageFileMode.ReadWrite))
             {
                 var builder = package.CreateSignatureBuilder();
                 builder.EnqueueNamedPreset<VSIXSignatureBuilderPreset>();
@@ -196,12 +194,12 @@ namespace OpenVsixSignTool.Core.Tests
             using (var package = OpcPackage.Open(path, OpcPackageFileMode.ReadWrite))
             {
                 var signatures = package.GetSignatures().ToList();
-                Assert.Equal(1, signatures.Count);
+                Assert.Single(signatures);
                 var signature = signatures[0];
                 signature.Remove();
                 Assert.Null(signature.Part);
                 Assert.Throws<InvalidOperationException>(() => signature.CreateTimestampBuilder());
-                Assert.Equal(0, package.GetSignatures().Count());
+                Assert.Empty(package.GetSignatures());
             }
         }
 
