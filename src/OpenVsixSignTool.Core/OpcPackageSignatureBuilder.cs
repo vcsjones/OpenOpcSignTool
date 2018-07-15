@@ -88,6 +88,28 @@ namespace OpenVsixSignTool.Core
             return new OpcSignature(signatureFile);
         }
 
+        /// <summary>
+        /// Creates a signature from the enqueued parts.
+        /// </summary>
+        /// <param name="configuration">The configuration of properties used to create the signature.
+        /// See the documented of <see cref="RsaSignConfigurationSet"/> for more information.</param>
+        public async Task<OpcSignature> SignAsync(RsaSignConfigurationSet configuration)
+        {
+            var fileName = configuration.SigningCertificate.GetCertHashString() + ".psdsxs";
+            var (allParts, signatureFile) = SignCore(fileName);
+            using (var signingContext = new RsaSigningContext(configuration.Rsa, configuration.SigningCertificate, configuration.PkcsDigestAlgorithm, configuration.FileDigestAlgorithm))
+            {
+                var fileManifest = OpcSignatureManifest.Build(signingContext, allParts);
+                var builder = new XmlSignatureBuilder(signingContext);
+                builder.SetFileManifest(fileManifest);
+                var result = await builder.BuildAsync();
+                PublishSignature(result, signatureFile);
+            }
+            _package.Flush();
+            return new OpcSignature(signatureFile);
+        }
+
+
         private static void PublishSignature(XmlDocument document, OpcPart signatureFile)
         {
             using (var copySignatureStream = signatureFile.Open())
