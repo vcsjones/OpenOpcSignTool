@@ -91,8 +91,7 @@ namespace OpenVsixSignTool.Core
                     continue;
                 }
 
-                OpcPart part;
-                if (!_partTracker.TryGetValue(entry.FullName, out part))
+                if (!_partTracker.TryGetValue(entry.FullName, out OpcPart part))
                 {
                     part = new OpcPart(this, entry.FullName, entry, _mode);
                     _partTracker.Add(entry.FullName, part);
@@ -110,8 +109,7 @@ namespace OpenVsixSignTool.Core
         {
             var path = partUri.ToPackagePath();
 
-            OpcPart part;
-            if (!_partTracker.TryGetValue(path, out part))
+            if (!_partTracker.TryGetValue(path, out OpcPart part))
             {
                 var entry = Archive.GetEntry(path);
                 if (entry == null)

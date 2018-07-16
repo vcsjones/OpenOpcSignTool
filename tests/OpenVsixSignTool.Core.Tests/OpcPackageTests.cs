@@ -140,7 +140,7 @@ namespace OpenVsixSignTool.Core.Tests
             using (var package = OpcPackage.Open(SamplePackage))
             {
                 var parts = package.GetParts().ToArray();
-                Assert.Equal(1, parts.Length);
+                Assert.Single(parts);
             }
         }
 

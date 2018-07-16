@@ -3,13 +3,19 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26403.7
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenVsixSignTool.Core", "src\OpenVsixSignTool.Core\OpenVsixSignTool.Core.csproj", "{351BD833-DE64-4042-9ADE-343825443A36}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenVsixSignTool.Core", "src\OpenVsixSignTool.Core\OpenVsixSignTool.Core.csproj", "{351BD833-DE64-4042-9ADE-343825443A36}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenVsixSignTool.Core.Tests", "tests\OpenVsixSignTool.Core.Tests\OpenVsixSignTool.Core.Tests.csproj", "{F2E16674-87EA-4460-9456-50F6C5F10302}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenVsixSignTool.Core.Tests", "tests\OpenVsixSignTool.Core.Tests\OpenVsixSignTool.Core.Tests.csproj", "{F2E16674-87EA-4460-9456-50F6C5F10302}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenVsixSignTool", "src\OpenVsixSignTool\OpenVsixSignTool.csproj", "{E2F61A10-A5A3-478D-BE78-2059154D0930}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenVsixSignTool", "src\OpenVsixSignTool\OpenVsixSignTool.csproj", "{E2F61A10-A5A3-478D-BE78-2059154D0930}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenVsixSignTool.Tests", "tests\OpenVsixSignTool.Tests\OpenVsixSignTool.Tests.csproj", "{79191EB5-FDF2-42D4-B416-E5A2D4B75E4D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenVsixSignTool.Tests", "tests\OpenVsixSignTool.Tests\OpenVsixSignTool.Tests.csproj", "{79191EB5-FDF2-42D4-B416-E5A2D4B75E4D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{49F130E1-BD5B-43AD-98C6-4CDE1AA10B2A}"
+	ProjectSection(SolutionItems) = preProject
+		.vsts-ci.yml = .vsts-ci.yml
+		Directory.Build.Props = Directory.Build.Props
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -36,5 +42,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {2BE6A280-E6B4-425E-9369-66A19D5DC47C}
 	EndGlobalSection
 EndGlobal

@@ -11,11 +11,9 @@
 
   </PropertyGroup>
   <ItemGroup>
-    <DotNetCliToolReference Include="dotnet-xunit" Version="2.3.0-beta5-build3769" />
-    
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.3.0" />
-    <PackageReference Include="xunit" Version="2.3.0-beta5-build3769" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.3.0-beta5-build3769" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.8.0" />
+    <PackageReference Include="xunit" Version="2.4.0-rc.2.build4045" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.0-rc.2.build4045" />
 
     <ProjectReference Include="..\..\src\OpenVsixSignTool\OpenVsixSignTool.csproj" />
   </ItemGroup>
@@ -23,10 +21,7 @@
   <ItemGroup Condition="$(TargetFramework) == 'net462'">
     <Reference Include="System.Security" />
   </ItemGroup>
-  
-  <ItemGroup>
-    <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
-  </ItemGroup>
+
   <ItemGroup>
     <None Update="certs\*.pfx;certs\*.cer">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

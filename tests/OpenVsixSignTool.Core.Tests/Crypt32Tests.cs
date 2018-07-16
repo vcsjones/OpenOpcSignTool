@@ -11,10 +11,12 @@ namespace OpenVsixSignTool.Core.Tests
         public void ShouldTimestampData()
         {
             var data = new byte[] { 1, 2, 3 };
-            var parameters = new CRYPT_TIMESTAMP_PARA();
-            parameters.cExtension = 0;
-            parameters.fRequestCerts = true;
-            parameters.pszTSAPolicyId = null;
+            var parameters = new CRYPT_TIMESTAMP_PARA
+            {
+                cExtension = 0,
+                fRequestCerts = true,
+                pszTSAPolicyId = null
+            };
 
             var ok = Crypt32.CryptRetrieveTimeStamp("http://timestamp.digicert.com", CryptRetrieveTimeStampRetrievalFlags.NONE, 30 * 1000, "1.3.14.3.2.26", ref parameters, data, (uint)data.Length, out var pointer, IntPtr.Zero, IntPtr.Zero);
             Assert.True(ok);

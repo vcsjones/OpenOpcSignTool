@@ -35,7 +35,7 @@ namespace OpenVsixSignTool.Core
         /// <summary>
         /// Gets the certificate and public key used to validate the signature.
         /// </summary>
-        public X509Certificate2 Certificate => _configuration.PublicCertificate;
+        public X509Certificate2 Certificate => _configuration.SigningCertificate;
 
         /// <summary>
         /// Gets the signature algorithm. Currently, only <see cref="SigningAlgorithm.RSA"/> is supported.

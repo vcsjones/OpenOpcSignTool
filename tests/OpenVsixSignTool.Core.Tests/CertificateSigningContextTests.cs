@@ -13,7 +13,14 @@ namespace OpenVsixSignTool.Core.Tests
         public async Task ShouldSignABlobOfDataWithRsaSha256(string pfxPath)
         {
             var certificate = new X509Certificate2(pfxPath, "test");
-            using (var context = new CertificateSigningContext(certificate, HashAlgorithmName.SHA256, HashAlgorithmName.SHA256))
+            var config = new CertificateSignConfigurationSet
+            {
+                SigningCertificate = certificate,
+                PkcsDigestAlgorithm = HashAlgorithmName.SHA256,
+                FileDigestAlgorithm = HashAlgorithmName.SHA256
+            };
+
+            using (var context = new CertificateSigningContext(config))
             {
                 using (var hash = SHA256.Create())
                 {
@@ -34,7 +41,14 @@ namespace OpenVsixSignTool.Core.Tests
         public async Task ShouldSignABlobOfDataWithRsaSha1(string pfxPath)
         {
             var certificate = new X509Certificate2(pfxPath, "test");
-            using (var context = new CertificateSigningContext(certificate, HashAlgorithmName.SHA1, HashAlgorithmName.SHA1))
+            var config = new CertificateSignConfigurationSet
+            {
+                SigningCertificate = certificate,
+                PkcsDigestAlgorithm = HashAlgorithmName.SHA1,
+                FileDigestAlgorithm = HashAlgorithmName.SHA1
+            };
+
+            using (var context = new CertificateSigningContext(config))
             {
                 using (var hash = SHA1.Create())
                 {
@@ -54,7 +68,14 @@ namespace OpenVsixSignTool.Core.Tests
         public async Task ShouldSignABlobOfDataWithEcdsaP256Sha256(string pfxPath)
         {
             var certificate = new X509Certificate2(pfxPath, "test");
-            using (var context = new CertificateSigningContext(certificate, HashAlgorithmName.SHA256, HashAlgorithmName.SHA256))
+            var config = new CertificateSignConfigurationSet
+            {
+                SigningCertificate = certificate,
+                PkcsDigestAlgorithm = HashAlgorithmName.SHA256,
+                FileDigestAlgorithm = HashAlgorithmName.SHA256
+            };
+
+            using (var context = new CertificateSigningContext(config))
             {
                 using (var hash = SHA256.Create())
                 {
