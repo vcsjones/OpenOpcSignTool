@@ -47,7 +47,7 @@ namespace OpenVsixSignTool.Core
 
         public Task<byte[]> SignDigestAsync(byte[] digest)
         {
-            var signature = _rsa.SignData(digest, PkcsDigestAlgorithmName, RSASignaturePadding.Pkcs1);
+            var signature = _rsa.SignHash(digest, PkcsDigestAlgorithmName, RSASignaturePadding.Pkcs1);
 
             return Task.FromResult(signature);
         }
