@@ -21,18 +21,16 @@ namespace OpenVsixSignTool.Core.Tests
                 signingKey: certificate.GetRSAPrivateKey()
             );
 
-            using (var context = new SigningContext(config))
+            var context = new SigningContext(config);
+            using (var hash = SHA256.Create())
             {
-                using (var hash = SHA256.Create())
-                {
-                    var digest = hash.ComputeHash(new byte[] { 1, 2, 3 });
-                    var signature = context.SignDigest(digest);
-                    Assert.Equal(OpcKnownUris.SignatureAlgorithms.rsaSHA256, context.XmlDSigIdentifier);
-                    Assert.Equal(SigningAlgorithm.RSA, context.SignatureAlgorithm);
+                var digest = hash.ComputeHash(new byte[] { 1, 2, 3 });
+                var signature = context.SignDigest(digest);
+                Assert.Equal(OpcKnownUris.SignatureAlgorithms.rsaSHA256, context.XmlDSigIdentifier);
+                Assert.Equal(SigningAlgorithm.RSA, context.SignatureAlgorithm);
 
-                    var roundtrips = context.VerifyDigest(digest, signature);
-                    Assert.True(roundtrips);
-                }
+                var roundtrips = context.VerifyDigest(digest, signature);
+                Assert.True(roundtrips);
             }
         }
 
@@ -50,18 +48,16 @@ namespace OpenVsixSignTool.Core.Tests
                 signingKey: certificate.GetRSAPrivateKey()
             );
 
-            using (var context = new SigningContext(config))
+            var context = new SigningContext(config);
+            using (var hash = SHA1.Create())
             {
-                using (var hash = SHA1.Create())
-                {
-                    var digest = hash.ComputeHash(new byte[] { 1, 2, 3 });
-                    var signature = context.SignDigest(digest);
-                    Assert.Equal(OpcKnownUris.SignatureAlgorithms.rsaSHA1, context.XmlDSigIdentifier);
-                    Assert.Equal(SigningAlgorithm.RSA, context.SignatureAlgorithm);
+                var digest = hash.ComputeHash(new byte[] { 1, 2, 3 });
+                var signature = context.SignDigest(digest);
+                Assert.Equal(OpcKnownUris.SignatureAlgorithms.rsaSHA1, context.XmlDSigIdentifier);
+                Assert.Equal(SigningAlgorithm.RSA, context.SignatureAlgorithm);
 
-                    var roundtrips = context.VerifyDigest(digest, signature);
-                    Assert.True(roundtrips);
-                }
+                var roundtrips = context.VerifyDigest(digest, signature);
+                Assert.True(roundtrips);
             }
         }
 
@@ -75,21 +71,19 @@ namespace OpenVsixSignTool.Core.Tests
                 publicCertificate: certificate,
                 pkcsDigestAlgorithm: HashAlgorithmName.SHA256,
                 fileDigestAlgorithm: HashAlgorithmName.SHA256,
-                signingKey: certificate.GetRSAPrivateKey()
+                signingKey: certificate.GetECDsaPrivateKey()
             );
 
-            using (var context = new SigningContext(config))
+            var context = new SigningContext(config);
+            using (var hash = SHA256.Create())
             {
-                using (var hash = SHA256.Create())
-                {
-                    var digest = hash.ComputeHash(new byte[] { 1, 2, 3 });
-                    var signature = context.SignDigest(digest);
-                    Assert.Equal(OpcKnownUris.SignatureAlgorithms.ecdsaSHA256, context.XmlDSigIdentifier);
-                    Assert.Equal(SigningAlgorithm.ECDSA, context.SignatureAlgorithm);
+                var digest = hash.ComputeHash(new byte[] { 1, 2, 3 });
+                var signature = context.SignDigest(digest);
+                Assert.Equal(OpcKnownUris.SignatureAlgorithms.ecdsaSHA256, context.XmlDSigIdentifier);
+                Assert.Equal(SigningAlgorithm.ECDSA, context.SignatureAlgorithm);
 
-                    var roundtrips = context.VerifyDigest(digest, signature);
-                    Assert.True(roundtrips);
-                }
+                var roundtrips = context.VerifyDigest(digest, signature);
+                Assert.True(roundtrips);
             }
         }
     }
