@@ -33,7 +33,7 @@ namespace OpenVsixSignTool.Core
         /// <summary>
         /// Gets the certificate and public key used to validate the signature.
         /// </summary>
-        public X509Certificate2 Certificate => _configuration.SigningCertificate;
+        public X509Certificate2 Certificate => _configuration.PublicCertificate;
 
         /// <summary>
         /// Gets the signature algorithm.
@@ -51,8 +51,18 @@ namespace OpenVsixSignTool.Core
             }
         }
 
+
+        /// <summary>
+        /// Gets the XmlDSig identifier for the configured algorithm.
+        /// </summary>
         public Uri XmlDSigIdentifier => SignatureAlgorithmTranslator.SignatureAlgorithmToXmlDSigUri(SignatureAlgorithm, _configuration.PkcsDigestAlgorithm);
 
+
+        /// <summary>
+        /// Signs a digest.
+        /// </summary>
+        /// <param name="digest">The digest to sign.</param>
+        /// <returns>The signature of the digest.</returns>
         public byte[] SignDigest(byte[] digest)
         {
             switch (_configuration.SigningKey)
@@ -66,6 +76,12 @@ namespace OpenVsixSignTool.Core
             }
         }
 
+        /// <summary>
+        /// Verifies a digest is valid given a signature.
+        /// </summary>
+        /// <param name="digest">The digest to validate.</param>
+        /// <param name="signature">The signature to validate with.</param>
+        /// <returns></returns>
         public bool VerifyDigest(byte[] digest, byte[] signature)
         {
 
@@ -84,10 +100,6 @@ namespace OpenVsixSignTool.Core
                 default:
                     throw new InvalidOperationException("Unknown signing algorithm.");
             }
-        }
-
-        public void Dispose()
-        {
         }
     }
 }

@@ -239,12 +239,12 @@ namespace OpenVsixSignTool
                 var signBuilder = package.CreateSignatureBuilder();
                 signBuilder.EnqueueNamedPreset<VSIXSignatureBuilderPreset>();
                 var signingConfiguration = new SignConfigurationSet
-                {
-                    FileDigestAlgorithm = fileDigestAlgorithm,
-                    PkcsDigestAlgorithm = fileDigestAlgorithm,
-                    SigningCertificate = certificate,
-                    SigningKey = signingKey
-                };
+                (
+                    fileDigestAlgorithm: fileDigestAlgorithm,
+                    pkcsDigestAlgorithm: fileDigestAlgorithm,
+                    publicCertificate: certificate,
+                    signingKey: signingKey
+                );
 
                 var signature = signBuilder.Sign(signingConfiguration);
                 if (timestampUri != null)

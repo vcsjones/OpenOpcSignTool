@@ -14,12 +14,12 @@ namespace OpenVsixSignTool.Core.Tests
         {
             var certificate = new X509Certificate2(pfxPath, "test");
             var config = new SignConfigurationSet
-            {
-                SigningCertificate = certificate,
-                PkcsDigestAlgorithm = HashAlgorithmName.SHA256,
-                FileDigestAlgorithm = HashAlgorithmName.SHA256,
-                SigningKey = certificate.GetRSAPrivateKey()
-            };
+            (
+                publicCertificate: certificate,
+                pkcsDigestAlgorithm: HashAlgorithmName.SHA256,
+                fileDigestAlgorithm: HashAlgorithmName.SHA256,
+                signingKey: certificate.GetRSAPrivateKey()
+            );
 
             using (var context = new SigningContext(config))
             {
@@ -43,12 +43,12 @@ namespace OpenVsixSignTool.Core.Tests
         {
             var certificate = new X509Certificate2(pfxPath, "test");
             var config = new SignConfigurationSet
-            {
-                SigningCertificate = certificate,
-                PkcsDigestAlgorithm = HashAlgorithmName.SHA1,
-                FileDigestAlgorithm = HashAlgorithmName.SHA1,
-                SigningKey = certificate.GetRSAPrivateKey()
-            };
+            (
+                publicCertificate: certificate,
+                pkcsDigestAlgorithm: HashAlgorithmName.SHA1,
+                fileDigestAlgorithm: HashAlgorithmName.SHA1,
+                signingKey: certificate.GetRSAPrivateKey()
+            );
 
             using (var context = new SigningContext(config))
             {
@@ -71,12 +71,12 @@ namespace OpenVsixSignTool.Core.Tests
         {
             var certificate = new X509Certificate2(pfxPath, "test");
             var config = new SignConfigurationSet
-            {
-                SigningCertificate = certificate,
-                PkcsDigestAlgorithm = HashAlgorithmName.SHA256,
-                FileDigestAlgorithm = HashAlgorithmName.SHA256,
-                SigningKey = certificate.GetECDsaPrivateKey()
-            };
+            (
+                publicCertificate: certificate,
+                pkcsDigestAlgorithm: HashAlgorithmName.SHA256,
+                fileDigestAlgorithm: HashAlgorithmName.SHA256,
+                signingKey: certificate.GetRSAPrivateKey()
+            );
 
             using (var context = new SigningContext(config))
             {

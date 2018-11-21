@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Xml;
 
 namespace OpenVsixSignTool.Core
@@ -49,18 +48,14 @@ namespace OpenVsixSignTool.Core
         /// See the documented of <see cref="SignConfigurationSet"/> for more information.</param>
         public OpcSignature Sign(SignConfigurationSet configuration)
         {
-            var fileName = configuration.SigningCertificate.GetCertHashString() + ".psdsxs";
+            var fileName = configuration.PublicCertificate.GetCertHashString() + ".psdsxs";
             var (allParts, signatureFile) = SignCore(fileName);
-
             var signingContext = new SigningContext(configuration);
-            using (signingContext)
-            {
-                var fileManifest = OpcSignatureManifest.Build(signingContext, allParts);
-                var builder = new XmlSignatureBuilder(signingContext);
-                builder.SetFileManifest(fileManifest);
-                var result = builder.Build();
-                PublishSignature(result, signatureFile);
-            }
+            var fileManifest = OpcSignatureManifest.Build(signingContext, allParts);
+            var builder = new XmlSignatureBuilder(signingContext);
+            builder.SetFileManifest(fileManifest);
+            var result = builder.Build();
+            PublishSignature(result, signatureFile);
             _package.Flush();
             return new OpcSignature(signatureFile);
         }

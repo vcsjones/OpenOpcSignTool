@@ -9,7 +9,7 @@ namespace OpenVsixSignTool.Core
     /// An interface for a signing context. Implementors of this interface will be able to
     /// sign a VSIX package.
     /// </summary>
-    public interface ISigningContext : IDisposable
+    public interface ISigningContext
     {
         /// <summary>
         /// Gets the date and time that the context was created.
