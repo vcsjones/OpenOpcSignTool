@@ -11,7 +11,6 @@ namespace OpenVsixSignTool.Core.Timestamp
     {
         private static async Task<(TimestampResult, byte[])> SubmitTimestampRequest(Uri timestampUri, Oid digestOid, TimestampNonce nonce, TimeSpan timeout, byte[] digest)
         {
-            Console.WriteLine("sigingint with netcoreapp.");
             var timestampRequest = Rfc3161TimestampRequest.CreateFromHash(digest, digestOid, nonce: nonce.Nonce, requestSignerCertificates: true);
             var encodedRequest = timestampRequest.Encode();
             var client = new HttpClient();

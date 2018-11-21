@@ -10,7 +10,6 @@ namespace OpenVsixSignTool.Core.Timestamp
     {
         private static unsafe Task<(TimestampResult, byte[])> SubmitTimestampRequest(Uri timestampUri, Oid digestOid, TimestampNonce nonce, TimeSpan timeout, byte[] digest)
         {
-            Console.WriteLine("sigingint with netfx.");
             var parameters = new CRYPT_TIMESTAMP_PARA
             {
                 cExtension = 0,
