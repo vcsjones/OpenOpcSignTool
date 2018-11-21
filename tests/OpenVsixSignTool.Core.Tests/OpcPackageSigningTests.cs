@@ -84,7 +84,7 @@ namespace OpenVsixSignTool.Core.Tests
         [MemberData(nameof(RsaTimestampTheories))]
         public async Task ShouldTimestampFileWithRsa(string pfxPath, HashAlgorithmName timestampDigestAlgorithm)
         {
-            using (var package = ShadowCopyPackage(SamplePackage, out _, OpcPackageFileMode.ReadWrite))
+            using (var package = ShadowCopyPackage(SamplePackage, out var path, OpcPackageFileMode.ReadWrite))
             {
                 var signerBuilder = package.CreateSignatureBuilder();
                 signerBuilder.EnqueueNamedPreset<VSIXSignatureBuilderPreset>();

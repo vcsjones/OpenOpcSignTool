@@ -36,7 +36,7 @@ namespace OpenVsixSignTool.Core
                 throw new InvalidOperationException("A manifest has not been set on the builder.");
             }
             XmlElement keyInfoElement, signedInfo, signatureValue;
-            using (var canonicalHashAlgorithm = HashAlgorithmTranslator.TranslateFromNameToxmlDSigUri(_signingContext.FileDigestAlgorithmName, out var canonicalHashAlgorithmIdentifier))
+            using (var canonicalHashAlgorithm = HashAlgorithmTranslator.TranslateFromNameToXmlDSigUri(_signingContext.FileDigestAlgorithmName, out var canonicalHashAlgorithmIdentifier))
             {
                 byte[] objectElementHash;
                 string canonicalizationMethodObjectId;
