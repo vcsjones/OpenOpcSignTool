@@ -42,59 +42,28 @@ namespace OpenVsixSignTool.Core
             _enqueuedParts.AddRange(new TPreset().GetPartsForSigning(_package));
         }
 
-
         /// <summary>
         /// Creates a signature from the enqueued parts.
         /// </summary>
         /// <param name="configuration">The configuration of properties used to create the signature.
-        /// See the documented of <see cref="AzureKeyVaultSignConfigurationSet"/> for more information.</param>
-        public async Task<OpcSignature> SignAsync(AzureKeyVaultSignConfigurationSet configuration)
-        {
-            using (var azureConfiguration = await KeyVaultConfigurationDiscoverer.Materialize(configuration))
-            {
-                return await SignAsyncImpl<AzureKeyVaultMaterializedConfiguration, KeyVaultSigningContext>(azureConfiguration);
-            }
-        }
-
-        /// <summary>
-        /// Creates a signature from the enqueued parts.
-        /// </summary>
-        /// <param name="configuration">The configuration of properties used to create the signature.
-        /// See the documented of <see cref="CertificateSignConfigurationSet"/> for more information.</param>
-        public Task<OpcSignature> SignAsync(CertificateSignConfigurationSet configuration)
-        {
-            return SignAsyncImpl<CertificateSignConfigurationSet, CertificateSigningContext>(configuration);
-        }
-
-        private async Task<OpcSignature> SignAsyncImpl<TConfig, TContext>(TConfig configuration) where TConfig : ISignConfigurationSet
-                                                                                                 where TContext : ISigningContext
+        /// See the documented of <see cref="SignConfigurationSet"/> for more information.</param>
+        public OpcSignature Sign(SignConfigurationSet configuration)
         {
             var fileName = configuration.SigningCertificate.GetCertHashString() + ".psdsxs";
             var (allParts, signatureFile) = SignCore(fileName);
 
-            var signingContext = (TContext)Activator.CreateInstance(typeof(TContext), configuration);
+            var signingContext = new SigningContext(configuration);
             using (signingContext)
             {
                 var fileManifest = OpcSignatureManifest.Build(signingContext, allParts);
                 var builder = new XmlSignatureBuilder(signingContext);
                 builder.SetFileManifest(fileManifest);
-                var result = await builder.BuildAsync();
+                var result = builder.Build();
                 PublishSignature(result, signatureFile);
             }
             _package.Flush();
             return new OpcSignature(signatureFile);
         }
-
-        /// <summary>
-        /// Creates a signature from the enqueued parts.
-        /// </summary>
-        /// <param name="configuration">The configuration of properties used to create the signature.
-        /// See the documented of <see cref="RsaSignConfigurationSet"/> for more information.</param>
-        public Task<OpcSignature> SignAsync(RsaSignConfigurationSet configuration)
-        {
-            return SignAsyncImpl<RsaSignConfigurationSet, RsaSigningContext>(configuration);
-        }
-
 
         private static void PublishSignature(XmlDocument document, OpcPart signatureFile)
         {

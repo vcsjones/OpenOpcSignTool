@@ -6,11 +6,6 @@
     <DebugSymbols>true</DebugSymbols>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
-  <ItemGroup>
-    <PackageReference Include="Microsoft.IdentityModel.Clients.ActiveDirectory" Version="3.19.8" />
-    <PackageReference Include="Microsoft.Azure.KeyVault" Version="3.0.0" />
-    <PackageReference Include="Microsoft.Azure.KeyVault.Cryptography" Version="3.0.0" />
-  </ItemGroup>
 
   <ItemGroup Condition="$(TargetFramework) == 'net462'">
     <PackageReference Include="System.ValueTuple" Version="4.5.0" />

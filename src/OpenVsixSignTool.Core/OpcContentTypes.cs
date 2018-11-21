@@ -165,6 +165,10 @@ namespace OpenVsixSignTool.Core
         /// </summary>
         public bool IsReadOnly { get; }
 
+        /// <summary>
+        /// Adds a content type to the collection.
+        /// </summary>
+        /// <param name="item">The content type instance to add.</param>
         public void Add(OpcContentType item)
         {
             AssertNotReadOnly();
@@ -182,14 +186,20 @@ namespace OpenVsixSignTool.Core
             _contentTypes.Clear();
         }
 
+
+        /// <inheritdoc />
         public bool Contains(OpcContentType item) => _contentTypes.Contains(item);
 
+        /// <inheritdoc />
         public void CopyTo(OpcContentType[] array, int arrayIndex) => _contentTypes.CopyTo(array, arrayIndex);
 
+        /// <inheritdoc />
         public IEnumerator<OpcContentType> GetEnumerator() => _contentTypes.GetEnumerator();
 
+        /// <inheritdoc />
         public int IndexOf(OpcContentType item) => _contentTypes.IndexOf(item);
 
+        /// <inheritdoc />
         public void Insert(int index, OpcContentType item)
         {
             AssertNotReadOnly();
@@ -197,12 +207,14 @@ namespace OpenVsixSignTool.Core
             _contentTypes.Insert(index, item);
         }
 
+        /// <inheritdoc />
         public bool Remove(OpcContentType item)
         {
             AssertNotReadOnly();
             return IsDirty = _contentTypes.Remove(item);
         }
 
+        /// <inheritdoc />
         public void RemoveAt(int index)
         {
             AssertNotReadOnly();

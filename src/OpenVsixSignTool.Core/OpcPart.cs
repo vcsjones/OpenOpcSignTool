@@ -14,24 +14,29 @@ namespace OpenVsixSignTool.Core
         internal OpcRelationships _relationships;
         private readonly OpcPackageFileMode _mode;
         private readonly string _path;
-        private readonly ZipArchiveEntry _entry;
-        private readonly OpcPackage _package;
 
         internal OpcPart(OpcPackage package, string path, ZipArchiveEntry entry, OpcPackageFileMode mode)
         {
             Uri = new Uri(OpcPackage.BasePackageUri, path);
-            _package = package;
+            Package = package;
             _path = path;
-            _entry = entry;
+            Entry = entry;
             _mode = mode;
         }
 
-        internal OpcPackage Package => _package;
+        internal OpcPackage Package { get; }
 
-        internal ZipArchiveEntry Entry => _entry;
+        internal ZipArchiveEntry Entry { get; }
 
+
+        /// <summary>
+        /// A package URI of the current part.
+        /// </summary>
         public Uri Uri { get; }
 
+        /// <summary>
+        /// The collection of relationships for this part.
+        /// </summary>
         public OpcRelationships Relationships
         {
             get
@@ -44,12 +49,15 @@ namespace OpenVsixSignTool.Core
             }
         }
 
+        /// <summary>
+        /// Gets a MIME content type of the current part.
+        /// </summary>
         public string ContentType
         {
             get
             {
                 var extension = Path.GetExtension(_path)?.TrimStart('.');
-                return _package.ContentTypes.FirstOrDefault(ct => string.Equals(ct.Extension, extension, StringComparison.OrdinalIgnoreCase))?.ContentType ?? OpcKnownMimeTypes.OctetString;
+                return Package.ContentTypes.FirstOrDefault(ct => string.Equals(ct.Extension, extension, StringComparison.OrdinalIgnoreCase))?.ContentType ?? OpcKnownMimeTypes.OctetString;
             }
         }
 
@@ -61,7 +69,7 @@ namespace OpenVsixSignTool.Core
         private OpcRelationships ConstructRelationships()
         {
             var path = GetRelationshipFilePath();
-            var entry = _package.Archive.GetEntry(path);
+            var entry = Package.Archive.GetEntry(path);
             var readOnlyMode = _mode != OpcPackageFileMode.ReadWrite;
             var location = new Uri(OpcPackage.BasePackageUri, path);
             if (entry == null)
@@ -77,26 +85,20 @@ namespace OpenVsixSignTool.Core
             }
         }
 
-        public Stream Open() => _entry.Open();
 
-        public bool Equals(OpcPart other)
-        {
-            if (other is null)
-            {
-                return false;
-            }
-            return Uri.Equals(other.Uri);
-        }
+        /// <summary>
+        /// Opens the part's contents as a stream.
+        /// </summary>
+        /// <returns>A stream of the part's contents.</returns>
+        public Stream Open() => Entry.Open();
 
-        public override bool Equals(object obj)
-        {
-            if (obj is OpcPart part)
-            {
-                return Equals(part);
-            }
-            return false;
-        }
+        /// <inheritdoc />
+        public bool Equals(OpcPart other) => other != null && Uri.Equals(other.Uri);
 
+        /// <inheritdoc />
+        public override bool Equals(object obj) => obj is OpcPart part && Equals(part);
+
+        /// <inheritdoc />
         public override int GetHashCode() => Uri.GetHashCode();
     }
 }
