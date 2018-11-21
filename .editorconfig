@@ -7,18 +7,3 @@ indent_style = tab
 end_of_line = lf
 indent_style = space
 indent_size = 2
-
-[*.{cs,md,sh}]
-end_of_line = lf
-indent_style = space
-indent_size = 4
-
-[*.cs]
-trim_trailing_whitespace = true
-end_of_line = lf
-
-[*.csproj]
-end_of_line = lf
-
-[*.sln]
-end_of_line = lf

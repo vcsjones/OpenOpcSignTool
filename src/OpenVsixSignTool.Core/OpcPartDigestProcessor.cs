@@ -7,7 +7,7 @@ namespace OpenVsixSignTool.Core
     {
         public static (byte[] digest, Uri identifier) Digest(OpcPart part, HashAlgorithmName algorithmName)
         {
-            using (var hashAlgorithm = HashAlgorithmTranslator.TranslateFromNameToxmlDSigUri(algorithmName, out var identifier))
+            using (var hashAlgorithm = HashAlgorithmTranslator.TranslateFromNameToXmlDSigUri(algorithmName, out var identifier))
             {
                 using (var partStream = part.Open())
                 {
@@ -17,5 +17,4 @@ namespace OpenVsixSignTool.Core
             }
         }
     }
-
 }
