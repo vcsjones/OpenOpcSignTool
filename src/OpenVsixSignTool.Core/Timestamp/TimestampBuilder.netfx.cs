@@ -10,6 +10,7 @@ namespace OpenVsixSignTool.Core.Timestamp
     {
         private static unsafe Task<(TimestampResult, byte[])> SubmitTimestampRequest(Uri timestampUri, Oid digestOid, TimestampNonce nonce, TimeSpan timeout, byte[] digest)
         {
+            Console.WriteLine("sigingint with netfx.");
             var parameters = new CRYPT_TIMESTAMP_PARA
             {
                 cExtension = 0,
@@ -22,7 +23,7 @@ namespace OpenVsixSignTool.Core.Timestamp
                 parameters.pszTSAPolicyId = null;
                 var winResult = Crypt32.CryptRetrieveTimeStamp(
                     timestampUri.AbsoluteUri,
-                    CryptRetrieveTimeStampRetrievalFlags.NONE,
+                    CryptRetrieveTimeStampRetrievalFlags.TIMESTAMP_DONT_HASH_DATA,
                     (uint)timeout.TotalMilliseconds,
                     digestOid.Value,
                     ref parameters,
