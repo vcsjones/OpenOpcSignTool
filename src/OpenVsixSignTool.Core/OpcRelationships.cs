@@ -5,10 +5,6 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Xml.Linq;
 
-#if NETCOREAPP
-using System.Runtime.InteropServices;
-#endif
-
 namespace OpenVsixSignTool.Core
 {
     /// <summary>
@@ -265,11 +261,11 @@ namespace OpenVsixSignTool.Core
 
 #if NETCOREAPP
             Span<byte> data = stackalloc byte[sizeof(uint)];
+            Span<char> buffer = stackalloc char[9];
+            buffer[0] = 'R';
             while (true)
             {
                 RandomNumberGenerator.Fill(data);
-                Span<char> buffer = stackalloc char[9];
-                buffer[0] = 'R';
                 if (!HexHelpers.TryHexEncode(data, buffer.Slice(1)))
                 {
                     throw new InvalidOperationException("Buffer is too small.");
@@ -286,11 +282,11 @@ namespace OpenVsixSignTool.Core
             using (var rng = RandomNumberGenerator.Create())
             {
                 var data = new byte[4];
+                Span<char> buffer = stackalloc char[9];
+                buffer[0] = 'R';
                 while(true)
                 {
                     rng.GetBytes(data);
-                    Span<char> buffer = stackalloc char[9];
-                    buffer[0] = 'R';
                     if (!HexHelpers.TryHexEncode(data, buffer.Slice(1)))
                     {
                         throw new InvalidOperationException("Buffer is too small.");
