@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.CommandLineUtils;
+﻿using Microsoft.Azure.KeyVault;
+using Microsoft.Extensions.CommandLineUtils;
 using OpenVsixSignTool.Core;
 using System;
 using System.IO;
@@ -110,7 +111,8 @@ namespace OpenVsixSignTool
             {
                 timestampDigestAlgorithm = timestampDigestResult.Value;
             }
-            return PerformSignOnVsixAsync(vsixPathValue, force.HasValue(), timestampServer, fileDigestAlgorithm, timestampDigestAlgorithm, certificate);
+            return PerformSignOnVsixAsync(vsixPathValue, force.HasValue(), timestampServer, fileDigestAlgorithm, timestampDigestAlgorithm,
+                certificate, GetSigningKeyFromCertificate(certificate));
         }
 
         internal async Task<int> SignAzure(CommandOption azureKeyVaultUrl, CommandOption azureKeyVaultClientId,
@@ -186,23 +188,45 @@ namespace OpenVsixSignTool
             {
                 timestampDigestAlgorithm = timestampDigestResult.Value;
             }
-            return await PerformAzureSignOnVsixAsync(
-                vsixPathValue,
-                force.HasValue(),
-                timestampServer,
-                fileDigestAlgorithm,
-                timestampDigestAlgorithm,
-                azureKeyVaultUrl.Value(),
-                azureKeyVaultClientId.Value(),
-                azureKeyVaultCertificateName.Value(),
-                azureKeyVaultClientSecret.Value(),
-                azureKeyVaultAccessToken.Value()
-            );
+            var configuration = new AzureKeyVaultSignConfigurationSet
+            {
+                AzureKeyVaultUrl = azureKeyVaultUrl.Value(),
+                AzureKeyVaultCertificateName = azureKeyVaultCertificateName.Value(),
+                AzureClientId = azureKeyVaultClientId.Value(),
+                AzureAccessToken = azureKeyVaultAccessToken.Value(),
+                AzureClientSecret = azureKeyVaultClientSecret.Value(),
+            };
+
+            var configurationDiscoverer = new KeyVaultConfigurationDiscoverer();
+            var materializedResult = await configurationDiscoverer.Materialize(configuration);
+            AzureKeyVaultMaterializedConfiguration materialized;
+            switch (materializedResult)
+            {
+                case ErrorOr<AzureKeyVaultMaterializedConfiguration>.Ok ok:
+                    materialized = ok.Value;
+                    break;
+                default:
+                    _signCommandApplication.Out.WriteLine("Failed to get configuration from Azure Key Vault.");
+                    return EXIT_CODES.FAILED;
+            }
+            var context = new KeyVaultContext(materialized.Client, materialized.KeyId, materialized.PublicCertificate);
+            using (var keyVault = new RSAKeyVault(context))
+            {
+                return await PerformSignOnVsixAsync(
+                    vsixPathValue,
+                    force.HasValue(),
+                    timestampServer,
+                    fileDigestAlgorithm,
+                    timestampDigestAlgorithm,
+                    materialized.PublicCertificate,
+                    keyVault
+                );
+            }
         }
 
         private async Task<int> PerformSignOnVsixAsync(string vsixPath, bool force,
             Uri timestampUri, HashAlgorithmName fileDigestAlgorithm, HashAlgorithmName timestampDigestAlgorithm,
-            X509Certificate2 certificate
+            X509Certificate2 certificate, AsymmetricAlgorithm signingKey
             )
         {
             using (var package = OpcPackage.Open(vsixPath, OpcPackageFileMode.ReadWrite))
@@ -214,54 +238,15 @@ namespace OpenVsixSignTool
                 }
                 var signBuilder = package.CreateSignatureBuilder();
                 signBuilder.EnqueueNamedPreset<VSIXSignatureBuilderPreset>();
-                var signingConfiguration = new CertificateSignConfigurationSet
-                {
-                    FileDigestAlgorithm = fileDigestAlgorithm,
-                    PkcsDigestAlgorithm = fileDigestAlgorithm,
-                    SigningCertificate = certificate
-                };
+                var signingConfiguration = new SignConfigurationSet
+                (
+                    fileDigestAlgorithm: fileDigestAlgorithm,
+                    signatureDigestAlgorithm: fileDigestAlgorithm,
+                    publicCertificate: certificate,
+                    signingKey: signingKey
+                );
 
-                var signature = await signBuilder.SignAsync(signingConfiguration);
-                if (timestampUri != null)
-                {
-                    var timestampBuilder = signature.CreateTimestampBuilder();
-                    var result = await timestampBuilder.SignAsync(timestampUri, timestampDigestAlgorithm);
-                    if (result == TimestampResult.Failed)
-                    {
-                        return EXIT_CODES.FAILED;
-                    }
-                }
-                _signCommandApplication.Out.WriteLine("The signing operation is complete.");
-                return EXIT_CODES.SUCCESS;
-            }
-        }
-
-        private async Task<int> PerformAzureSignOnVsixAsync(string vsixPath, bool force,
-            Uri timestampUri, HashAlgorithmName fileDigestAlgorithm, HashAlgorithmName timestampDigestAlgorithm,
-            string azureUri, string azureClientId, string azureClientCertificateName, string azureClientSecret, string azureAccessToken
-            )
-        {
-            using (var package = OpcPackage.Open(vsixPath, OpcPackageFileMode.ReadWrite))
-            {
-                if (package.GetSignatures().Any() && !force)
-                {
-                    _signCommandApplication.Out.WriteLine("The VSIX is already signed.");
-                    return EXIT_CODES.FAILED;
-                }
-                var signBuilder = package.CreateSignatureBuilder();
-                signBuilder.EnqueueNamedPreset<VSIXSignatureBuilderPreset>();
-                var signingConfiguration = new AzureKeyVaultSignConfigurationSet
-                {
-                    FileDigestAlgorithm = fileDigestAlgorithm,
-                    PkcsDigestAlgorithm = fileDigestAlgorithm,
-                    AzureClientId = azureClientId,
-                    AzureClientSecret = azureClientSecret,
-                    AzureKeyVaultCertificateName = azureClientCertificateName,
-                    AzureKeyVaultUrl = azureUri,
-                    AzureAccessToken = azureAccessToken
-                };
-
-                var signature = await signBuilder.SignAsync(signingConfiguration);
+                var signature = signBuilder.Sign(signingConfiguration);
                 if (timestampUri != null)
                 {
                     var timestampBuilder = signature.CreateTimestampBuilder();
@@ -292,6 +277,22 @@ namespace OpenVsixSignTool
                 default:
                     return null;
 
+            }
+        }
+
+        private static AsymmetricAlgorithm GetSigningKeyFromCertificate(X509Certificate2 certificate)
+        {
+            const string RSA = "1.2.840.113549.1.1.1";
+            const string Ecc = "1.2.840.10045.2.1";
+            var keyAlgorithm = certificate.GetKeyAlgorithm();
+            switch (keyAlgorithm)
+            {
+                case RSA:
+                    return certificate.GetRSAPrivateKey();
+                case Ecc:
+                    return certificate.GetECDsaPrivateKey();
+                default:
+                    throw new InvalidOperationException("Unknown certificate signing algorithm.");
             }
         }
 

@@ -10,83 +10,80 @@ namespace OpenVsixSignTool.Core.Tests
         [Theory]
         [InlineData(@"certs\rsa-2048-sha256.pfx")]
         [InlineData(@"certs\rsa-2048-sha1.pfx")]
-        public async Task ShouldSignABlobOfDataWithRsaSha256(string pfxPath)
+        public void ShouldSignABlobOfDataWithRsaSha256(string pfxPath)
         {
             var certificate = new X509Certificate2(pfxPath, "test");
-            var config = new CertificateSignConfigurationSet
-            {
-                SigningCertificate = certificate,
-                PkcsDigestAlgorithm = HashAlgorithmName.SHA256,
-                FileDigestAlgorithm = HashAlgorithmName.SHA256
-            };
+            var config = new SignConfigurationSet
+            (
+                publicCertificate: certificate,
+                signatureDigestAlgorithm: HashAlgorithmName.SHA256,
+                fileDigestAlgorithm: HashAlgorithmName.SHA256,
+                signingKey: certificate.GetRSAPrivateKey()
+            );
 
-            using (var context = new CertificateSigningContext(config))
+            var context = new SigningContext(config);
+            using (var hash = SHA256.Create())
             {
-                using (var hash = SHA256.Create())
-                {
-                    var digest = hash.ComputeHash(new byte[] { 1, 2, 3 });
-                    var signature = await context.SignDigestAsync(digest);
-                    Assert.Equal(OpcKnownUris.SignatureAlgorithms.rsaSHA256, context.XmlDSigIdentifier);
-                    Assert.Equal(SigningAlgorithm.RSA, context.SignatureAlgorithm);
+                var digest = hash.ComputeHash(new byte[] { 1, 2, 3 });
+                var signature = context.SignDigest(digest);
+                Assert.Equal(OpcKnownUris.SignatureAlgorithms.rsaSHA256, context.XmlDSigIdentifier);
+                Assert.Equal(SigningAlgorithm.RSA, context.SignatureAlgorithm);
 
-                    var roundtrips = await context.VerifyDigestAsync(digest, signature);
-                    Assert.True(roundtrips);
-                }
+                var roundtrips = context.VerifyDigest(digest, signature);
+                Assert.True(roundtrips);
             }
         }
 
         [Theory]
         [InlineData(@"certs\rsa-2048-sha256.pfx")]
         [InlineData(@"certs\rsa-2048-sha1.pfx")]
-        public async Task ShouldSignABlobOfDataWithRsaSha1(string pfxPath)
+        public void ShouldSignABlobOfDataWithRsaSha1(string pfxPath)
         {
             var certificate = new X509Certificate2(pfxPath, "test");
-            var config = new CertificateSignConfigurationSet
-            {
-                SigningCertificate = certificate,
-                PkcsDigestAlgorithm = HashAlgorithmName.SHA1,
-                FileDigestAlgorithm = HashAlgorithmName.SHA1
-            };
+            var config = new SignConfigurationSet
+            (
+                publicCertificate: certificate,
+                signatureDigestAlgorithm: HashAlgorithmName.SHA1,
+                fileDigestAlgorithm: HashAlgorithmName.SHA1,
+                signingKey: certificate.GetRSAPrivateKey()
+            );
 
-            using (var context = new CertificateSigningContext(config))
+            var context = new SigningContext(config);
+            using (var hash = SHA1.Create())
             {
-                using (var hash = SHA1.Create())
-                {
-                    var digest = hash.ComputeHash(new byte[] { 1, 2, 3 });
-                    var signature = await context.SignDigestAsync(digest);
-                    Assert.Equal(OpcKnownUris.SignatureAlgorithms.rsaSHA1, context.XmlDSigIdentifier);
-                    Assert.Equal(SigningAlgorithm.RSA, context.SignatureAlgorithm);
+                var digest = hash.ComputeHash(new byte[] { 1, 2, 3 });
+                var signature = context.SignDigest(digest);
+                Assert.Equal(OpcKnownUris.SignatureAlgorithms.rsaSHA1, context.XmlDSigIdentifier);
+                Assert.Equal(SigningAlgorithm.RSA, context.SignatureAlgorithm);
 
-                    var roundtrips = await context.VerifyDigestAsync(digest, signature);
-                    Assert.True(roundtrips);
-                }
+                var roundtrips = context.VerifyDigest(digest, signature);
+                Assert.True(roundtrips);
             }
         }
 
         [Theory]
         [InlineData(@"certs\ecdsa-p256-sha256.pfx")]
-        public async Task ShouldSignABlobOfDataWithEcdsaP256Sha256(string pfxPath)
+        public void ShouldSignABlobOfDataWithEcdsaP256Sha256(string pfxPath)
         {
             var certificate = new X509Certificate2(pfxPath, "test");
-            var config = new CertificateSignConfigurationSet
-            {
-                SigningCertificate = certificate,
-                PkcsDigestAlgorithm = HashAlgorithmName.SHA256,
-                FileDigestAlgorithm = HashAlgorithmName.SHA256
-            };
+            var config = new SignConfigurationSet
+            (
+                publicCertificate: certificate,
+                signatureDigestAlgorithm: HashAlgorithmName.SHA256,
+                fileDigestAlgorithm: HashAlgorithmName.SHA256,
+                signingKey: certificate.GetECDsaPrivateKey()
+            );
 
-            using (var context = new CertificateSigningContext(config))
+            var context = new SigningContext(config);
+            using (var hash = SHA256.Create())
             {
-                using (var hash = SHA256.Create())
-                {
-                    var digest = hash.ComputeHash(new byte[] { 1, 2, 3 });
-                    var signature = await context.SignDigestAsync(digest);
-                    Assert.Equal(OpcKnownUris.SignatureAlgorithms.ecdsaSHA256, context.XmlDSigIdentifier);
-                    Assert.Equal(SigningAlgorithm.ECDSA, context.SignatureAlgorithm);
+                var digest = hash.ComputeHash(new byte[] { 1, 2, 3 });
+                var signature = context.SignDigest(digest);
+                Assert.Equal(OpcKnownUris.SignatureAlgorithms.ecdsaSHA256, context.XmlDSigIdentifier);
+                Assert.Equal(SigningAlgorithm.ECDSA, context.SignatureAlgorithm);
 
-                    var roundtrips = await context.VerifyDigestAsync(digest, signature);
-                    Assert.True(roundtrips);
-                }
+                var roundtrips = context.VerifyDigest(digest, signature);
+                Assert.True(roundtrips);
             }
         }
     }
