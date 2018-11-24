@@ -5,14 +5,38 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Xml.Linq;
 
+#if NETCOREAPP
+using System.Runtime.InteropServices;
+#endif
+
 namespace OpenVsixSignTool.Core
 {
+    /// <summary>
+    /// A class that represents a part relationship in a package.
+    /// </summary>
     public class OpcRelationship : IEquatable<OpcRelationship>
     {
+        /// <summary>
+        /// The target part for the relationship.
+        /// </summary>
         public Uri Target { get; }
+
+        /// <summary>
+        /// A unique identifier for the part.
+        /// </summary>
         public string Id { get; internal set; }
+
+        /// <summary>
+        /// The type of the part.
+        /// </summary>
         public Uri Type { get; }
 
+        /// <summary>
+        /// Creates a new relationship for a part.
+        /// </summary>
+        /// <param name="target">The package relative URI for the target part.</param>
+        /// <param name="id">A unique identifier for a part.</param>
+        /// <param name="type">A URI indicating the type of the part.</param>
         public OpcRelationship(Uri target, string id, Uri type)
         {
             Target = target;
@@ -20,29 +44,41 @@ namespace OpenVsixSignTool.Core
             Type = type;
         }
 
+
+        /// <summary>
+        /// Creates a new relationship for a part.
+        /// </summary>
+        /// <param name="target">The package relative URI for the target part.</param>
+        /// <param name="type">A URI indicating the type of the part.</param>
         public OpcRelationship(Uri target, Uri type)
         {
             Target = target;
             Type = type;
         }
 
-        public bool Equals(OpcRelationship other)
-        {
-            return !(other is null) && Target == other.Target && Type == other.Type && Id == other.Id;
-        }
 
-        public override bool Equals(object obj)
-        {
-            if (obj is OpcRelationship rel)
-            {
-                return Equals(rel);
-            }
-            return false;
-        }
+        /// <summary>
+        /// Compares two part relationships for equality.
+        /// </summary>
+        /// <param name="other">The <see cref="OpcRelationship"/> to compare against.</param>
+        /// <returns>True if the relationships are equal, false otherwise.</returns>
+        public bool Equals(OpcRelationship other) => other != null && Target == other.Target && Type == other.Type && Id == other.Id;
 
+        /// <summary>
+        /// Compares against an object for equality.
+        /// </summary>
+        /// <param name="obj">The object to compare against.</param>
+        /// <returns>True if the objects are equal, false otherwise.</returns>
+        public override bool Equals(object obj) => obj is OpcRelationship rel && Equals(rel);
+
+        /// <inheritdoc />
         public override int GetHashCode() => Target.GetHashCode() ^ Type.GetHashCode();
     }
 
+
+    /// <summary>
+    /// A class for a collection of <see cref="OpcRelationship"/>.
+    /// </summary>
     public class OpcRelationships : IList<OpcRelationship>
     {
         private static readonly XNamespace _opcRelationshipNamespace = "http://schemas.openxmlformats.org/package/2006/relationships";
@@ -78,6 +114,11 @@ namespace OpenVsixSignTool.Core
             DocumentUri = documentUri;
         }
 
+
+        /// <summary>
+        /// Creates an <see cref="XDocument"/> for the currect collection of relationships.
+        /// </summary>
+        /// <returns>An <see cref="XDocument"/> instance for all relationships in the collection.</returns>
         public XDocument ToXml()
         {
             var document = new XDocument();
@@ -94,13 +135,24 @@ namespace OpenVsixSignTool.Core
             return document;
         }
 
+
+        /// <summary>
+        /// Gets the number of relationships in the collection.
+        /// </summary>
         public int Count => _relationships.Count;
 
+        /// <summary>
+        /// True if the collection is read only, otherwise false.
+        /// </summary>
         public bool IsReadOnly { get; }
 
         internal Uri DocumentUri { get; }
 
-
+        /// <summary>
+        /// Gets an <see cref="OpcRelationship"/> at a given index.
+        /// </summary>
+        /// <param name="index">The index of the relationship.</param>
+        /// <returns>An <see cref="OpcRelationship"/>.</returns>
         public OpcRelationship this[int index]
         {
             get => _relationships[index];
@@ -115,8 +167,19 @@ namespace OpenVsixSignTool.Core
 
         internal bool IsDirty { get; set; }
 
+
+        /// <summary>
+        /// Gets the index of an <see cref="OpcRelationship"/>.
+        /// </summary>
+        /// <param name="item">The instance of <see cref="OpcRelationship"/> to retreive the index.</param>
+        /// <returns>The index of the relatnship, or <c>-1</c> if the relationship is not in this collection.</returns>
         public int IndexOf(OpcRelationship item) => _relationships.IndexOf(item);
 
+        /// <summary>
+        /// Inserts an <see cref="OpcRelationship"/> at a specific index.
+        /// </summary>
+        /// <param name="index">The index to insert the <see cref="OpcRelationship"/> at.</param>
+        /// <param name="item">The relationship to insert.</param>
         public void Insert(int index, OpcRelationship item)
         {
             AssertNotReadOnly();
@@ -125,6 +188,10 @@ namespace OpenVsixSignTool.Core
             _relationships.Insert(index, item);
         }
 
+        /// <summary>
+        /// Removes an <see cref="OpcRelationship"/> at a specific index.
+        /// </summary>
+        /// <param name="index">The index to remove the <see cref="OpcRelationship"/> at.</param>
         public void RemoveAt(int index)
         {
             AssertNotReadOnly();
@@ -132,6 +199,10 @@ namespace OpenVsixSignTool.Core
             _relationships.RemoveAt(index);
         }
 
+        /// <summary>
+        /// Adds a relationship to the collection.
+        /// </summary>
+        /// <param name="item">The relationship to add.</param>
         public void Add(OpcRelationship item)
         {
             AssertNotReadOnly();
@@ -140,6 +211,9 @@ namespace OpenVsixSignTool.Core
             _relationships.Add(item);
         }
 
+        /// <summary>
+        /// Clears the list of relationships.
+        /// </summary>
         public void Clear()
         {
             AssertNotReadOnly();
@@ -147,16 +221,29 @@ namespace OpenVsixSignTool.Core
             _relationships.Clear();
         }
 
+
+        /// <summary>
+        /// Determines if the collections contains a relationship.
+        /// </summary>
+        /// <param name="item">The item to determine if it exists in the current collection.</param>
+        /// <returns>True if the item is in the collection, otherwise false.</returns>
         public bool Contains(OpcRelationship item) => _relationships.Contains(item);
 
+        /// <inheritdoc />
         public void CopyTo(OpcRelationship[] array, int arrayIndex) => _relationships.CopyTo(array, arrayIndex);
 
+        /// <summary>
+        /// Removes a relationship from the collection.
+        /// </summary>
+        /// <param name="item">The item to remove.</param>
+        /// <returns>True if the item was removed, otherwise false.</returns>
         public bool Remove(OpcRelationship item)
         {
             AssertNotReadOnly();
             return IsDirty = _relationships.Remove(item);
         }
 
+        /// <inheritdoc />
         public IEnumerator<OpcRelationship> GetEnumerator() => _relationships.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
@@ -175,14 +262,40 @@ namespace OpenVsixSignTool.Core
             {
                 return;
             }
+
+#if NETCOREAPP
+            Span<byte> data = stackalloc byte[sizeof(uint)];
+            while (true)
+            {
+                RandomNumberGenerator.Fill(data);
+                Span<char> buffer = stackalloc char[9];
+                buffer[0] = 'R';
+                if (!HexHelpers.TryHexEncode(data, buffer.Slice(1)))
+                {
+                    throw new InvalidOperationException("Buffer is too small.");
+                }
+                var id = buffer.ToString();
+                if (_relationships.Any(r => r.Id == id))
+                {
+                    continue;
+                }
+                relationship.Id = id;
+                break;
+            }
+#else
             using (var rng = RandomNumberGenerator.Create())
             {
                 var data = new byte[4];
                 while(true)
                 {
                     rng.GetBytes(data);
-                    var uintValue = BitConverter.ToUInt32(data, 0);
-                    var id = "R" + uintValue.ToString("X8");
+                    Span<char> buffer = stackalloc char[9];
+                    buffer[0] = 'R';
+                    if (!HexHelpers.TryHexEncode(data, buffer.Slice(1)))
+                    {
+                        throw new InvalidOperationException("Buffer is too small.");
+                    }
+                    var id = buffer.ToString();
                     if (_relationships.Any(r => r.Id == id))
                     {
                         continue;
@@ -191,6 +304,7 @@ namespace OpenVsixSignTool.Core
                     break;
                 }
             }
+#endif
         }
     }
 }
