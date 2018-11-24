@@ -55,7 +55,7 @@ namespace OpenVsixSignTool.Core
         /// <summary>
         /// Gets the XmlDSig identifier for the configured algorithm.
         /// </summary>
-        public Uri XmlDSigIdentifier => SignatureAlgorithmTranslator.SignatureAlgorithmToXmlDSigUri(SignatureAlgorithm, _configuration.PkcsDigestAlgorithm);
+        public Uri XmlDSigIdentifier => SignatureAlgorithmTranslator.SignatureAlgorithmToXmlDSigUri(SignatureAlgorithm, _configuration.SignatureDigestAlgorithm);
 
 
         /// <summary>
@@ -68,7 +68,7 @@ namespace OpenVsixSignTool.Core
             switch (_configuration.SigningKey)
             {
                 case RSA rsa:
-                    return rsa.SignHash(digest, _configuration.PkcsDigestAlgorithm, RSASignaturePadding.Pkcs1);
+                    return rsa.SignHash(digest, _configuration.SignatureDigestAlgorithm, RSASignaturePadding.Pkcs1);
                 case ECDsa ecdsa:
                     return ecdsa.SignHash(digest);
                 default:
@@ -90,7 +90,7 @@ namespace OpenVsixSignTool.Core
                 case SigningAlgorithm.RSA:
                     using (var publicKey = Certificate.GetRSAPublicKey())
                     {
-                        return publicKey.VerifyHash(digest, signature, _configuration.PkcsDigestAlgorithm, RSASignaturePadding.Pkcs1);
+                        return publicKey.VerifyHash(digest, signature, _configuration.SignatureDigestAlgorithm, RSASignaturePadding.Pkcs1);
                     }
                 case SigningAlgorithm.ECDSA:
                     using (var publicKey = Certificate.GetECDsaPublicKey())

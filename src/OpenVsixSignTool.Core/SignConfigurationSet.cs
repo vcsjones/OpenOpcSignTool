@@ -12,13 +12,13 @@ namespace OpenVsixSignTool.Core
         /// Creates a new instance of the <see cref="SignConfigurationSet"/>.
         /// </summary>
         /// <param name="fileDigestAlgorithm">The <see cref="HashAlgorithmName"/> used to digest files.</param>
-        /// <param name="pkcsDigestAlgorithm">The <see cref="HashAlgorithmName"/> used in PKCS1 signatures.</param>
+        /// <param name="signatureDigestAlgorithm">The <see cref="HashAlgorithmName"/> used in signatures.</param>
         /// <param name="signingKey">An <see cref="AsymmetricAlgorithm"/> with a private key that is used to perform signing operations.</param>
         /// <param name="publicCertificate">An <see cref="X509Certificate2"/> that contains the public key and certificate used to embed in the signature.</param>
-        public SignConfigurationSet(HashAlgorithmName fileDigestAlgorithm, HashAlgorithmName pkcsDigestAlgorithm, AsymmetricAlgorithm signingKey, X509Certificate2 publicCertificate)
+        public SignConfigurationSet(HashAlgorithmName fileDigestAlgorithm, HashAlgorithmName signatureDigestAlgorithm, AsymmetricAlgorithm signingKey, X509Certificate2 publicCertificate)
         {
             FileDigestAlgorithm = fileDigestAlgorithm;
-            PkcsDigestAlgorithm = pkcsDigestAlgorithm;
+            SignatureDigestAlgorithm = signatureDigestAlgorithm;
             SigningKey = signingKey;
             PublicCertificate = publicCertificate;
         }
@@ -29,9 +29,9 @@ namespace OpenVsixSignTool.Core
         public HashAlgorithmName FileDigestAlgorithm { get; }
 
         /// <summary>
-        /// The <see cref="HashAlgorithmName"/> used in PKCS1 signatures.
+        /// The <see cref="HashAlgorithmName"/> used in signatures.
         /// </summary>
-        public HashAlgorithmName PkcsDigestAlgorithm { get; }
+        public HashAlgorithmName SignatureDigestAlgorithm { get; }
 
         /// <summary>
         /// An <see cref="AsymmetricAlgorithm"/> with a private key that is used to perform signing operations.

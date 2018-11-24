@@ -241,7 +241,7 @@ namespace OpenVsixSignTool
                 var signingConfiguration = new SignConfigurationSet
                 (
                     fileDigestAlgorithm: fileDigestAlgorithm,
-                    pkcsDigestAlgorithm: fileDigestAlgorithm,
+                    signatureDigestAlgorithm: fileDigestAlgorithm,
                     publicCertificate: certificate,
                     signingKey: signingKey
                 );

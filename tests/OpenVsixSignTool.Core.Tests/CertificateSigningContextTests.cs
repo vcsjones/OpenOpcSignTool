@@ -16,7 +16,7 @@ namespace OpenVsixSignTool.Core.Tests
             var config = new SignConfigurationSet
             (
                 publicCertificate: certificate,
-                pkcsDigestAlgorithm: HashAlgorithmName.SHA256,
+                signatureDigestAlgorithm: HashAlgorithmName.SHA256,
                 fileDigestAlgorithm: HashAlgorithmName.SHA256,
                 signingKey: certificate.GetRSAPrivateKey()
             );
@@ -43,7 +43,7 @@ namespace OpenVsixSignTool.Core.Tests
             var config = new SignConfigurationSet
             (
                 publicCertificate: certificate,
-                pkcsDigestAlgorithm: HashAlgorithmName.SHA1,
+                signatureDigestAlgorithm: HashAlgorithmName.SHA1,
                 fileDigestAlgorithm: HashAlgorithmName.SHA1,
                 signingKey: certificate.GetRSAPrivateKey()
             );
@@ -69,7 +69,7 @@ namespace OpenVsixSignTool.Core.Tests
             var config = new SignConfigurationSet
             (
                 publicCertificate: certificate,
-                pkcsDigestAlgorithm: HashAlgorithmName.SHA256,
+                signatureDigestAlgorithm: HashAlgorithmName.SHA256,
                 fileDigestAlgorithm: HashAlgorithmName.SHA256,
                 signingKey: certificate.GetECDsaPrivateKey()
             );
