@@ -2,6 +2,9 @@
 
 namespace OpenVsixSignTool.Core
 {
+    /// <summary>
+    /// Extensions for working with URIs in OPC packages.
+    /// </summary>
     public static class UriHelpers
     {
         private static readonly Uri _packageBaseUri = new Uri("package:///", UriKind.Absolute);
@@ -21,6 +24,11 @@ namespace OpenVsixSignTool.Core
             return resolved.ToString();
         }
 
+        /// <summary>
+        /// Converts a package URI to a qualified path within the package zip file.
+        /// </summary>
+        /// <param name="partUri">The URI to convert.</param>
+        /// <returns>A string to the qualified path in the zip file.</returns>
         public static string ToQualifiedPath(this Uri partUri)
         {
             var absolute = partUri.IsAbsoluteUri ? partUri : new Uri(_rootedPackageBaseUri, partUri);
@@ -29,6 +37,12 @@ namespace OpenVsixSignTool.Core
             return resolved.ToString();
         }
 
+
+        /// <summary>
+        /// Converts a package URI to a qualified relative path URI within the package zip file.
+        /// </summary>
+        /// <param name="partUri">The URI to convert.</param>
+        /// <returns>A URI to the qualified path in the zip file.</returns>
         public static Uri ToQualifiedUri(this Uri partUri)
         {
             var absolute = partUri.IsAbsoluteUri ? partUri : new Uri(_rootedPackageBaseUri, partUri);
