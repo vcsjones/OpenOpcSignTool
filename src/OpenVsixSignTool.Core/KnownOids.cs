@@ -3,33 +3,6 @@ namespace OpenVsixSignTool.Core
 {
     internal static class KnownOids
     {
-        public static class X509Algorithms
-        {
-            public const string RSA = "1.2.840.113549.1.1.1";
-            public const string Ecc = "1.2.840.10045.2.1";
-        }
-
-        public static class EccCurves
-        {
-            public const string EcdsaP256 = "1.2.840.10045.3.1.7";
-            public const string EcdsaP384 = "1.3.132.0.34";
-            public const string EcdsaP521 = "1.3.132.0.35";
-        }
-
-        public static class SignatureAlgorithms
-        {
-            public const string md5RSA = "1.2.840.113549.1.1.4";
-            public const string sha1DSA = "1.2.840.10040.4.3";
-            public const string sha1RSA = "1.2.840.113549.1.1.5";
-            public const string sha256RSA = "1.2.840.113549.1.1.11";
-            public const string sha384RSA = "1.2.840.113549.1.1.12";
-            public const string sha512RSA = "1.2.840.113549.1.1.13";
-            public const string sha1ECDSA = "1.2.840.10045.4.1";
-            public const string sha256ECDSA = "1.2.840.10045.4.3.2";
-            public const string sha384ECDSA = "1.2.840.10045.4.3.3";
-            public const string sha512ECDSA = "1.2.840.10045.4.3.4";
-        }
-
         public static class HashAlgorithms
         {
             public const string md5 = "1.2.840.113549.2.5";

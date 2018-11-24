@@ -2,7 +2,6 @@
 using System.IO;
 using System.Security.Cryptography.X509Certificates;
 using System.Security.Cryptography.Xml;
-using System.Threading.Tasks;
 using System.Xml;
 
 namespace OpenVsixSignTool.Core
