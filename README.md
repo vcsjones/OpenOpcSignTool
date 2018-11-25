@@ -46,7 +46,7 @@ var configuration = new SignConfigurationSet(
 	HashAlgorithmName.SHA256,
 	certificate.GetRSAPrivateKey(),
 	certificate);
-using (var package = OpcPackage.Open("C:\path\to\file.vsix", OpcPackageFileMode.ReadWrite))
+using (var package = OpcPackage.Open(@"C:\path\to\file.vsix", OpcPackageFileMode.ReadWrite))
 {
 	var builder = package.CreateSignatureBuilder();
 	builder.EnqueueNamedPreset<VSIXSignatureBuilderPreset>();
