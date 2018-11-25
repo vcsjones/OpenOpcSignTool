@@ -2,7 +2,16 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFrameworks>net462;netcoreapp2.1</TargetFrameworks>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <PackageId>OpenVsixSignTool</PackageId>
+    <Copyright>Kevin Jones 2016-2018</Copyright>
+    <PackAsTool>true</PackAsTool>
+    <Description>OpenVsixSignTool is a command-line tool for signing a VSIX file using a certificate or Azure Key Vault.</Description>
+    <Authors>Kevin Jones</Authors>
+    <PackageTags>vsix; code signing</PackageTags>
+    <PackageProjectUrl>https://github.com/vcsjones/OpenOpcSignTool</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/vcsjones/OpenOpcSignTool</RepositoryUrl>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>
