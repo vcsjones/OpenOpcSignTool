@@ -2,12 +2,20 @@ OpenVsixSignTool
 ================
 
 
-OpenVsixSignTool ("OVST") is an open-source implemention of [VsixSignTool][1] to digitally sign VSIX packages.
+OpenVsixSignTool ("OVST") is an open-source implemention of [VsixSignTool][1] to digitally sign VSIX packages on any platform.
 
-It offers a number of benefits, such as easily using certificates from hardware tokens, HSMs, etc by allowing
+It offers a number of benefits, such as easily using certificates from hardware tokens, HSMs, Azure Key Vault, etc by allowing
 any certificate from the Certificate Store to be used instead of a PFX.
 
-This app is currently in beta, however it works. See "Known Issues" below.
+## Installing
+
+Using .NET Core 2.1 or later:
+
+```shell
+dotnet tool install -g OpenVsixSignTool
+```
+
+Alternatively, it can be built by itself
 
 ## Using
 
@@ -22,22 +30,47 @@ file digest and SHA256 timestamp digest algorithm.
 
 For more information about usage, use `OpenVsixSignTool sign --help` for more information.
 
-## Azure Key Vault Unit Tests
+## Core Library
 
-The Azure Key Vault unit tests depend on a file called `azure-creds.json` in the
-`tests\OpenVsixSignTool.Core.Tests\private` directory. The file should look something like this:
+This repository is broken out into two projects.
 
-```json
+### Core Signing Library
+
+The core library performs the signing functionality and offers a .NET API for programmatically signing a VSIX file. A sample for signing and timestamping
+with an `X509Certificate2` would look like this:
+
+```csharp
+X509Certificate2 certificate = default; // Use a real instance of an X509Certificate2 with a private key
+var configuration = new SignConfigurationSet(
+	HashAlgorithmName.SHA256,
+	HashAlgorithmName.SHA256,
+	certificate.GetRSAPrivateKey(),
+	certificate);
+using (var package = OpcPackage.Open(@"C:\path\to\file.vsix", OpcPackageFileMode.ReadWrite))
 {
-  "ClientId": "abcd1234-5678-90ef-bebe-ab1234567890",
-  "ClientSecret": "your-awesome-appid-secret",
-  "AzureKeyVaultUrl": "https://vault-name.vault.azure.net",
-  "AzureKeyVaultCertificateName": "Certificate-Name"
+	var builder = package.CreateSignatureBuilder();
+	builder.EnqueueNamedPreset<VSIXSignatureBuilderPreset>();
+	var signature = builder.Sign(configuration);
+	// Apply a timestamp
+	var timestampBuilder = signature.CreateTimestampBuilder();
+	var result = await timestampBuilder.SignAsync(new Uri("http://timestamp.digicert.com"), HashAlgorithmName.SHA256);
+	if (result != TimestampResult.Success)
+	{
+		throw new InvalidOperationException("Failed to timestamp the signature.");
+	}
 }
+certificate.Dispose();
 ```
 
-This file will automatically be ignored by Git so it isn't accidentally commited, but still please take care to review any
-commits to ensure this didn't accidentally get added somehow.
+
+You can also use Azure Key Vault to sign a VSIX when using the [`RSAKeyVault`][3] NuGet package. Since the `SignConfigurationSet`
+accepts a private key that is distinct from the certificate, the private key can be any implementation of `RSA` or `ECDsa`
+that are properly implemented.
+
+### CLI Tool
+
+The command line tool uses the core library to offer CLI usage of the core library. It uses [`RSAKeyVault`][3] to achieve signing
+with `AzureKeyVault`.
 
 ## Known Issues
 
@@ -45,3 +78,4 @@ See the list of [bugs][2] in GitHub for known bugs.
 
 [1]: https://www.nuget.org/packages/Microsoft.VSSDK.Vsixsigntool/
 [2]: https://github.com/vcsjones/OpenVsixSignTool/issues?q=is%3Aissue+is%3Aopen+label%3Abug
+[3]: https://www.nuget.org/packages/RSAKeyVaultProvider/
