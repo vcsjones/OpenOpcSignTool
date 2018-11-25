@@ -8,7 +8,7 @@ namespace OpenVsixSignTool.Core
         {
             (byte)'0', (byte)'1', (byte)'2', (byte)'3', (byte)'4',
             (byte)'5', (byte)'6', (byte)'7', (byte)'8', (byte)'9',
-            (byte)'A', (byte)'B', (byte)'C', (byte)'E', (byte)'E',
+            (byte)'A', (byte)'B', (byte)'C', (byte)'D', (byte)'E',
             (byte)'F',
         };
 
