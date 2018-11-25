@@ -33,7 +33,7 @@
 
   <ItemGroup>
     <Compile Remove="Timestamp\TimestampBuilder.*.cs" />
-    <Content Include="Timestamp\TimestampBuilder.*.cs" />
+    <None Include="Timestamp\TimestampBuilder.*.cs" />
   </ItemGroup>
 
   <ItemGroup Condition="$(TargetFramework) == 'netcoreapp2.1'">
