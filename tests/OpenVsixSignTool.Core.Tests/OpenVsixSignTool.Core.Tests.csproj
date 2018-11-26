@@ -21,6 +21,11 @@
     <ProjectReference Include="..\..\src\OpenVsixSignTool.Core\OpenVsixSignTool.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup Condition="$(TargetFramework) != 'net462'">
+    <Compile Remove="Crypt32Tests.cs" />
+    <None Include="Crypt32Tests.cs" />
+  </ItemGroup>
+
   <ItemGroup>
     <None Update="certs\*.pfx;certs\*.cer">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
