@@ -70,5 +70,5 @@ jobs:
       inputs:
         command: test
         projects: '**/*.Tests.csproj'
-        arguments: -c $(BuildConfiguration) --collect:"Code Coverage" -s $(System.DefaultWorkingDirectory)\CodeCoverage.runsettings
+        arguments: --framework netcoreapp2.1 -c $(BuildConfiguration) --collect:"Code Coverage" -s $(System.DefaultWorkingDirectory)\CodeCoverage.runsettings
       displayName: Run Tests
