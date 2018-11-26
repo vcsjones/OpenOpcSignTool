@@ -31,5 +31,18 @@ namespace OpenVsixSignTool.Core.Tests
             Assert.True(HexHelpers.TryHexEncode(new byte[] { 0x66 }, buffer.Slice(1, 2)));
             Assert.Equal("Q66Q", buffer.ToString());
         }
+
+        [Fact]
+        public void ShouldTranslateAllValues()
+        {
+            Span<char> buffer = stackalloc char[2];
+            Span<byte> value = stackalloc byte[1];
+            for (var i = 0; i <= 0xFF; i++)
+            {
+                value[0] = (byte)i;
+                Assert.True(HexHelpers.TryHexEncode(value, buffer));
+                Assert.Equal(i.ToString("X2"), buffer.ToString());
+            }
+        }
     }
 }

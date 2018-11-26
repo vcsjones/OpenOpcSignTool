@@ -7,7 +7,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <PackageId>OpenVsixSignTool.Core</PackageId>
 
-    <Description>OpenVsixSignTool.Core is a  library for signing a VSIX file using a certificate, Azure Key Vault, or any other private key.</Description>
+    <Description>OpenVsixSignTool.Core is a library for signing a VSIX file using a certificate, Azure Key Vault, or any other private key.</Description>
     <Authors>Kevin Jones</Authors>
     <PackageTags>vsix; code signing</PackageTags>
     <PackageProjectUrl>https://github.com/vcsjones/OpenOpcSignTool</PackageProjectUrl>
@@ -35,11 +35,16 @@
     <Compile Remove="Timestamp\TimestampBuilder.*.cs" />
     <None Include="Timestamp\TimestampBuilder.*.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="Interop\*.cs" />
+    <None Include="Interop\*.cs" />
+  </ItemGroup>
 
   <ItemGroup Condition="$(TargetFramework) == 'netcoreapp2.1'">
     <Compile Include="Timestamp\*.netcoreapp.cs" />
   </ItemGroup>
   <ItemGroup Condition="$(TargetFramework) == 'net462'">
     <Compile Include="Timestamp\*.netfx.cs" />
+    <Compile Include="Interop\*.cs" />
   </ItemGroup>
 </Project>
