@@ -13,7 +13,10 @@ namespace OpenVsixSignTool.Core.Timestamp
         {
             var timestampRequest = Rfc3161TimestampRequest.CreateFromHash(digest, digestOid, nonce: nonce.Nonce, requestSignerCertificates: true);
             var encodedRequest = timestampRequest.Encode();
-            var client = new HttpClient();
+            var client = new HttpClient
+            {
+                Timeout = timeout
+            };
             var content = new ByteArrayContent(encodedRequest);
             content.Headers.Add("Content-Type", "application/timestamp-query");
             var post = await client.PostAsync(timestampUri, content);
