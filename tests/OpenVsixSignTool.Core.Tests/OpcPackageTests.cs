@@ -8,8 +8,8 @@ namespace OpenVsixSignTool.Core.Tests
 {
     public class OpcPackageTests : IDisposable
     {
-        private const string SamplePackage = @"sample\OpenVsixSignToolTest.vsix";
-        private const string SamplePackageSigned = @"sample\OpenVsixSignToolTest-Signed.vsix";
+        private static readonly string SamplePackage = Path.Combine("sample", "OpenVsixSignToolTest.vsix");
+        private static readonly string SamplePackageSigned = Path.Combine("sample", "OpenVsixSignToolTest-Signed.vsix");
         private readonly List<string> _shadowFiles = new List<string>();
 
         [Fact]
