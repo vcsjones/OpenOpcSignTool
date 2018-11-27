@@ -1,8 +1,10 @@
-OpenVsixSignTool
+OpenOpcSignTool
 ================
 
+[![Build Status](https://vcsjones.visualstudio.com/OpenOpcSignTool/_apis/build/status/OpenOpcSignTool-CI)](https://vcsjones.visualstudio.com/OpenOpcSignTool/_build/latest?definitionId=2)
 
-OpenVsixSignTool ("OVST") is an open-source implemention of [VsixSignTool][1] to digitally sign VSIX packages on any platform.
+OpenOpcSignTool ("OOST") is an open-source implemention of [VsixSignTool][1] to digitally sign VSIX packages on any platform,
+with additional "OPC" package signing options to come.
 
 It offers a number of benefits, such as easily using certificates from hardware tokens, HSMs, Azure Key Vault, etc by allowing
 any certificate from the Certificate Store to be used instead of a PFX.
@@ -19,7 +21,7 @@ Alternatively, it can be built by itself
 
 ## Using
 
-Using OVST is fairly simple. An example:
+Using OOST is fairly simple. An example:
 
 ```shell
 OpenVsixSignTool sign --sha1 7213125958254779abbaa5033a12fecdf2c7cdc8 --timestamp http://timestamp.digicert.com -ta sha256 -fd sha256 myvsix.vsix
