@@ -12,6 +12,7 @@
     <PackageProjectUrl>https://github.com/vcsjones/OpenOpcSignTool</PackageProjectUrl>
     <RepositoryUrl>https://github.com/vcsjones/OpenOpcSignTool</RepositoryUrl>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <IsTestProject>false</IsTestProject>
   </PropertyGroup>
 
   <ItemGroup>

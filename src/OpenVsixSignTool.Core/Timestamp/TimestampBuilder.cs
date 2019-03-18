@@ -8,13 +8,13 @@ namespace OpenVsixSignTool.Core.Timestamp
     {
         public static Task<(TimestampResult, byte[])> RequestTimestamp(Uri timestampUri, HashAlgorithmName timestampAlgorithm, TimestampNonce nonce, TimeSpan timeout, byte[] content)
         {
-            var digestOid = HashAlgorithmTranslator.TranslateFromNameToOid(timestampAlgorithm);
+            var info = new HashAlgorithmInfo(timestampAlgorithm);
             byte[] digest;
-            using (var hash = HashAlgorithmTranslator.TranslateFromNameToXmlDSigUri(timestampAlgorithm, out _))
+            using (var hash = info.Create())
             {
                 digest = hash.ComputeHash(content);
             }
-            return SubmitTimestampRequest(timestampUri, digestOid, nonce, timeout, digest);
+            return SubmitTimestampRequest(timestampUri, info.Oid, nonce, timeout, digest);
         }
     }
 }
