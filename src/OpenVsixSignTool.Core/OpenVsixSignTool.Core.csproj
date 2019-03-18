@@ -6,7 +6,7 @@
     <DebugSymbols>true</DebugSymbols>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <PackageId>OpenVsixSignTool.Core</PackageId>
-
+    <IsTestProject>false</IsTestProject>
     <Description>OpenVsixSignTool.Core is a library for signing a VSIX file using a certificate, Azure Key Vault, or any other private key.</Description>
     <Authors>Kevin Jones</Authors>
     <PackageTags>vsix; code signing</PackageTags>

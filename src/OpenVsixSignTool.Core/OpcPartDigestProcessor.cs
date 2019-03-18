@@ -7,12 +7,13 @@ namespace OpenVsixSignTool.Core
     {
         public static (byte[] digest, Uri identifier) Digest(OpcPart part, HashAlgorithmName algorithmName)
         {
-            using (var hashAlgorithm = HashAlgorithmTranslator.TranslateFromNameToXmlDSigUri(algorithmName, out var identifier))
+            var info = new HashAlgorithmInfo(algorithmName);
+            using (var hashAlgorithm = info.Create())
             {
                 using (var partStream = part.Open())
                 {
                     var digest = hashAlgorithm.ComputeHash(partStream);
-                    return (digest, identifier);
+                    return (digest, info.XmlDSigIdentifier);
                 }
             }
         }
