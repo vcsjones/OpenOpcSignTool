@@ -25,7 +25,7 @@ namespace OpenVsixSignTool.Core
     /// <summary>
     /// Represents a content type defined in a package.
     /// </summary>
-    [DebuggerDisplay("Extension = {Extension}; ContentType = {ContentType};")]
+    [DebuggerDisplay("Extension = {Extension}; PartName = {PartName}; ContentType = {ContentType};")]
     public class OpcContentType
     {
         /// <summary>
@@ -39,6 +39,11 @@ namespace OpenVsixSignTool.Core
         public string ContentType { get; }
 
         /// <summary>
+        /// The part name of the content.
+        /// </summary>
+        public string PartName { get; }
+
+        /// <summary>
         /// The mode of the content type. This can override a previously defined content type.
         /// </summary>
         public OpcContentTypeMode Mode { get; }
@@ -50,9 +55,22 @@ namespace OpenVsixSignTool.Core
         /// <param name="contentType">The MIME type of the content.</param>
         /// <param name="mode">The mode within the content type.</param>
         public OpcContentType(string extension, string contentType, OpcContentTypeMode mode)
+            : this(extension, contentType, null, mode)
+        {
+        }
+
+        /// <summary>
+        /// Creates a new instance of a content type.
+        /// </summary>
+        /// <param name="extension">The extension, without a leading peroid, of the content type.</param>
+        /// <param name="contentType">The MIME type of the content.</param>
+        /// <param name="partName">The part name of the content.</param>
+        /// <param name="mode">The mode within the content type.</param>
+        public OpcContentType(string extension, string contentType, string partName, OpcContentTypeMode mode)
         {
             Extension = extension;
             ContentType = contentType;
+            PartName = partName;
             Mode = mode;
         }
     }
@@ -115,6 +133,7 @@ namespace OpenVsixSignTool.Core
             {
                 var element = new XElement(TranslateToElementName(contentType.Mode));
                 element.SetAttributeValue("Extension", contentType.Extension);
+                element.SetAttributeValue("PartName", contentType.PartName);
                 element.SetAttributeValue("ContentType", contentType.ContentType);
                 root.Add(element);
             }
@@ -130,10 +149,11 @@ namespace OpenVsixSignTool.Core
         private void ProcessElement(OpcContentTypeMode mode, XElement element)
         {
             var extension = element.Attribute("Extension")?.Value;
+            var partName = element.Attribute("PartName")?.Value;
             var contentType = element.Attribute("ContentType")?.Value;
-            if (extension != null && contentType != null)
+            if (contentType != null)
             {
-                _contentTypes.Add(new OpcContentType(extension, contentType, mode));
+                _contentTypes.Add(new OpcContentType(extension, contentType, partName, mode));
             }
         }
 

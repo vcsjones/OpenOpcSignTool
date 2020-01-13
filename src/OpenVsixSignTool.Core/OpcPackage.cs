@@ -225,7 +225,7 @@ namespace OpenVsixSignTool.Core
 
         private void SaveRelationships(OpcRelationships relationships)
         {
-            if (!ContentTypes.Any(ct => ct.Extension.Equals("rels", StringComparison.OrdinalIgnoreCase)))
+            if (!ContentTypes.Any(ct => string.Equals(ct.Extension, "rels", StringComparison.OrdinalIgnoreCase)))
             {
                 ContentTypes.Add(new OpcContentType("rels", OpcKnownMimeTypes.OpenXmlRelationship, OpcContentTypeMode.Default));
             }
