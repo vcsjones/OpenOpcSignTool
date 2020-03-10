@@ -30,6 +30,12 @@ OpenVsixSignTool sign --sha1 7213125958254779abbaa5033a12fecdf2c7cdc8 --timestam
 This signs the VSIX using a certificate in the certificate store using the SHA1 thumbprint, and uses a SHA256
 file digest and SHA256 timestamp digest algorithm.
 
+```shell
+OpenVsixSignTool sign --subjectname "My Certificate" --timestamp http://timestamp.digicert.com -ta sha256 -fd sha256 myvsix.vsix
+```
+
+This signs the VSIX using a certificate in the certificate store using the subject name.
+
 For more information about usage, use `OpenVsixSignTool sign --help` for more information.
 
 ## Core Library

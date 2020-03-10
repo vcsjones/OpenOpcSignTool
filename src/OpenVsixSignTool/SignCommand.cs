@@ -28,6 +28,7 @@ namespace OpenVsixSignTool
 
         internal Task<int> SignAsync
         (
+            CommandOption subjectName,
             CommandOption sha1,
             CommandOption pfxPath,
             CommandOption password,
@@ -37,19 +38,28 @@ namespace OpenVsixSignTool
             CommandOption force,
             CommandArgument vsixPath)
         {
-            if (!(sha1.HasValue() ^ pfxPath.HasValue()))
+            if ((sha1.HasValue() ? 1 : 0) + (pfxPath.HasValue() ? 1 : 0) + (subjectName.HasValue() ? 1 : 0) != 1)
             {
-                _signCommandApplication.Out.WriteLine("Either --sha1 or --certificate must be specified, but not both.");
+                _signCommandApplication.Out.WriteLine("Either --sha1, --subjectname or --certificate must be specified, but not a combination.");
                 _signCommandApplication.ShowHelp();
                 return Task.FromResult(EXIT_CODES.INVALID_OPTIONS);
             }
             X509Certificate2 certificate;
             if (sha1.HasValue())
             {
-                certificate = GetCertificateFromCertificateStore(sha1.Value());
+                certificate = GetCertificateFromCertificateStore(X509FindType.FindByThumbprint, sha1.Value());
                 if (certificate == null)
                 {
                     _signCommandApplication.Out.WriteLine("Unable to locate certificate by thumbprint.");
+                    return Task.FromResult(EXIT_CODES.FAILED);
+                }
+            }
+            else if (subjectName.HasValue())
+            {
+                certificate = GetCertificateFromCertificateStore(X509FindType.FindBySubjectName, subjectName.Value());
+                if (certificate == null)
+                {
+                    _signCommandApplication.Out.WriteLine("Unable to locate certificate by subject name.");
                     return Task.FromResult(EXIT_CODES.FAILED);
                 }
             }
@@ -296,12 +306,12 @@ namespace OpenVsixSignTool
             }
         }
 
-        private static X509Certificate2 GetCertificateFromCertificateStore(string sha1)
+        private static X509Certificate2 GetCertificateFromCertificateStore(X509FindType findType, string value)
         {
             using (var store = new X509Store(StoreName.My, StoreLocation.LocalMachine))
             {
                 store.Open(OpenFlags.OpenExistingOnly | OpenFlags.ReadOnly);
-                var certificates = store.Certificates.Find(X509FindType.FindByThumbprint, sha1, false);
+                var certificates = store.Certificates.Find(findType, value, false);
                 if (certificates.Count > 0)
                 {
                     return certificates[0];
@@ -311,7 +321,7 @@ namespace OpenVsixSignTool
             using (var store = new X509Store(StoreName.My, StoreLocation.CurrentUser))
             {
                 store.Open(OpenFlags.OpenExistingOnly | OpenFlags.ReadOnly);
-                var certificates = store.Certificates.Find(X509FindType.FindByThumbprint, sha1, false);
+                var certificates = store.Certificates.Find(findType, value, false);
                 if (certificates.Count == 0)
                 {
                     return null;
