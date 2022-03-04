@@ -23,7 +23,7 @@ namespace OpenVsixSignTool.Core
             }
             else if (name == HashAlgorithmName.SHA1)
             {
-                XmlDSigIdentifier = OpcKnownUris.HashAlgorithms.sha256DigestUri;
+                XmlDSigIdentifier = OpcKnownUris.HashAlgorithms.sha1DigestUri;
                 Factory = SHA1.Create;
                 Oid = new Oid(KnownOids.HashAlgorithms.sha1);
             }
