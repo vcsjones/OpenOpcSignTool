@@ -42,18 +42,28 @@ namespace OpenVsixSignTool.Core
         }
 
         /// <summary>
+        /// Convert a byte array to a reverse hexadecimal string.
+        /// </summary>
+        /// <param name="byteArray">bytes to be converted.</param>
+        private static string ByteArrayToReverseString(byte[] byteArray)
+        {
+            return BitConverter.ToString(byteArray.Reverse().ToArray()).Replace("-", "");
+        }
+
+        /// <summary>
         /// Creates a signature from the enqueued parts.
         /// </summary>
         /// <param name="configuration">The configuration of properties used to create the signature.
         /// See the documented of <see cref="SignConfigurationSet"/> for more information.</param>
         public OpcSignature Sign(SignConfigurationSet configuration)
         {
-            var fileName = configuration.PublicCertificate.GetCertHashString() + ".psdsxs";
-            var (allParts, signatureFile) = SignCore(fileName);
+            var fileName = Guid.NewGuid().ToString(@"N", (IFormatProvider)null) + ".psdsxs";
+            var cerName = ByteArrayToReverseString(configuration.PublicCertificate.GetSerialNumber()) + ".cer";
+            var (allParts, signatureFile) = SignCore(fileName, cerName, configuration.PublicCertificate.GetRawCertData());
             var signingContext = new SigningContext(configuration);
-            var fileManifest = OpcSignatureManifest.Build(signingContext, allParts);
+            var (fileManifest, nodes) = OpcSignatureManifest.Build(signingContext, allParts);
             var builder = new XmlSignatureBuilder(signingContext);
-            builder.SetFileManifest(fileManifest);
+            builder.SetFileManifest(fileManifest, nodes);
             var result = builder.Build();
             PublishSignature(result, signatureFile);
             _package.Flush();
@@ -69,20 +79,38 @@ namespace OpenVsixSignTool.Core
                 {
                     //The .NET implementation of OPC used by Visual Studio does not tollerate "white space" nodes.
                     xmlWriter.Formatting = Formatting.None;
+
+                    // Create an XML declaration.
+                    XmlDeclaration xmldecl;
+                    xmldecl = document.CreateXmlDeclaration("1.0", null, null);
+                    xmldecl.Encoding = "UTF-8";
+                    xmldecl.Standalone = "yes";
+
+                    // Add the XML declaration to the document.
+                    XmlElement root = document.DocumentElement;
+                    document.InsertBefore(xmldecl, root);
+
+                    // Save document
                     document.Save(xmlWriter);
                 }
             }
         }
 
-        private (HashSet<OpcPart> partsToSign, OpcPart signaturePart) SignCore(string signatureFileName)
+        private (HashSet<OpcPart> partsToSign, OpcPart signaturePart) SignCore(string signatureFileName, string certificateFileName, byte[] certificateData)
         {
-            var originFileUri = new Uri("package:///package/services/digital-signature/origin.psdor", UriKind.Absolute);
+            var originFileUri = new Uri("package:///package/services/digital-signature/origin.psdsor", UriKind.Absolute);
+            var certificateFileUriRoot = new Uri("package:///package/services/digital-signature/certificate/", UriKind.Absolute);
             var signatureUriRoot = new Uri("package:///package/services/digital-signature/xml-signature/", UriKind.Absolute);
-            var originFileRelationship = _package.Relationships.FirstOrDefault(r => r.Type.Equals(OpcKnownUris.DigitalSignatureOrigin));
 
             OpcPart originFile;
             OpcPart signatureFile;
-            //Create the origin file and relationship to the origin file if needed.
+            OpcPart certificateFile;
+
+            // Pre-create origin part if it does not already exist.
+            // Do this before signing to allow for signing the package relationship part (because a Relationship
+            // is added from the Package to the Origin part by this call) and the Origin Relationship part in case this is
+            // a Publishing signature and the caller wants the addition of more signatures to break this signature.
+            var originFileRelationship = _package.Relationships.FirstOrDefault(r => r.Type.Equals(OpcKnownUris.DigitalSignatureOrigin));
             if (originFileRelationship != null)
             {
                 originFile = _package.GetPart(originFileRelationship.Target) ?? _package.CreatePart(originFileUri, OpcKnownMimeTypes.DigitalSignatureOrigin);
@@ -92,6 +120,9 @@ namespace OpenVsixSignTool.Core
                 originFile = _package.GetPart(originFileUri) ?? _package.CreatePart(originFileUri, OpcKnownMimeTypes.DigitalSignatureOrigin);
                 _package.Relationships.Add(new OpcRelationship(originFile.Uri, OpcKnownUris.DigitalSignatureOrigin));
             }
+
+            // ensure the origin relationship part is persisted so that any signature will include this newest relationship
+            _package.Flush();
 
             var signatureRelationship = originFile.Relationships.FirstOrDefault(r => r.Type.Equals(OpcKnownUris.DigitalSignatureSignature));
             if (signatureRelationship != null)
@@ -105,12 +136,24 @@ namespace OpenVsixSignTool.Core
                 originFile.Relationships.Add(new OpcRelationship(target, OpcKnownUris.DigitalSignatureSignature));
             }
 
+            // embed certificate
+            var certificateRelationship = _package.Relationships.FirstOrDefault(r => r.Type.Equals(OpcKnownUris.DigitalSignatureCertificate));
+            if (certificateRelationship != null)
+            {
+                certificateFile = _package.GetPart(certificateRelationship.Target) ?? _package.CreatePart(originFileUri, OpcKnownMimeTypes.DigitalSignatureCertificate);
+            }
+            else
+            {
+                var target = new Uri(certificateFileUriRoot, certificateFileName);
+                certificateFile = _package.GetPart(target) ?? _package.CreatePart(target, OpcKnownMimeTypes.DigitalSignatureCertificate);
+                certificateFile.Open().Write(certificateData, 0, certificateData.Length);
+                signatureFile.Relationships.Add(new OpcRelationship(target, OpcKnownUris.DigitalSignatureCertificate));
+            }
+
             _package.Flush();
             var allParts = new HashSet<OpcPart>(_enqueuedParts)
             {
-                originFile,
-                _package.GetPart(_package.Relationships.DocumentUri),
-                _package.GetPart(originFile.Relationships.DocumentUri)
+                _package.GetPart(_package.Relationships.DocumentUri)
             };
             return (allParts, signatureFile);
         }

@@ -3,6 +3,7 @@ using Microsoft.Extensions.CommandLineUtils;
 using OpenVsixSignTool.Core;
 using System;
 using System.IO;
+using System.IO.Packaging;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
@@ -256,9 +257,13 @@ namespace OpenVsixSignTool
                         return EXIT_CODES.FAILED;
                     }
                 }
-                _signCommandApplication.Out.WriteLine("The signing operation is complete.");
-                return EXIT_CODES.SUCCESS;
+                _signCommandApplication.Out.WriteLine("The signing operation is complete.");                
+                
             }
+            Package repack = Package.Open(vsixPath);
+            repack.Flush();
+            repack.Close();
+            return EXIT_CODES.SUCCESS;
         }
 
         private static HashAlgorithmName? AlgorithmFromInput(string value)

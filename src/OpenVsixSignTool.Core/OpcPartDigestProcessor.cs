@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Security.Cryptography;
 
 namespace OpenVsixSignTool.Core
@@ -15,6 +16,16 @@ namespace OpenVsixSignTool.Core
                     var digest = hashAlgorithm.ComputeHash(partStream);
                     return (digest, info.XmlDSigIdentifier);
                 }
+            }
+        }
+
+        public static (byte[] digest, Uri identifier) Digest(Stream partStream, HashAlgorithmName algorithmName)
+        {
+            var info = new HashAlgorithmInfo(algorithmName);
+            using (var hashAlgorithm = info.Create())
+            {
+                    var digest = hashAlgorithm.ComputeHash(partStream);
+                    return (digest, info.XmlDSigIdentifier);                
             }
         }
     }

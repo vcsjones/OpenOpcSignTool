@@ -88,7 +88,7 @@ namespace OpenVsixSignTool.Core
 
                 if (string.IsNullOrEmpty(Path.GetExtension(entry.FullName)))
                 {
-                    continue;
+                   // continue;
                 }
 
                 if (!_partTracker.TryGetValue(entry.FullName, out OpcPart part))
@@ -217,7 +217,7 @@ namespace OpenVsixSignTool.Core
                 {
                     var newXml = _contentTypes.ToXml();
                     stream.SetLength(0L);
-                    newXml.Save(stream, SaveOptions.None);
+                    newXml.Save(stream, SaveOptions.DisableFormatting);
                     _contentTypes.IsDirty = false;
                 }
             }
@@ -235,7 +235,7 @@ namespace OpenVsixSignTool.Core
             {
                 stream.SetLength(0L);
                 var newXml = relationships.ToXml();
-                newXml.Save(stream, SaveOptions.None);
+                newXml.Save(stream, SaveOptions.DisableFormatting);
             }
         }
 

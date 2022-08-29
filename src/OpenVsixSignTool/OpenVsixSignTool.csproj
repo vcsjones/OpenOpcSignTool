@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <TargetFramework>net6.0-windows</TargetFramework>
     <PackageId>OpenVsixSignTool</PackageId>
     <Copyright>Kevin Jones 2016-2018</Copyright>
     <PackAsTool>true</PackAsTool>
@@ -13,6 +13,7 @@
     <RepositoryUrl>https://github.com/vcsjones/OpenOpcSignTool</RepositoryUrl>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <IsTestProject>false</IsTestProject>
+    <UseWPF>true</UseWPF>
   </PropertyGroup>
 
   <ItemGroup>

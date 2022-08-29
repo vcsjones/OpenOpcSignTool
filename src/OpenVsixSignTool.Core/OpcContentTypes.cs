@@ -85,7 +85,7 @@ namespace OpenVsixSignTool.Core
             {
                 foreach (var @override in overrides)
                 {
-                    ProcessElement(OpcContentTypeMode.Override, @override);
+                    ProcessElementOverride(OpcContentTypeMode.Override, @override);
                 }
             }
         }
@@ -114,9 +114,23 @@ namespace OpenVsixSignTool.Core
             foreach(var contentType in _contentTypes)
             {
                 var element = new XElement(TranslateToElementName(contentType.Mode));
-                element.SetAttributeValue("Extension", contentType.Extension);
-                element.SetAttributeValue("ContentType", contentType.ContentType);
-                root.Add(element);
+                if (contentType.Mode == OpcContentTypeMode.Default)
+                {
+                    element.SetAttributeValue("Extension", contentType.Extension);
+                    element.SetAttributeValue("ContentType", contentType.ContentType);
+                    root.Add(element);
+                }                
+            }
+
+            foreach(var contentType in _contentTypes)
+            {
+                var element = new XElement(TranslateToElementName(contentType.Mode));
+                if (contentType.Mode == OpcContentTypeMode.Override)
+                {
+                    element.SetAttributeValue("PartName", contentType.Extension);
+                    element.SetAttributeValue("ContentType", contentType.ContentType);
+                    root.Add(element);
+                }                
             }
             document.Add(root);
             return document;
@@ -134,6 +148,16 @@ namespace OpenVsixSignTool.Core
             if (extension != null && contentType != null)
             {
                 _contentTypes.Add(new OpcContentType(extension, contentType, mode));
+            }
+        }
+
+        private void ProcessElementOverride(OpcContentTypeMode mode, XElement element)
+        {
+            var partName = element.Attribute("PartName")?.Value;
+            var contentType = element.Attribute("ContentType")?.Value;
+            if (partName != null && contentType != null)
+            {
+                _contentTypes.Add(new OpcContentType(partName, contentType, mode));
             }
         }
 

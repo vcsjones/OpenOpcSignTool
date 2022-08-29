@@ -122,9 +122,9 @@ namespace OpenVsixSignTool.Core
             foreach (var relationship in _relationships)
             {
                 var element = new XElement(_opcRelationshipNamespace + "Relationship");
+                element.SetAttributeValue("Type", relationship.Type);
                 element.SetAttributeValue("Target", relationship.Target.ToQualifiedPath());
                 element.SetAttributeValue("Id", relationship.Id);
-                element.SetAttributeValue("Type", relationship.Type);
                 root.Add(element);
             }
             document.Add(root);
@@ -260,8 +260,8 @@ namespace OpenVsixSignTool.Core
             }
 
 #if NETCOREAPP
-            Span<byte> data = stackalloc byte[sizeof(uint)];
-            Span<char> buffer = stackalloc char[9];
+            Span<byte> data = stackalloc byte[sizeof(uint)*2];
+            Span<char> buffer = stackalloc char[17];
             buffer[0] = 'R';
             while (true)
             {
@@ -281,8 +281,8 @@ namespace OpenVsixSignTool.Core
 #else
             using (var rng = RandomNumberGenerator.Create())
             {
-                var data = new byte[4];
-                Span<char> buffer = stackalloc char[9];
+                var data = new byte[8];
+                Span<char> buffer = stackalloc char[17];
                 buffer[0] = 'R';
                 while(true)
                 {
