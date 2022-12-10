@@ -11,6 +11,7 @@ namespace OpenVsixSignTool
                 {
                     signConfiguration.Description = "Signs a VSIX package.";
                     signConfiguration.HelpOption("-? | -h | --help");
+                    var subjectName = signConfiguration.Option("-n | --subjectname", "Specifies the name of the subject of the signing certificate.", CommandOptionType.SingleValue);
                     var sha1 = signConfiguration.Option("-s | --sha1", "A hex-encoded SHA-1 thumbprint of the certificate used to sign the executable.", CommandOptionType.SingleValue);
                     var pfxPath = signConfiguration.Option("-c | --certificate", "A path to a PFX file to perform the signature.", CommandOptionType.SingleValue);
                     var password = signConfiguration.Option("-p | --password", "The password for the PFX file.", CommandOptionType.SingleValue);
@@ -29,9 +30,9 @@ namespace OpenVsixSignTool
                     signConfiguration.OnExecute(() =>
                     {
                         var sign = new SignCommand(signConfiguration);
-                        if (sha1.HasValue() || pfxPath.HasValue() || password.HasValue() || pfxPath.HasValue())
+                        if (subjectName.HasValue() || sha1.HasValue() || pfxPath.HasValue() || password.HasValue() || pfxPath.HasValue())
                         {
-                            return sign.SignAsync(sha1, pfxPath, password, timestamp, timestampAlgorithm, fileDigest, force, file);
+                            return sign.SignAsync(subjectName, sha1, pfxPath, password, timestamp, timestampAlgorithm, fileDigest, force, file);
                         }
                         else
                         {
