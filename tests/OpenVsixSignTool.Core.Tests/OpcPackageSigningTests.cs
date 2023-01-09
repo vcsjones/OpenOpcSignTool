@@ -22,6 +22,8 @@ namespace OpenVsixSignTool.Core.Tests
         [MemberData(nameof(RsaSigningTheories))]
         public void ShouldSignFileWithRsa(string pfxPath, HashAlgorithmName fileDigestAlgorithm, string expectedAlgorithm)
         {
+            _ = expectedAlgorithm;
+
             using (var package = ShadowCopyPackage(SamplePackage, out string path, OpcPackageFileMode.ReadWrite))
             {
                 var builder = package.CreateSignatureBuilder();
@@ -42,6 +44,8 @@ namespace OpenVsixSignTool.Core.Tests
         [MemberData(nameof(EcdsaSigningTheories))]
         public void ShouldSignFileWithEcdsa(string pfxPath, HashAlgorithmName fileDigestAlgorithm, string expectedAlgorithm)
         {
+            _ = expectedAlgorithm;
+
             using (var package = ShadowCopyPackage(SamplePackage, out string path, OpcPackageFileMode.ReadWrite))
             {
                 var builder = package.CreateSignatureBuilder();

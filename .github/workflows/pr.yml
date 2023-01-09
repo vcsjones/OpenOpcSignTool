@@ -1,0 +1,25 @@
+name: Pull Request
+
+on:
+  pull_request:
+
+jobs:
+  test-windows:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v2
+      name: Checkout
+    - uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '6.0'
+    - run: dotnet test
+
+  test-linux:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+      name: Checkout
+    - uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '6.0'
+    - run: dotnet test --framework net6.0

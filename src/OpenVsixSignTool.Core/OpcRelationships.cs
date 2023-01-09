@@ -259,7 +259,7 @@ namespace OpenVsixSignTool.Core
                 return;
             }
 
-#if NETCOREAPP
+#if NET
             Span<byte> data = stackalloc byte[sizeof(uint)];
             Span<char> buffer = stackalloc char[9];
             buffer[0] = 'R';

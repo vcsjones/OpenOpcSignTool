@@ -15,7 +15,7 @@ namespace OpenVsixSignTool.Core.Timestamp
         public static TimestampNonce Generate(int nonceSize = 32)
         {
             var nonce = new byte[nonceSize];
-#if NETCOREAPP2_1
+#if NET
                 RandomNumberGenerator.Fill(nonce);
 #else
             using (var rng = RandomNumberGenerator.Create())
