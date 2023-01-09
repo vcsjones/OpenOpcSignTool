@@ -25,7 +25,7 @@ namespace OpenVsixSignTool.Core.Tests
         {
             using (var package = OpcPackage.Open(SamplePackage))
             {
-                Assert.Equal(3, package.ContentTypes.Count);
+                Assert.Equal(4, package.ContentTypes.Count);
                 var first = package.ContentTypes[0];
                 Assert.Equal("vsixmanifest", first.Extension);
                 Assert.Equal("text/xml", first.ContentType);
@@ -140,7 +140,7 @@ namespace OpenVsixSignTool.Core.Tests
             using (var package = OpcPackage.Open(SamplePackage))
             {
                 var parts = package.GetParts().ToArray();
-                Assert.Single(parts);
+                Assert.Equal(2, parts.Length);
             }
         }
 
