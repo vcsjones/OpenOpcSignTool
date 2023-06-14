@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFrameworks>net462;net6.0</TargetFrameworks>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -27,7 +27,7 @@
   </ItemGroup>
   <ItemGroup Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net6.0'))">
     <PackageReference Include="System.Security.Cryptography.Xml" Version="4.7.1" />
-    <PackageReference Include="System.Security.Cryptography.Pkcs" Version="6.0.1" />
+    <PackageReference Include="System.Security.Cryptography.Pkcs" Version="6.0.3" />
   </ItemGroup>
 
 
