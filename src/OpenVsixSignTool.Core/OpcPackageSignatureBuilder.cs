@@ -12,11 +12,20 @@ namespace OpenVsixSignTool.Core
     {
         private readonly OpcPackage _package;
         private readonly List<OpcPart> _enqueuedParts;
+        private readonly bool _ignoreOriginParts;
 
         internal OpcPackageSignatureBuilder(OpcPackage package)
         {
             _enqueuedParts = new List<OpcPart>();
             _package = package;
+            _ignoreOriginParts = false;
+        }
+
+        internal OpcPackageSignatureBuilder( OpcPackage package, bool ignoreOrigin )
+        {
+            _enqueuedParts = new List<OpcPart>();
+            _package = package;
+            _ignoreOriginParts = ignoreOrigin;
         }
 
         /// <summary>
@@ -106,12 +115,25 @@ namespace OpenVsixSignTool.Core
             }
 
             _package.Flush();
-            var allParts = new HashSet<OpcPart>(_enqueuedParts)
+            HashSet<OpcPart> allParts = new HashSet<OpcPart>( _enqueuedParts );
+
+            if ( _ignoreOriginParts )
             {
-                originFile,
-                _package.GetPart(_package.Relationships.DocumentUri),
-                _package.GetPart(originFile.Relationships.DocumentUri)
-            };
+                allParts = new HashSet<OpcPart>( _enqueuedParts )
+                {
+                    _package.GetPart(_package.Relationships.DocumentUri)
+                };
+            }
+            else
+            {
+                allParts = new HashSet<OpcPart>( _enqueuedParts )
+                {
+                    originFile,
+                    _package.GetPart(_package.Relationships.DocumentUri),
+                    _package.GetPart(originFile.Relationships.DocumentUri)
+                };
+            }
+            
             return (allParts, signatureFile);
         }
     }
