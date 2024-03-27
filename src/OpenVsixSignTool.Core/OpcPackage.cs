@@ -241,6 +241,14 @@ namespace OpenVsixSignTool.Core
         public OpcPackageSignatureBuilder CreateSignatureBuilder() => new OpcPackageSignatureBuilder(this);
 
         /// <summary>
+        /// Creates a signature builder for applying a digital signature to the package, while ignoring 
+        /// origin.psdor files
+        /// </summary>
+        /// <returns>A builder instance for configuring and applying a signature.</returns>
+        public OpcPackageSignatureBuilder CreateSignatureBuilderIgnoreOrigin() => 
+            new OpcPackageSignatureBuilder( this, ignoreOrigin: true );
+
+        /// <summary>
         /// Enumerates over all of the signatures in the package.
         /// </summary>
         /// <returns>An enumerable collection of signatures in the package.</returns>
